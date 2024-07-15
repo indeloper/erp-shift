@@ -2,40 +2,41 @@
 
 namespace App\Models\TechAcc\FuelTank;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\Logable;
-use App\Traits\DevExtremeDataSourceLoadable;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Comment;
 use App\Models\Contractors\Contractor;
 use App\Models\FileEntry;
 use App\Models\TechAcc\OurTechnic;
-use Carbon\Carbon;
+use App\Traits\DevExtremeDataSourceLoadable;
+use App\Traits\Logable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelTankFlow extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable, Logable;
+    use DevExtremeDataSourceLoadable, Logable, SoftDeletes;
 
     const STORAGE_PATH = 'storage/docs/fuel_flow/';
 
     protected $guarded = ['id'];
-    
-    public function comments()
+
+    public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function attachments()
+    public function attachments(): MorphMany
     {
         return $this->morphMany(FileEntry::class, 'documentable');
     }
 
-    public function contractor()
+    public function contractor(): BelongsTo
     {
         return $this->belongsTo(Contractor::class);
     }
 
-    public function ourTechnic()
+    public function ourTechnic(): BelongsTo
     {
         return $this->belongsTo(OurTechnic::class);
     }

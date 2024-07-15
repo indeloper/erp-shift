@@ -1,19 +1,17 @@
 <?php
 
 use App\Models\Group;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddMoreTicketNotifications extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE_IDS = [84];
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -21,7 +19,7 @@ class AddMoreTicketNotifications extends Migration
             'id' => 84,
             'group' => 10,
             'name' => 'Уведомление об обработке логистом заявки',
-            'for_everyone' => 0 // for groups
+            'for_everyone' => 0, // for groups
         ];
 
         DB::table('notification_types')->insert($new_types);
@@ -29,12 +27,10 @@ class AddMoreTicketNotifications extends Migration
         $groups = array_merge(Group::PROJECT_MANAGERS, Group::FOREMEN, [47], Group::where('department_id', 8)->get()->pluck('id')->toArray());
 
         $notification_groups = [];
-        foreach (collect($new_types)->pluck('id') as $type_id)
-        {
-            foreach ($groups as $group_id)
-            {
+        foreach (collect($new_types)->pluck('id') as $type_id) {
+            foreach ($groups as $group_id) {
                 $notification_groups[] = [
-                    'notification_id'  => $type_id,
+                    'notification_id' => $type_id,
                     'group_id' => $group_id,
                 ];
             }
@@ -47,10 +43,8 @@ class AddMoreTicketNotifications extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -59,4 +53,4 @@ class AddMoreTicketNotifications extends Migration
 
         DB::commit();
     }
-}
+};

@@ -3,19 +3,15 @@
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualReference;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AttachReferencesToManualMaterial extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -25,15 +21,15 @@ class AttachReferencesToManualMaterial extends Migration
             $references = ManualReference::where('category_id', $category->id)->get();
 
             foreach ($references as $reference) {
-                $materials = ManualMaterial::where('category_id', $category->id)->where('name', 'like', $reference->name . '%')->get();
+                $materials = ManualMaterial::where('category_id', $category->id)->where('name', 'like', $reference->name.'%')->get();
 
                 foreach ($materials as $index => $material) {
                     $material->manual_reference_id = $reference->id;
                     $material->save();
                 }
             }
-//            dump($references->count());
-//            dump($category->name . ' done!');
+            //            dump($references->count());
+            //            dump($category->name . ' done!');
         }
 
         DB::commit();
@@ -41,11 +37,9 @@ class AttachReferencesToManualMaterial extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         ManualMaterial::query()->update(['manual_reference_id' => 0]);
     }
-}
+};

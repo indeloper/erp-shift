@@ -2,44 +2,47 @@
 
 namespace App\Http\Controllers\Building\MaterialAccounting;
 
-
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\MaterialAccounting\AttachContractRequest;
 use App\Http\Requests\Building\MaterialAccounting\MaterialAccountingBaseMoveToNewRequest;
 use App\Http\Requests\Building\MaterialAccounting\MaterialAccountingBaseMoveToUsedRequest;
+use App\Http\Requests\Building\MaterialAccounting\OperationReportRequest;
 use App\Http\Requests\Building\MaterialAccounting\SplitBaseRequest;
+use App\Models\Comment;
 use App\Models\Contractors\Contractor;
-use App\Models\Manual\ManualMaterialCategory;
+use App\Models\FileEntry;
+use App\Models\Group;
 use App\Models\Manual\ManualMaterial;
+use App\Models\Manual\ManualMaterialCategory;
+use App\Models\Manual\ManualMaterialParameter;
+use App\Models\MatAcc\MaterialAccountingBase;
+use App\Models\MatAcc\MaterialAccountingMaterialAddition;
+use App\Models\MatAcc\MaterialAccountingMaterialFile;
+use App\Models\MatAcc\MaterialAccountingOperation;
+use App\Models\MatAcc\MaterialAccountingOperationFile;
+use App\Models\MatAcc\MaterialAccountingOperationMaterials;
+use App\Models\ProjectObject;
+use App\Models\Task;
+use App\Models\User;
+use App\Notifications\Task\PartialClosureOperationDeletionRequestNotice;
+use App\Notifications\Task\PartialClosureOperationEditRequestNotice;
 use App\Services\MaterialAccounting\MaterialAccountingBadMaterilas;
 use App\Services\MaterialAccounting\MaterialAccountingService;
 use App\Services\MaterialAccounting\Reports\BasesReportExport;
-use Carbon\CarbonPeriod;
-use App\Models\{Comment,
-    Group,
-    Manual\ManualMaterialParameter,
-    Manual\ManualReference,
-    Notification,
-    Task,
-    User,
-    ProjectObject,
-    FileEntry};
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\MatAcc\{
-    MaterialAccountingOperation,
-    MaterialAccountingOperationFile,
-    MaterialAccountingBase,
-    MaterialAccountingMaterialFile,
-    MaterialAccountingOperationMaterials,
-    MaterialAccountingMaterialAddition};
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Building\MaterialAccounting\OperationReportRequest;
-use Illuminate\Support\Facades\{Artisan, Auth, DB, File, Session, Storage};
-use Carbon\Carbon;
-use Log;
-
-
 use App\Services\MaterialAccounting\Reports\ObjectActionReportExport;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class MaterialAccountingController extends Controller
 {
@@ -48,7 +51,7 @@ class MaterialAccountingController extends Controller
         $operations = MaterialAccountingOperation::index()->get();
 
         $user_has_operations = MaterialAccountingOperation::where('author_id', auth()->id())
-            ->orWhereHas('responsible_users', function($resp) {
+            ->orWhereHas('responsible_users', function ($resp) {
                 return $resp->where('user_id', auth()->id());
             })->exists();
 
@@ -58,11 +61,11 @@ class MaterialAccountingController extends Controller
             'filter_params' => MaterialAccountingOperation::$filter,
             'operations' => $operations,
             'user_has_operations' => $user_has_operations,
-            'categories' => ManualMaterialCategory::whereNotIn('id', [12,14])->with('attributes')->select('id', 'name')->get(),
+            'categories' => ManualMaterialCategory::whereNotIn('id', [12, 14])->with('attributes')->select('id', 'name')->get(),
         ]);
     }
 
-    public function print_operations()
+    public function print_operations(): View
     {
         $results = json_decode(request()->results);
         $params = $results->filter_params;
@@ -85,7 +88,7 @@ class MaterialAccountingController extends Controller
             $curr_type = $dummy_operation->type_names[$results->type[$id]];
             $curr_status = $dummy_operation->status_names[$results->status[$id]];
 
-            $prepared_results->push( collect([
+            $prepared_results->push(collect([
                 'object_id' => $curr_obj->id,
                 'object_name' => $curr_obj->name,
                 'object_address' => $curr_obj->address,
@@ -100,8 +103,8 @@ class MaterialAccountingController extends Controller
         }
         $filters = [];
 
-        foreach($params as $id => $param) {
-            $filters[$param] []= $values[$id];
+        foreach ($params as $id => $param) {
+            $filters[$param][] = $values[$id];
         }
 
         return view('building.material_accounting.print_operations', [
@@ -111,14 +114,14 @@ class MaterialAccountingController extends Controller
 
     }
 
-    public function report_card()
+    public function report_card(): View
     {
         $bases = MaterialAccountingBase::index()->with('comments')->get();
 
         return view('building.material_accounting.report_card', [
             'filter_params' => MaterialAccountingBase::$filter,
             'bases' => $bases,
-            'categories' => ManualMaterialCategory::whereNotIn('id', [12,14])->with('attributes')->select('id', 'name')->get(),
+            'categories' => ManualMaterialCategory::whereNotIn('id', [12, 14])->with('attributes')->select('id', 'name')->get(),
         ]);
     }
 
@@ -156,16 +159,15 @@ class MaterialAccountingController extends Controller
         return (new BasesReportExport($this->filter_base($customRequest)->getData(), $customRequest))->export();
     }
 
-    public function closed_operation($operation_id)
+    public function closed_operation($operation_id): View
     {
         $operation = MaterialAccountingOperation::where('type', '!=', 5)->findOrFail($operation_id);
         $operation->load(['object_from', 'object_to', 'author', 'sender', 'recipient', 'materials.manual', 'images_sender', 'documents_sender', 'images_recipient', 'documents_recipient']);
 
         return view('building.material_accounting.closed_operation', [
-            'operation' => $operation
+            'operation' => $operation,
         ]);
     }
-
 
     public function filter(Request $request)
     {
@@ -201,7 +203,7 @@ class MaterialAccountingController extends Controller
                                                 $mats_id = ManualMaterial::where('manual_reference_id', $one_entity['reference_id'])->get('id')->pluck('id');
                                                 $par_q = ManualMaterialParameter::whereIn('mat_id', $mats_id)->where('attr_id', $parameter['attr_id']);
 
-                                                if (!($parameter['value']['from'] == floor($par_q->min('value'))) or !($parameter['value']['to'] == floor($par_q->max('value')))) {
+                                                if (! ($parameter['value']['from'] == floor($par_q->min('value'))) or ! ($parameter['value']['to'] == floor($par_q->max('value')))) {
                                                     $mat->whereHas('parameters', function ($mat_par) use ($parameter) {
                                                         $mat_par->where('attr_id', $parameter['attr_id'])
                                                             ->where('manual_material_parameters.value', '>=', $parameter['value']['from'])
@@ -225,23 +227,22 @@ class MaterialAccountingController extends Controller
                             });
                         }
                     });
-                }
-                elseif ($key == 1) {
+                } elseif ($key == 1) {
                     $operations->with('materials.manual')
-                        ->whereHas('materials', function($q) use ($item) {
+                        ->whereHas('materials', function ($q) use ($item) {
                             $q->whereIn('manual_material_id', $item);
                         });
-                } elseif($key == 0) {
+                } elseif ($key == 0) {
 
                     $request->session()->put('object_id', $item);
 
-                    $operations->where(function($q) use($manual_search, $key, $item) {
+                    $operations->where(function ($q) use ($item) {
                         $q->whereIn('object_id_to', $item)->orWhereIn('object_id_from', $item);
                     });
                 } else {
                     $operations->whereIn($manual_search[$key]['db_name'], $item);
                 }
-            };
+            }
         }
 
         if ($request->date) {
@@ -250,7 +251,7 @@ class MaterialAccountingController extends Controller
                     $query->whereDate('created_at', Carbon::parse($request->date));
                 });
             } else {
-                $operations = $operations->where(function ($query) use ($request) {
+                $operations = $operations->where(function ($query) {
                     $query->whereDate('created_at', Carbon::today()->format('d.m.Y'));
                 });
             }
@@ -260,24 +261,24 @@ class MaterialAccountingController extends Controller
             foreach ($searches as $search) {
                 $operations = $operations->with('materials.manual', 'object_from', 'object_to', 'author', 'responsible_users.user')
                     ->where(function (Builder $firstQuery) use ($search) {
-                        $firstQuery->orWhereHas('materials.manual', function(Builder $q) use ($search) {
-                            $q->where('manual_materials.name', 'like',  "%{$search}%");
+                        $firstQuery->orWhereHas('materials.manual', function (Builder $q) use ($search) {
+                            $q->where('manual_materials.name', 'like', "%{$search}%");
                         })->orWhereHas('object_from', function (Builder $q) use ($search) {
                             $q->where(function (Builder $query) use ($search) {
-                                $query->where('name', 'like',  "%{$search}%")
-                                    ->orWhere('address', 'like',  "%{$search}%")
-                                    ->orWhere('short_name', 'like',  "%{$search}%");
+                                $query->where('name', 'like', "%{$search}%")
+                                    ->orWhere('address', 'like', "%{$search}%")
+                                    ->orWhere('short_name', 'like', "%{$search}%");
                             });
                         })->orWhereHas('object_to', function (Builder $q) use ($search) {
                             $q->where(function (Builder $query) use ($search) {
-                                $query->where('name', 'like',  "%{$search}%")
-                                    ->orWhere('address', 'like',  "%{$search}%")
-                                    ->orWhere('short_name', 'like',  "%{$search}%");
+                                $query->where('name', 'like', "%{$search}%")
+                                    ->orWhere('address', 'like', "%{$search}%")
+                                    ->orWhere('short_name', 'like', "%{$search}%");
                             });
                         })->orWhereHas('author', function (Builder $q) use ($search) {
-                            $q->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like',  "%{$search}%");
+                            $q->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', "%{$search}%");
                         })->orWhereHas('responsible_users.user', function (Builder $q) use ($search) {
-                            $q->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like',  "%{$search}%");
+                            $q->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', "%{$search}%");
                         })->orWhere(function (Builder $q) use ($search) {
                             $string = mb_strtolower($search);
                             $result = array_filter(MaterialAccountingOperation::getModel()->status_names, function ($item) use ($string) {
@@ -305,25 +306,25 @@ class MaterialAccountingController extends Controller
         return response()->json(['result' => $operations]);
     }
 
-    public function get_search_values(Request $request)
+    public function get_search_values(Request $request): Response
     {
         $response = (new MaterialAccountingService())->getSearchValues($request->search);
 
         return response([
-            'data' => $response
+            'data' => $response,
         ]);
     }
 
-    public function operations_get_search_values(Request $request)
+    public function operations_get_search_values(Request $request): Response
     {
         $response = (new MaterialAccountingService())->getSearchValues($request->search_untrimmed, true);
+
         return response([
-            'data' => $response
+            'data' => $response,
         ]);
     }
 
-
-    public function filter_base(Request $request)
+    public function filter_base(Request $request): JsonResponse
     {
         $bases = MaterialAccountingBase::with(['object', 'material.convertation_parameters', 'comments'])->where('count', '>', 0);
         $manual_search = MaterialAccountingBase::$filter;
@@ -352,7 +353,7 @@ class MaterialAccountingController extends Controller
                                             $mats_id = ManualMaterial::where('manual_reference_id', $one_entity['reference_id'])->get('id')->pluck('id');
                                             $par_q = ManualMaterialParameter::whereIn('mat_id', $mats_id)->where('attr_id', $parameter['attr_id']);
 
-                                            if (!($parameter['value']['from'] == floor($par_q->min('value'))) or !($parameter['value']['to'] == floor($par_q->max('value')))) {
+                                            if (! ($parameter['value']['from'] == floor($par_q->min('value'))) or ! ($parameter['value']['to'] == floor($par_q->max('value')))) {
                                                 $mat->whereHas('parameters', function ($mat_par) use ($parameter) {
                                                     $mat_par->where('attr_id', $parameter['attr_id'])
                                                         ->where('manual_material_parameters.value', '>=', $parameter['value']['from'])
@@ -375,9 +376,8 @@ class MaterialAccountingController extends Controller
                             });
                         }
                     });
-                }
-                else {
-                    $bases->where(function ($q) use ($request, $key, $item, $manual_search) {
+                } else {
+                    $bases->where(function ($q) use ($key, $item, $manual_search) {
                         if ($key == 0) {
                             session()->put('object_id', $item);
                         }
@@ -393,9 +393,8 @@ class MaterialAccountingController extends Controller
                 $bases = $bases->where(function ($query) use ($request) {
                     $query->where('date', Carbon::parse($request->date)->format('d.m.Y'));
                 });
-            }
-            else {
-                $bases = $bases->where(function ($query) use ($request) {
+            } else {
+                $bases = $bases->where(function ($query) {
                     $query->where('date', Carbon::today()->format('d.m.Y'));
                 });
             }
@@ -409,7 +408,6 @@ class MaterialAccountingController extends Controller
             ->get();
 
         $bases = $bases->get();
-
 
         if (Carbon::parse($request->date)->between(Carbon::today()->addDay(1), Carbon::today()->addYears(100))) {
 
@@ -499,17 +497,16 @@ class MaterialAccountingController extends Controller
                     $bases = $bases->where(function ($query) use ($request) {
                         $query->where('date', Carbon::parse($request->date)->format('d.m.Y'));
                     });
-                }
-                else {
+                } else {
                     $bases = $bases->where('date', Carbon::today()->format('d.m.Y'));
                 }
             }
         }
 
-        if (isset($new_options[0])){
+        if (isset($new_options[0])) {
             $bases = $bases->whereIn('object_id', $new_options[0]);
         }
-        if (isset($new_options[1])){
+        if (isset($new_options[1])) {
             $bases = $bases->whereIn('manual_material_id', $new_options[1]);
         }
         $bases->load('material.parameters');
@@ -517,22 +514,22 @@ class MaterialAccountingController extends Controller
         if (count($request->filter) == 0) {
             $bases = $bases->take(50);
         }
+
         return response()->json(['result' => $bases->each->append('comment_name')]);
     }
 
-
-    public function upload(Request $request, $operation_id)
+    public function upload(Request $request, $operation_id): JsonResponse
     {
         if ($request->file) {
             $file = new MaterialAccountingOperationFile();
 
             $mime = $request->file->getClientOriginalExtension();
-            $file_name =  'operation_' . $operation_id . '-'. uniqid() .'-file-' . uniqid() . '.' . $mime;
+            $file_name = 'operation_'.$operation_id.'-'.uniqid().'-file-'.uniqid().'.'.$mime;
 
             Storage::disk('mat_acc_operation_files')->put($file_name, File::get($request->file));
 
             FileEntry::create([
-                'filename' => 'storage/docs/mat_acc_operation_files/' . $file_name,
+                'filename' => 'storage/docs/mat_acc_operation_files/'.$file_name,
                 'size' => $request->file->getSize(),
                 'mime' => $request->file->getClientMimeType(),
                 'original_filename' => $request->file->getClientOriginalName(),
@@ -547,27 +544,27 @@ class MaterialAccountingController extends Controller
 
             if ($mime == 'png' or $mime == 'jpg' or $mime == 'jpeg') {
                 $file->type = 2;
-            }
-            else {
+            } else {
                 $file->type = 1;
             }
 
             $file->save();
         }
+
         return response()->json($file);
     }
 
-    public function part_upload(Request $request, $operation_id)
+    public function part_upload(Request $request, $operation_id): JsonResponse
     {
         if ($request->file) {
             $file = new MaterialAccountingMaterialFile();
             $mime = $request->file->getClientOriginalExtension();
-            $file_name =  'operation_' . $operation_id . '-'. uniqid() .'-file-' . uniqid() . '.' . $mime;
+            $file_name = 'operation_'.$operation_id.'-'.uniqid().'-file-'.uniqid().'.'.$mime;
 
             Storage::disk('mat_acc_operation_files')->put($file_name, File::get($request->file));
 
             FileEntry::create([
-                'filename' => 'storage/docs/mat_acc_operation_files/' . $file_name,
+                'filename' => 'storage/docs/mat_acc_operation_files/'.$file_name,
                 'size' => $request->file->getSize(),
                 'mime' => $request->file->getClientMimeType(),
                 'original_filename' => $request->file->getClientOriginalName(),
@@ -593,7 +590,7 @@ class MaterialAccountingController extends Controller
         return response()->json($file);
     }
 
-    public function delete_file(Request $request, $operation_id)
+    public function delete_file(Request $request, $operation_id): JsonResponse
     {
         MaterialAccountingOperationFile::where('operation_id', $operation_id)->where('file_name', $request->file_name)->delete();
         MaterialAccountingMaterialFile::where('operation_id', $operation_id)->where('file_name', $request->file_name)->delete();
@@ -634,7 +631,7 @@ class MaterialAccountingController extends Controller
 
             $operation = $material->operation;
 
-//            $material->unit = $request->material_unit;
+            //            $material->unit = $request->material_unit;
             $material->save();
 
             $resultDelete = $material->deletePart();
@@ -655,7 +652,7 @@ class MaterialAccountingController extends Controller
                     'material_date' => Carbon::parse($material->fact_date),
                     'used' => $request->used ?? $material->used,
                     'comments' => $base_comments,
-                ]]
+                ]],
             ]);
 
             $resultCreate = $operation->partSend($fakeRequest);
@@ -669,7 +666,7 @@ class MaterialAccountingController extends Controller
                 ->update([
                     'description' => $part_description,
                     'user_id' => Auth::user()->id,
-                    'operation_material_id' => $resultCreate['operation_material_id']
+                    'operation_material_id' => $resultCreate['operation_material_id'],
                 ]);
 
             MaterialAccountingMaterialFile::where('operation_material_id', $mat_id)
@@ -690,10 +687,10 @@ class MaterialAccountingController extends Controller
 
         DB::commit();
 
-        return  $task_id ? redirect(route('tasks::index')) : ['status' => 'success'];
+        return $task_id ? redirect(route('tasks::index')) : ['status' => 'success'];
     }
 
-    function store_update_task(Request $request)
+    public function store_update_task(Request $request)
     {
         $material = MaterialAccountingOperationMaterials::find($request->material_id);
         $operation = $material->operation;
@@ -711,8 +708,8 @@ class MaterialAccountingController extends Controller
             $material_unit = $request->material_unit;
             $material_count = $request->material_count;
         } else {
-            if (!isset($unit_parameter->value) or $unit_parameter->value <= 0) {
-                $message = 'Невозможно преобразовать ' . $manual_material->name . ' из "' . $unit . '" в основную единицу измерения данной категории "' . $manual_material->category_unit . '".';
+            if (! isset($unit_parameter->value) or $unit_parameter->value <= 0) {
+                $message = 'Невозможно преобразовать '.$manual_material->name.' из "'.$unit.'" в основную единицу измерения данной категории "'.$manual_material->category_unit.'".';
 
                 return response()->json(['message' => $message]);
             }
@@ -732,8 +729,8 @@ class MaterialAccountingController extends Controller
 
         $updation_task = Task::create([
             'name' => 'Запрос на редактирование операции частичного закрытия',
-            'description' => 'Пользователь ' . Auth::user()->full_name .
-                ' отправил заявку на редактирование операции частичного закрытия с комментарием: "' . $request->description . '"',
+            'description' => 'Пользователь '.Auth::user()->full_name.
+                ' отправил заявку на редактирование операции частичного закрытия с комментарием: "'.$request->description.'"',
             'responsible_user_id' => $operation->author_id,
             'user_id' => Auth::id(),
             'target_id' => $material->id,
@@ -742,18 +739,18 @@ class MaterialAccountingController extends Controller
             'final_note' => $request->description,
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $updation_task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $updation_task->name . '» ',
-            'task_id' => $updation_task->id,
-            'user_id' => $updation_task->responsible_user_id,
-            'contractor_id' => null,
-            'project_id' => null,
-            'object_id' => null,
-            'type' => 9
-        ]);
+        PartialClosureOperationEditRequestNotice::send(
+            $updation_task->responsible_user_id,
+            [
+                'name' => 'Новая задача «'.$updation_task->name.'» ',
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $updation_task->task_route(),
+                'task_id' => $updation_task->id,
+                'contractor_id' => null,
+                'project_id' => null,
+                'object_id' => null,
+            ]
+        );
 
         return ['status' => 'success'];
     }
@@ -784,7 +781,7 @@ class MaterialAccountingController extends Controller
         $operation->update_fact();
         DB::commit();
 
-        return  $task_id ? redirect(route('tasks::index')) : $result;
+        return $task_id ? redirect(route('tasks::index')) : $result;
     }
 
     public function store_deletion_task(Request $request)
@@ -794,33 +791,32 @@ class MaterialAccountingController extends Controller
 
         $deletion_task = Task::create([
             'name' => 'Запрос на удаление операции частичного закрытия',
-            'description' => 'Пользователь ' . Auth::user()->full_name .
+            'description' => 'Пользователь '.Auth::user()->full_name.
                 ' отправил заявку на удаление операции частичного закрытия',
             'responsible_user_id' => $operation->author_id,
             'user_id' => Auth::id(),
             'target_id' => $mat->id,
             'expired_at' => $this->addHours(48),
-            'status' => 22
+            'status' => 22,
         ]);
 
-        $notification = new Notification();
-        $notification->save();
-        $notification->additional_info = ' Ссылка на задачу: ' . $deletion_task->task_route();
-        $notification->update([
-            'name' => 'Новая задача «' . $deletion_task->name . '» ',
-            'task_id' => $deletion_task->id,
-            'user_id' => $deletion_task->responsible_user_id,
-            'contractor_id' => null,
-            'project_id' => null,
-            'object_id' => null,
-            'type' => 10
-        ]);
+        PartialClosureOperationDeletionRequestNotice::send(
+            $deletion_task->responsible_user_id,
+            [
+                'name' => 'Новая задача «'.$deletion_task->name.'» ',
+                'additional_info' => ' Ссылка на задачу: ',
+                'url' => $deletion_task->task_route(),
+                'task_id' => $deletion_task->id,
+                'contractor_id' => null,
+                'project_id' => null,
+                'object_id' => null,
+            ]
+        );
 
         return \GuzzleHttp\json_encode($operation->url);
-
     }
 
-    public function update_part_task($task_id)
+    public function update_part_task($task_id): View
     {
         $task = Task::find($task_id);
 
@@ -829,27 +825,28 @@ class MaterialAccountingController extends Controller
             abort(404);
         }
         $operation_link = $task->target->operation->url;
+
         return view('tasks.update_part_material', [
             'task' => $task,
             'operation_url' => $operation_link,
         ]);
     }
 
-    public function delete_part_task($task_id)
+    public function delete_part_task($task_id): View
     {
         $task = Task::find($task_id);
 
         return view('tasks.remove_task', [
-            'task' => $task
+            'task' => $task,
         ]);
     }
 
-    public function certificatelessTask($task_id)
+    public function certificatelessTask($task_id): View
     {
         $task = Task::whereStatus(43)->findOrFail($task_id)->load('taskable');
 
         return view('tasks.certificateless_task', [
-            'task' => $task
+            'task' => $task,
         ]);
     }
 
@@ -859,26 +856,26 @@ class MaterialAccountingController extends Controller
 
         if ($request->q) {
             $objects = $objects->where(function ($objects) use ($request) {
-                $objects->where('name', 'like', '%' . $request->q . '%')
-                    ->orWhere('address', 'like', '%' . $request->q . '%')
-                    ->orWhere('short_name', 'like', '%' . $request->q . '%');
+                $objects->where('name', 'like', '%'.$request->q.'%')
+                    ->orWhere('address', 'like', '%'.$request->q.'%')
+                    ->orWhere('short_name', 'like', '%'.$request->q.'%');
             });
         }
 
         $objects = $objects->take(10)->get();
 
         $objects_json = [];
-        if ($request->object_id and !$objects->where('id', $request->object_id)->first()) {
+        if ($request->object_id and ! $objects->where('id', $request->object_id)->first()) {
             $one_more = ProjectObject::find($request->object_id);
             if ($one_more) {
-                $objects_json[] = ['code' => $one_more->id . '', 'label' => $one_more->short_name ?? ($one_more->name . '. ' . $one_more->address)];
+                $objects_json[] = ['code' => $one_more->id.'', 'label' => $one_more->short_name ?? ($one_more->name.'. '.$one_more->address)];
             }
         }
 
-        if ($request->one_more_object_id and !$objects->where('id', $request->one_more_object_id)->first()) {
+        if ($request->one_more_object_id and ! $objects->where('id', $request->one_more_object_id)->first()) {
             $one_more = ProjectObject::find($request->one_more_object_id);
             if ($one_more) {
-                $objects_json[] = ['code' => $one_more->id . '', 'label' => $one_more->short_name ?? ($one_more->name . '. ' . $one_more->address)];
+                $objects_json[] = ['code' => $one_more->id.'', 'label' => $one_more->short_name ?? ($one_more->name.'. '.$one_more->address)];
             }
         }
 
@@ -888,94 +885,93 @@ class MaterialAccountingController extends Controller
             // It won't affect other requests with search parameters because this parameter added one time from front-end
             $object = ProjectObject::find($request->get('selected'));
             if ($object) {
-                $objects_json[] = ['code' => $object->id . '', 'label' => $object->short_name ?? ($object->name . '. ' . $object->address),];
+                $objects_json[] = ['code' => $object->id.'', 'label' => $object->short_name ?? ($object->name.'. '.$object->address)];
             }
         }
 
         foreach ($objects as $object) {
-            $objects_json[] = ['code' => $object->id . '', 'label' => $object->short_name ?? ($object->name . '. ' . $object->address)];
+            $objects_json[] = ['code' => $object->id.'', 'label' => $object->short_name ?? ($object->name.'. '.$object->address)];
         }
 
         return response()->json($objects_json);
     }
 
-    public function get_suppliers(Request $request)
+    public function get_suppliers(Request $request): JsonResponse
     {
         $suppliers = Contractor::byType(Contractor::SUPPLIER);
 
         if ($request->q) {
-            $suppliers = $suppliers->where('full_name', 'like', '%' . trim($request->q) . '%')
-                ->orWhere('short_name', 'like', '%' . trim($request->q) . '%')
-                ->orWhere('inn', 'like', '%' . trim($request->q) . '%')
-                ->orWhere('kpp', 'like', '%' . trim($request->q) . '%');
+            $suppliers = $suppliers->where('full_name', 'like', '%'.trim($request->q).'%')
+                ->orWhere('short_name', 'like', '%'.trim($request->q).'%')
+                ->orWhere('inn', 'like', '%'.trim($request->q).'%')
+                ->orWhere('kpp', 'like', '%'.trim($request->q).'%');
         }
 
         $suppliers = $suppliers->where('in_archive', 0)->take(10)->get();
         $suppliers_json = [];
 
-        if ($request->supplier_id and !$suppliers->where('id', $request->supplier_id)->first()) {
+        if ($request->supplier_id and ! $suppliers->where('id', $request->supplier_id)->first()) {
             $one_more = Contractor::find($request->supplier_id);
-            $suppliers_json[] = ['code' => $one_more->id . '', 'label' => $one_more->short_name];
+            $suppliers_json[] = ['code' => $one_more->id.'', 'label' => $one_more->short_name];
         }
 
         if ($request->ttn == 'true') {
             foreach ($suppliers as $supplier) {
-                $suppliers_json[] = ['code' => $supplier->id . '', 'label' => $supplier->short_name . '. ' . $supplier->legal_address];
+                $suppliers_json[] = ['code' => $supplier->id.'', 'label' => $supplier->short_name.'. '.$supplier->legal_address];
             }
         } else {
             foreach ($suppliers as $supplier) {
-                $suppliers_json[] = ['code' => $supplier->id . '', 'label' => $supplier->short_name];
+                $suppliers_json[] = ['code' => $supplier->id.'', 'label' => $supplier->short_name];
             }
         }
 
         return response()->json($suppliers_json);
     }
 
-    public function get_users(Request $request)
+    public function get_users(Request $request): JsonResponse
     {
         $users = User::getAllUsers()->where('status', 1);
         $users_json = [];
 
         if ($request->q) {
             $groups = Group::where('name', $request->q)
-                ->orWhere('name', 'like', '%' . $request->q . '%')
+                ->orWhere('name', 'like', '%'.$request->q.'%')
                 ->pluck('id')
                 ->toArray();
 
-            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $request->q . '%');
+            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%'.$request->q.'%');
 
-            if (!empty($groups)) {
+            if (! empty($groups)) {
                 $users = $users->orWhereIn('group_id', [$groups]);
             }
         }
 
-        if (!$request->q || strlen($request->q) <= 2) {
-            $frontUsers = $users->where('users.id', '!=', 1)->whereIn('users.group_id', [8,23,31,43,44,45,19,27])->take(10)->get();
+        if (! $request->q || strlen($request->q) <= 2) {
+            $frontUsers = $users->where('users.id', '!=', 1)->whereIn('users.group_id', [8, 23, 31, 43, 44, 45, 19, 27])->take(10)->get();
             $otherUsers = $users->where('users.id', '!=', 1)->take(10)->get();
-            $users = collect($frontUsers, $otherUsers)->unique()->slice(0,10);
-        }
-        else {
+            $users = collect($frontUsers, $otherUsers)->unique()->slice(0, 10);
+        } else {
             $users = $users->where('users.id', '!=', 1)->take(10)->get();
         }
 
-        if ($request->responsible_user_id and !$users->where('id', $request->responsible_user_id)->first()) {
+        if ($request->responsible_user_id and ! $users->where('id', $request->responsible_user_id)->first()) {
             $one_more = User::find($request->responsible_user_id);
             if ($one_more) {
-                $users_json[] = ['code' => $one_more->id . '', 'label' => $one_more->full_name];
+                $users_json[] = ['code' => $one_more->id.'', 'label' => $one_more->full_name];
             }
         }
 
-        if ($request->from_responsible_user and !$users->where('id', $request->from_responsible_user)->first()) {
+        if ($request->from_responsible_user and ! $users->where('id', $request->from_responsible_user)->first()) {
             $one_more = User::find($request->from_responsible_user);
             if ($one_more) {
-                $users_json[] = ['code' => $one_more->id . '', 'label' => $one_more->full_name];
+                $users_json[] = ['code' => $one_more->id.'', 'label' => $one_more->full_name];
             }
         }
 
-        if ($request->to_responsible_user and !$users->where('id', $request->to_responsible_user)->first()) {
+        if ($request->to_responsible_user and ! $users->where('id', $request->to_responsible_user)->first()) {
             $one_more = User::find($request->to_responsible_user);
             if ($one_more) {
-                $users_json[] = ['code' => $one_more->id . '', 'label' => $one_more->full_name];
+                $users_json[] = ['code' => $one_more->id.'', 'label' => $one_more->full_name];
             }
         }
 
@@ -983,12 +979,12 @@ class MaterialAccountingController extends Controller
             $users = [];
             $one_more = User::find($request->author_id);
             if ($one_more) {
-                $users_json = [['code' => $one_more->id . '', 'label' => $one_more->full_name]];
+                $users_json = [['code' => $one_more->id.'', 'label' => $one_more->full_name]];
             }
         }
         foreach ($users as $user) {
             if ($user->id != 1) {
-                $users_json[] = ['code' => $user->id . '', 'label' => $user->full_name];
+                $users_json[] = ['code' => $user->id.'', 'label' => $user->full_name];
             }
         }
 
@@ -997,20 +993,22 @@ class MaterialAccountingController extends Controller
 
     public function get_RPs(Request $request)
     {
-        if ($this->weNeedToGetResponsibleRP($request)) return $this->findResponsibleProjectManager($request);
+        if ($this->weNeedToGetResponsibleRP($request)) {
+            return $this->findResponsibleProjectManager($request);
+        }
 
         $users = User::getAllUsers()->whereIn('users.group_id', [8, 19, 27]);
         $users_json = [];
 
         if ($request->q) {
-            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%' . $request->q . '%');
+            $users = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%'.$request->q.'%');
         }
 
         $users = $users->get();
 
         foreach ($users as $user) {
             if ($user->id != 1) {
-                $users_json[] = ['code' => $user->id . '', 'label' => $user->full_name];
+                $users_json[] = ['code' => $user->id.'', 'label' => $user->full_name];
             }
         }
 
@@ -1022,7 +1020,7 @@ class MaterialAccountingController extends Controller
         $statuses = (new MaterialAccountingOperation())->status_names;
 
         if ($request->q) {
-            $statuses = array_filter($statuses, function($stat) use($request) {
+            $statuses = array_filter($statuses, function ($stat) use ($request) {
                 return stripos($stat, $request->q) !== false;
             });
         }
@@ -1033,7 +1031,7 @@ class MaterialAccountingController extends Controller
 
         $statuses_json = [];
         foreach ($statuses as $id => $stat) {
-            $statuses_json[] = ['code' => $id . '', 'label' => $stat];
+            $statuses_json[] = ['code' => $id.'', 'label' => $stat];
         }
 
         return response()->json($statuses_json);
@@ -1044,7 +1042,7 @@ class MaterialAccountingController extends Controller
         $types = (new MaterialAccountingOperation())->type_names;
 
         if ($request->q) {
-            $types = array_filter($types, function($type) use($request) {
+            $types = array_filter($types, function ($type) use ($request) {
                 return stripos($type, $request->q) !== false;
             });
         }
@@ -1055,13 +1053,13 @@ class MaterialAccountingController extends Controller
 
         $types_json = [];
         foreach ($types as $id => $type) {
-            $types_json[] = ['code' => $id . '', 'label' => $type];
+            $types_json[] = ['code' => $id.'', 'label' => $type];
         }
 
         return response()->json($types_json);
     }
 
-    public function get_materials(Request $request)
+    public function get_materials(Request $request): JsonResponse
     {
         $units = array_flip(MaterialAccountingOperationMaterials::getModel()->units_name);
         $materials = ManualMaterial::with('category');
@@ -1072,7 +1070,7 @@ class MaterialAccountingController extends Controller
 
         if ($request->q) {
             $materials = $materials->where(function ($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->q . '%');
+                $query->where('name', 'like', '%'.$request->q.'%');
             });
         }
 
@@ -1094,7 +1092,7 @@ class MaterialAccountingController extends Controller
 
             if ($request->q) {
                 $bases = $bases->whereHas('material', function ($query) use ($request) {
-                    $query->where('name', 'like', '%' . $request->q . '%');
+                    $query->where('name', 'like', '%'.$request->q.'%');
                 });
             }
 
@@ -1107,7 +1105,7 @@ class MaterialAccountingController extends Controller
                     'base_id' => $material->id,
                     'label' => $material->comment_name,
                     'used' => $material->used,
-                    'unit' => $units[$material->material->category->unit_show ?? $material->material->category_unit]
+                    'unit' => $units[$material->material->category->unit_show ?? $material->material->category_unit],
                 ];
             }
 
@@ -1128,12 +1126,12 @@ class MaterialAccountingController extends Controller
                         'code' => $material->material->id,
                         'label' => $material->comment_name,
                         'used' => $material->used,
-                        'unit' => $units[$material->material->category->unit_show ?? $material->material->category_unit]
+                        'unit' => $units[$material->material->category->unit_show ?? $material->material->category_unit],
                     ];
                 }
             }
 
-            if (!$request->with_etc) {
+            if (! $request->with_etc) {
                 return response()->json($materials_json);
             }
         }
@@ -1142,7 +1140,7 @@ class MaterialAccountingController extends Controller
 
         if ($request->q) {
             $materials = $materials->where(function ($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->q . '%');
+                $query->where('name', 'like', '%'.$request->q.'%');
             });
         }
 
@@ -1150,9 +1148,9 @@ class MaterialAccountingController extends Controller
         foreach ($materials as $material) {
             $materials_json[] = [
                 'id' => $material->id,
-                'code' => $material->id . '',
+                'code' => $material->id.'',
                 'label' => $material->name,
-                'unit' => $units[$material->category->unit_show ?? $material->category->category_unit]
+                'unit' => $units[$material->category->unit_show ?? $material->category->category_unit],
             ];
         }
 
@@ -1165,7 +1163,7 @@ class MaterialAccountingController extends Controller
                     'code' => $material->material->id,
                     'label' => $material->comment_name,
                     'used' => $material->used,
-                    'unit' => $units[$material->material->category->unit_show ?? $material->material->category_unit]
+                    'unit' => $units[$material->material->category->unit_show ?? $material->material->category_unit],
                 ];
             }
         }
@@ -1175,9 +1173,9 @@ class MaterialAccountingController extends Controller
             foreach ($mats as $material) {
                 $materials_json[] = [
                     'id' => $material->id,
-                    'code' => $material->id . '',
+                    'code' => $material->id.'',
                     'label' => $material->name,
-                    'unit' => $units[$material->category->unit_show ?? $material->category->category_unit]
+                    'unit' => $units[$material->category->unit_show ?? $material->category->category_unit],
                 ];
             }
         }
@@ -1185,7 +1183,7 @@ class MaterialAccountingController extends Controller
         return response()->json($materials_json);
     }
 
-    public function getMaterialCategoryDescription(Request $request)
+    public function getMaterialCategoryDescription(Request $request): JsonResponse
     {
         $material = ManualMaterial::where('id', $request->id)
             ->with('category.documents')
@@ -1194,7 +1192,7 @@ class MaterialAccountingController extends Controller
         return response()->json(['status' => 'success', 'message' => $material->category->description ?? 'Нет описания', 'documents' => $material->category->documents]);
     }
 
-    public function get_bases(Request $request)
+    public function get_bases(Request $request): JsonResponse
     {
         $bases = MaterialAccountingBase::with('object', 'material')->where('count', '>', 0);
 
@@ -1207,14 +1205,14 @@ class MaterialAccountingController extends Controller
         return response()->json(['result' => $bases->get()]);
     }
 
-    public function get_base_comments(Request $request)
+    public function get_base_comments(Request $request): Response
     {
         $base = MaterialAccountingBase::findOrFail($request->base_id);
 
         return response(['comments' => $base->comments]);
     }
 
-    public function check_problem($operation_id)
+    public function check_problem($operation_id): JsonResponse
     {
         $operation = MaterialAccountingOperation::findOrFail($operation_id);
         $operation->load(['materials.manual']);
@@ -1252,8 +1250,8 @@ class MaterialAccountingController extends Controller
                         $count = $count * $convertParam;
                     }
                 }
-            if (round($count, 3) > round($base->count,3) or !$base->count) {
-                $text = 'Невозможно использовать ' . $mat->name . ($material->used ? ' Б/У': '') . '. Кол-во материала на объекте ' . $date->format('d.m.Y') . ': ' . (preg_replace('/\.\d{4}\K.+/', '', $base->count) ?: 0) . ' ' . $base->unit . '. ';
+                if (round($count, 3) > round($base->count, 3) or ! $base->count) {
+                    $text = 'Невозможно использовать '.$mat->name.($material->used ? ' Б/У' : '').'. Кол-во материала на объекте '.$date->format('d.m.Y').': '.(preg_replace('/\.\d{4}\K.+/', '', $base->count) ?: 0).' '.$base->unit.'. ';
 
                     $message[] = $text;
                 }
@@ -1267,14 +1265,14 @@ class MaterialAccountingController extends Controller
         return response()->json(['result' => $message]);
     }
 
-    public function suggestSolution(Request $request)
+    public function suggestSolution(Request $request): Response
     {
         $period = CarbonPeriod::create($request->planned_date_to, Carbon::today()->endOfDay());
 
         $materials_solutions = [
             'transform' => false,
             'failure' => false,
-            ];
+        ];
 
         foreach ($request->materials as $material_data) {
             $given_base_mat = null;
@@ -1288,7 +1286,6 @@ class MaterialAccountingController extends Controller
             $given_used = $material_data['used'] ? 1 : 0;
             $human_unit = (new MaterialAccountingOperation())->units_name[$material_data['material_unit']];
 
-
             $same_comments_without_date_used = MaterialAccountingBase::where([
                 'manual_material_id' => $given_base_mat->manual_material_id ?? $given_manual_mat->id,
                 'object_id' => $given_base_mat->object_id ?? $request->object_id,
@@ -1296,7 +1293,7 @@ class MaterialAccountingController extends Controller
 
             if ($given_base_mat && $given_base_mat->comments) {
                 foreach ($given_base_mat->comments as $comment) {
-                    $same_comments_without_date_used->whereHas('comments', function($com_q) use ($comment) {
+                    $same_comments_without_date_used->whereHas('comments', function ($com_q) use ($comment) {
                         $com_q->where('comment', $comment->comment);
                     });
                 }
@@ -1311,15 +1308,16 @@ class MaterialAccountingController extends Controller
                 if ($base_materials->count()) {
                     $base = $base_materials->where('used', $given_used)->first();
                     $alt_base = $base_materials->where('used', ! $given_used)->first();
-                } elseif ($base_materials->where('used', !$given_used)->count()) {
+                } elseif ($base_materials->where('used', ! $given_used)->count()) {
                     $base = $base_materials->where('used', ! $given_used)->first();
                     $alt_base = $base_materials->where('used', $given_used)->first();
                 } else {
                     $materials_solutions['failure'] = true;
                     $materials_solutions['solutions'][0] = [
                         'status' => 'failure',
-                        'message' => "На объекте на {$date} отсутствует {$given_manual_mat->name}"
+                        'message' => "На объекте на {$date} отсутствует {$given_manual_mat->name}",
                     ];
+
                     continue;
                 }
                 $base_unit = $base->unit ?? $human_unit;
@@ -1333,7 +1331,7 @@ class MaterialAccountingController extends Controller
                 $alt_base_unit = $alt_base->unit ?? $human_unit;
                 $alt_base_count = $alt_base->count ?? 0;
                 if ($human_unit !== $alt_base_unit) {
-                   $alt_base_count = ($given_manual_mat->convert_from($alt_base_unit)->where('unit', $human_unit)->first()->value ?? 1) * $alt_base_count;
+                    $alt_base_count = ($given_manual_mat->convert_from($alt_base_unit)->where('unit', $human_unit)->first()->value ?? 1) * $alt_base_count;
                 }
 
                 if ($base_count < $given_count) {
@@ -1342,10 +1340,11 @@ class MaterialAccountingController extends Controller
                             $materials_solutions['failure'] = true;
                             $materials_solutions['solutions'][$alt_base->id] = [
                                 'status' => 'failure',
-                                'message' => "На {$date} недостаточно материала: " .
-                                    "{$alt_base->material->name}. В сумме " .
-                                    ($alt_base_count + $base_count) . " {$human_unit}, вы указали {$given_count}."
+                                'message' => "На {$date} недостаточно материала: ".
+                                    "{$alt_base->material->name}. В сумме ".
+                                    ($alt_base_count + $base_count)." {$human_unit}, вы указали {$given_count}.",
                             ];
+
                             continue;
                         }
                     }
@@ -1353,7 +1352,7 @@ class MaterialAccountingController extends Controller
 
                 if ($base_count >= $given_count) {
                     $materials_solutions['solutions'][$base->id] = [
-                        'status' => 'ok'
+                        'status' => 'ok',
                     ];
                 } else {
                     if ($alt_base) {
@@ -1362,18 +1361,19 @@ class MaterialAccountingController extends Controller
                             'status' => 'transform',
                             'to' => $base->id ?? 'new',
                             'count' => ($given_count - $base_count) / $base_to_given_mult,
-                            'message' => "На {$date} имеется " .
-                                number_format($base_count, 3, '.', ' ') . " {$human_unit} {$alt_base->material->name} выбранного вами " . (!$alt_base->used ? 'б/у' : 'нового') . " материала. ".
-                                number_format(($given_count - $base_count), 3, '.', ' ') . " {$human_unit} будет переведено в " . (!$alt_base->used ? 'б/у' : 'новый') . " автоматически."
+                            'message' => "На {$date} имеется ".
+                                number_format($base_count, 3, '.', ' ')." {$human_unit} {$alt_base->material->name} выбранного вами ".(! $alt_base->used ? 'б/у' : 'нового').' материала. '.
+                                number_format(($given_count - $base_count), 3, '.', ' ')." {$human_unit} будет переведено в ".(! $alt_base->used ? 'б/у' : 'новый').' автоматически.',
                         ];
                     }
                 }
             }
         }
+
         return response($materials_solutions);
     }
 
-    public function doSolutions(Request $request)
+    public function doSolutions(Request $request): Response
     {
         $solutions = $request->solutions;
         DB::beginTransaction();
@@ -1385,7 +1385,7 @@ class MaterialAccountingController extends Controller
                 if ($solution['to'] === 'new') {
                     $new_base = $alt_base->replicate();
                     $new_base->count = $solution['count'];
-                    $new_base->used = !$new_base->used;
+                    $new_base->used = ! $new_base->used;
                     $new_base->save();
                     $alt_base->copyCommentsTo($new_base);
                     $new_base->ancestor_base_id = $new_base->id;
@@ -1403,11 +1403,11 @@ class MaterialAccountingController extends Controller
         DB::commit();
 
         return response([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 
-    public function close_operation($operation_id)
+    public function close_operation($operation_id): JsonResponse
     {
         $operation = MaterialAccountingOperation::findOrFail($operation_id);
 
@@ -1429,7 +1429,7 @@ class MaterialAccountingController extends Controller
                 $result = $material->deletePart();
 
                 if ($result['status'] == 'error') {
-                    return response()->json(['status' => 'error','message' => $result['message']]);
+                    return response()->json(['status' => 'error', 'message' => $result['message']]);
                 }
             }
 
@@ -1440,10 +1440,10 @@ class MaterialAccountingController extends Controller
             return response()->json(['status' => 'success']);
         }
 
-        return response()->json(['status' => 'error','message' => 'Нельзя отменить операцию']);
+        return response()->json(['status' => 'error', 'message' => 'Нельзя отменить операцию']);
     }
 
-    public function materials_count(Request $request)
+    public function materials_count(Request $request): JsonResponse
     {
         $materials = ManualMaterial::with('convertation_parameters', 'category')->whereIn('id', json_decode($request->materials)->material_id)->get();
         $weight = 0;
@@ -1481,7 +1481,7 @@ class MaterialAccountingController extends Controller
         return $report->export();
     }
 
-    public function redirector($operation_id)
+    public function redirector($operation_id): RedirectResponse
     {
         $url = MaterialAccountingOperation::findOrFail($operation_id)->url;
 
@@ -1491,8 +1491,6 @@ class MaterialAccountingController extends Controller
     /**
      * This function check if we need to get
      * operation responsible project manager
-     * @param Request $request
-     * @return bool
      */
     public function weNeedToGetResponsibleRP(Request $request): bool
     {
@@ -1502,22 +1500,19 @@ class MaterialAccountingController extends Controller
     /**
      * This function return operation responsible project
      * manager as JSON
-     * @param Request $request
-     * @param array $users_json
-     * @return mixed
      */
-    public function findResponsibleProjectManager(Request $request, array $users_json = [])
+    public function findResponsibleProjectManager(Request $request, array $users_json = []): JsonResponse
     {
         $only_one = User::find($request->responsible_RP);
 
         if ($only_one) {
-            $users_json[] = ['code' => $only_one->id . '', 'label' => $only_one->full_name];
+            $users_json[] = ['code' => $only_one->id.'', 'label' => $only_one->full_name];
         }
 
         return response()->json($users_json);
     }
 
-    public function attach_material(Request $request)
+    public function attach_material(Request $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1544,7 +1539,7 @@ class MaterialAccountingController extends Controller
         return response()->json($result);
     }
 
-    public function getSiblings(Request $request)
+    public function getSiblings(Request $request): Response
     {
         $base = MaterialAccountingBase::find($request->base_id);
 
@@ -1583,13 +1578,12 @@ class MaterialAccountingController extends Controller
         }
         $main_base->save();
 
-
         DB::commit();
 
         return back();
     }
 
-    public function moveToUsed(MaterialAccountingBaseMoveToUsedRequest $request)
+    public function moveToUsed(MaterialAccountingBaseMoveToUsedRequest $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1601,7 +1595,7 @@ class MaterialAccountingController extends Controller
         return response()->json(true);
     }
 
-    public function moveToNew(MaterialAccountingBaseMoveToNewRequest $request)
+    public function moveToNew(MaterialAccountingBaseMoveToNewRequest $request): JsonResponse
     {
         DB::beginTransaction();
 
@@ -1613,7 +1607,7 @@ class MaterialAccountingController extends Controller
         return response()->json(true);
     }
 
-    public function getMaterialsFromBase(Request $request)
+    public function getMaterialsFromBase(Request $request): JsonResponse
     {
         $bases = collect();
 
@@ -1635,21 +1629,21 @@ class MaterialAccountingController extends Controller
             User::HARDCODED_PERSONS['CEO'],
             User::HARDCODED_PERSONS['certificateWorker'],
             User::HARDCODED_PERSONS['SYSTEMGOD'],
-            User::HARDCODED_PERSONS['mainPTO']
+            User::HARDCODED_PERSONS['mainPTO'],
         ];
         // Commented this because we notifying about all operations, not only closed
-        $operations = MaterialAccountingOperation::where('status', '!=' , 7)->whereIn('type', [1, 4])->whereNotNull('contract_id')
-            ->whereHas('materialsPartTo', function($part) {
+        $operations = MaterialAccountingOperation::where('status', '!=', 7)->whereIn('type', [1, 4])->whereNotNull('contract_id')
+            ->whereHas('materialsPartTo', function ($part) {
                 return $part->whereDoesntHave('certificates');
             })
             ->with(['object_from', 'object_to', 'author', 'sender', 'recipient', 'contract',
                 'materialsPartTo' => function ($q) {
                     $q->doesntHave('certificates');
                 },
-                'materials' => function($q) {
+                'materials' => function ($q) {
                     $q->groupBy('manual_material_id', 'operation_id')->select('*')->with('manual');
-                }
-        ]);
+                },
+            ]);
 
         if (! in_array($user = auth()->id(), $grantAllUsers)) {
             $operations->where(function ($query) use ($user) {
@@ -1672,7 +1666,7 @@ class MaterialAccountingController extends Controller
 
         return view('building.material_accounting.certificateless_operation_log', [
             'filter_params' => MaterialAccountingOperation::$filter,
-            'operations' => $operations
+            'operations' => $operations,
         ]);
     }
 
@@ -1685,7 +1679,7 @@ class MaterialAccountingController extends Controller
         $operation->save();
 
         $task = Task::whereIn('status', [45])->findOrFail($request->task_id);
-        $task->final_note = "Задача закрыта";
+        $task->final_note = 'Задача закрыта';
         $task->solve_n_notify();
 
         DB::commit();
@@ -1693,12 +1687,11 @@ class MaterialAccountingController extends Controller
         return ['status' => 'success'];
     }
 
-
     public function delete_object_from_session(Request $request)
     {
         $objects = array_unique(session()->pull('object_id', []));
 
-        if(($key = array_search($request->object_id, $objects)) !== false) {
+        if (($key = array_search($request->object_id, $objects)) !== false) {
             unset($objects[$key]);
         }
 

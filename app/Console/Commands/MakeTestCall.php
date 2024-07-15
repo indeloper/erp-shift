@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Models\{Task, User};
-use App\Models\Contractors\{ContractorContact, Contractor};
-
+use App\Models\Contractors\Contractor;
+use App\Models\Contractors\ContractorContact;
+use App\Models\Task;
+use App\Models\User;
 use Illuminate\Console\Command;
+
 class MakeTestCall extends Command
 {
     protected $signature = 'test:call';
@@ -29,16 +31,14 @@ class MakeTestCall extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $request = [
             'random_contact' => $this->confirm('Is contact phone number? [y|N]'),
         ];
 
-        if (!$request['random_contact']) {
+        if (! $request['random_contact']) {
             $request = [
                 'random_contractor' => $this->confirm('Is contractor phone number? [y|N]'),
             ];
@@ -50,8 +50,7 @@ class MakeTestCall extends Command
 
         if (isset($request['random_contact'])) {
             $call->incoming_phone = ContractorContact::inRandomOrder()->where('phone_number', '!=', null)->first()->phone_number;
-        }
-        else {
+        } else {
             $call->incoming_phone =
                 $request['random_contractor'] ? rand(79000000000, 79999999999)
                     : Contractor::inRandomOrder()->where('phone_number', '!=', null)->first()->phone_number;

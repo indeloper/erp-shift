@@ -3,19 +3,15 @@
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualReference;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class FillOutManualReferenceCategory11 extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -25,15 +21,15 @@ class FillOutManualReferenceCategory11 extends Migration
 
         foreach ($category->materials as $material) {
             $param1 = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Ширина' . '%');
+                $q->where('name', 'like', '%'.'Ширина'.'%');
             })->first();
 
             $param2 = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Толщина' . '%');
+                $q->where('name', 'like', '%'.'Толщина'.'%');
             })->first();
 
             $param3 = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Материал' . '%');
+                $q->where('name', 'like', '%'.'Материал'.'%');
             })->first();
 
             if (isset($param1->value) && isset($param2->value) && isset($param3->value)) {
@@ -55,10 +51,10 @@ class FillOutManualReferenceCategory11 extends Migration
 
         // create ManualReference with parameters based on exist materials
         foreach ($params->unique() as $index => $item) {
-            dump( $index . ' in ' . $params->unique()->count());
+            dump($index.' in '.$params->unique()->count());
 
             $newReference = ManualReference::create([
-                'name' => 'Уголок горячекатанный ' . $item[0]['value'] . '*' . $item[1]['value'] . ' ' . $item[2]['value'] ,
+                'name' => 'Уголок горячекатанный '.$item[0]['value'].'*'.$item[1]['value'].' '.$item[2]['value'],
                 'category_id' => $category->id,
             ]);
 
@@ -79,8 +75,7 @@ class FillOutManualReferenceCategory11 extends Migration
                         'Ширина полки',
                         'Толщина',
                         'Материал',
-                    ]))
-                {
+                    ])) {
                     $newReference->parameters()->create([
                         'attr_id' => $parameter->attr_id,
                         'value' => $parameter->value,
@@ -94,10 +89,8 @@ class FillOutManualReferenceCategory11 extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $manualReferences = ManualReference::where('category_id', 11)->get();
 
@@ -106,4 +99,4 @@ class FillOutManualReferenceCategory11 extends Migration
             $manualReference->delete();
         }
     }
-}
+};

@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddPreviousObjectColumnToFuelTanksMovementsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tank_movements', function (Blueprint $table) {
             $table->unsignedInteger('previous_object_id')->nullable()->after('object_id')->comment('ID предыдущего объекта');
@@ -21,14 +19,12 @@ class AddPreviousObjectColumnToFuelTanksMovementsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tank_movements', function (Blueprint $table) {
             $table->dropForeign(['previous_object_id']);
             $table->dropColumn('previous_object_id');
         });
     }
-}
+};

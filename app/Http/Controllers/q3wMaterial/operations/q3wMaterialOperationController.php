@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\q3wMaterial\operations;
 
+use App\Http\Controllers\Controller;
 use App\Models\FileEntry;
 use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wMaterialOperation;
@@ -11,15 +12,16 @@ use App\Models\q3wMaterial\operations\q3wOperationFileType;
 use App\Models\q3wMaterial\q3wMaterialStandard;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+
 /**
  * Class q3wMaterialOperationController
+ *
  * @property  operation_route_id
- * @package App\Http\Controllers\q3wMaterial\operations
  */
 class q3wMaterialOperationController extends Controller
 {
@@ -28,7 +30,7 @@ class q3wMaterialOperationController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         return view('materials.operations.all');
     }
@@ -45,11 +47,8 @@ class q3wMaterialOperationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
 
     }
@@ -57,29 +56,28 @@ class q3wMaterialOperationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Request $request
      * @return string
      */
     public function show(Request $request)
     {
         $options = json_decode($request['data']);
 
-        $response = array(
-            "data" => (new q3wMaterialOperation)
+        $response = [
+            'data' => (new q3wMaterialOperation)
                 ->dxLoadOptions($options)
                 ->leftJoin('q3w_operation_route_stages', 'operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
                 ->addSelect(['q3w_material_operations.*',
                     'q3w_operation_route_stages.name',
-                    DB::raw('CASE WHEN `q3w_operation_route_stages`.`operation_route_stage_type_id` in (3, 5, 6) THEN 0 ELSE 1 END as route_stage_type_sort_order')
+                    DB::raw('CASE WHEN `q3w_operation_route_stages`.`operation_route_stage_type_id` in (3, 5, 6) THEN 0 ELSE 1 END as route_stage_type_sort_order'),
                 ])
                 ->withMaterialsSummary()
                 ->get(),
-            "totalCount" => (new q3wMaterialOperation)
+            'totalCount' => (new q3wMaterialOperation)
                 ->dxLoadOptions($options)
                 ->leftJoin('q3w_operation_route_stages', 'operation_route_stage_id', '=', 'q3w_operation_route_stages.id')
                 ->addSelect('q3w_material_operations.*', 'q3w_operation_route_stages.name')
-                ->count()
-        );
+                ->count(),
+        ];
 
         return json_encode($response, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
@@ -101,7 +99,6 @@ class q3wMaterialOperationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param q3wMaterialStandard $q3wMaterialStandard
      * @return \Illuminate\Http\Response
      */
     public function edit(q3wMaterialStandard $q3wMaterialStandard)
@@ -111,12 +108,8 @@ class q3wMaterialOperationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param q3wMaterialStandard $q3wMaterialStandard
-     * @return JsonResponse
      */
-    public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard)
+    public function update(Request $request, q3wMaterialStandard $q3wMaterialStandard): JsonResponse
     {
 
     }
@@ -124,10 +117,9 @@ class q3wMaterialOperationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param q3wMaterialStandard $q3wMaterialStandard
-     * @return JsonResponse
+     * @param  q3wMaterialStandard  $q3wMaterialStandard
      */
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
 
     }
@@ -139,12 +131,12 @@ class q3wMaterialOperationController extends Controller
             $file = new q3wOperationFile();
 
             $fileExtension = $uploadedFile->getClientOriginalExtension();
-            $fileName =  'file-' . uniqid() . '.' . $fileExtension;
+            $fileName = 'file-'.uniqid().'.'.$fileExtension;
 
             Storage::disk('material_operation_files')->put($fileName, File::get($uploadedFile));
 
             FileEntry::create([
-                'filename' => 'storage/docs/material_operation_files/' . $fileName,
+                'filename' => 'storage/docs/material_operation_files/'.$fileName,
                 'size' => $uploadedFile->getSize(),
                 'mime' => $uploadedFile->getClientMimeType(),
                 'original_filename' => $uploadedFile->getClientOriginalName(),
@@ -158,12 +150,15 @@ class q3wMaterialOperationController extends Controller
             $file->upload_file_type = q3wOperationFileType::where('string_identifier', '=', $request->uploadPurpose)->firstOrFail()->id;
 
             $file->save();
+
             return response()->json($file);
         }
+
         return response()->json(null);
     }
 
-    public function print(Request $request) {
+    public function print(Request $request): View
+    {
         $filterOptions = json_decode($request->input('filterOptions'));
         $filterList = json_decode($request->input('filterList'));
 
@@ -181,11 +176,12 @@ class q3wMaterialOperationController extends Controller
         return view('materials.operations.print-all-operations')
             ->with([
                 'operations' => $operations,
-                'filterList' => $filterList
+                'filterList' => $filterList,
             ]);
     }
 
-    public function commentHistoryList(Request $request) {
+    public function commentHistoryList(Request $request)
+    {
         $operationId = $request['operationId'];
 
         q3wMaterialOperation::findOrFail($operationId);
@@ -200,12 +196,13 @@ class q3wMaterialOperationController extends Controller
                 'users.first_name',
                 'users.last_name',
                 'users.patronymic',
-                'users.image'
+                'users.image',
             ])
             ->toJSON(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-    public function filesHistoryList(Request $request) {
+    public function filesHistoryList(Request $request)
+    {
         $operationId = $request['operationId'];
 
         q3wMaterialOperation::findOrFail($operationId);
@@ -222,21 +219,21 @@ class q3wMaterialOperationController extends Controller
                 'users.first_name',
                 'users.last_name',
                 'users.patronymic',
-                'users.image'
+                'users.image',
             ])
             ->groupBy('operation_route_stage_id')
             ->toArray();
-            //->toJSON(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        //->toJSON(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
 
-            $resultArray = [];
+        $resultArray = [];
 
-            foreach ($operationFiles as $operationRouteStageId=>$operationFile) {
-                $resultElement['operationRouteStageId'] = $operationRouteStageId;
-                $resultElement['data'] = $operationFile;
+        foreach ($operationFiles as $operationRouteStageId => $operationFile) {
+            $resultElement['operationRouteStageId'] = $operationRouteStageId;
+            $resultElement['data'] = $operationFile;
 
-                $resultArray[] = $resultElement;
-            }
+            $resultArray[] = $resultElement;
+        }
 
-            return json_encode($resultArray, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+        return json_encode($resultArray, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 }

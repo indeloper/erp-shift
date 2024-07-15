@@ -1,20 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddNewDefectCreateNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_NAME = 'Уведомление о создании заявки на неисправность технического устройства';
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -24,34 +20,34 @@ class AddNewDefectCreateNotification extends Migration
                 'id' => 65,
                 'group' => 10,
                 'name' => self::NOTIFICATION_NAME,
-                'for_everyone' => 0 // for groups
-            ]
+                'for_everyone' => 0, // for groups
+            ],
         ]);
 
         DB::table('notifications_for_groups')->insert([
             [
                 'notification_id' => 65,
-                'group_id' => 5
+                'group_id' => 5,
             ],
             [
                 'notification_id' => 65,
-                'group_id' => 6
+                'group_id' => 6,
             ],
             [
                 'notification_id' => 65,
-                'group_id' => 13
+                'group_id' => 13,
             ],
             [
                 'notification_id' => 65,
-                'group_id' => 19
+                'group_id' => 19,
             ],
             [
                 'notification_id' => 65,
-                'group_id' => 27
+                'group_id' => 27,
             ],
             [
                 'notification_id' => 65,
-                'group_id' => 47
+                'group_id' => 47,
             ],
         ]);
 
@@ -60,10 +56,8 @@ class AddNewDefectCreateNotification extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -73,4 +67,4 @@ class AddNewDefectCreateNotification extends Migration
 
         DB::commit();
     }
-}
+};

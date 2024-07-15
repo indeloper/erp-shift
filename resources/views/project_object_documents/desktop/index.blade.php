@@ -12,7 +12,7 @@
 
     @php
         $actionUrl = route('projectObjectDocument.downloadXls');
-        if(str_contains(URL::full(), 'showArchive=1'))
+        if(Str::contains(URL::full(), 'showArchive=1'))
         $actionUrl = $actionUrl.'?customSearchParams=showArchive=1';
     @endphp
 

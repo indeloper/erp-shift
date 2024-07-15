@@ -10,13 +10,13 @@ use App\Repositories\User\UserRepositoryInterface;
 final class MenuItemFavorite implements MenuItemFavoriteInterface
 {
     public $userRepository;
+
     public $menuRepository;
 
     public function __construct(
         UserRepositoryInterface $userRepository,
         MenuRepositoryInterface $menuRepository
-    )
-    {
+    ) {
         $this->userRepository = $userRepository;
         $this->menuRepository = $menuRepository;
     }
@@ -50,5 +50,4 @@ final class MenuItemFavorite implements MenuItemFavoriteInterface
 
         return $user->menuItems;
     }
-
 }

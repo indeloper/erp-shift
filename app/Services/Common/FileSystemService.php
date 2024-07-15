@@ -2,13 +2,11 @@
 
 namespace App\Services\Common;
 
-use Illuminate\Support\Facades\Route;
-
-class FileSystemService {
-
+class FileSystemService
+{
     private $fileNames;
 
-    public function __construct ($fileNames = [])
+    public function __construct($fileNames = [])
     {
         $this->fileNames = $fileNames;
     }
@@ -28,19 +26,17 @@ class FileSystemService {
 
     public function getFixedBladeTemplateFilesNames($baseBladePath)
     {
-        $cleanbaseBladePath = str_replace(resource_path().'/views/', '',  $baseBladePath );
-        $cleanbaseBladePath = str_replace('.blade.php', '', $cleanbaseBladePath );
-        if(!is_file($baseBladePath.'/dataSource.blade.php')) {
+        $cleanbaseBladePath = str_replace(resource_path().'/views/', '', $baseBladePath);
+        $cleanbaseBladePath = str_replace('.blade.php', '', $cleanbaseBladePath);
+        if (! is_file($baseBladePath.'/dataSource.blade.php')) {
             $this->fileNames[] = '1_base/dataSource';
-        }
-        else {
+        } else {
             $this->fileNames[] = $cleanbaseBladePath.'/dataSource';
         }
 
-        if(!is_file($baseBladePath.'/additionalResources.blade.php')) {
+        if (! is_file($baseBladePath.'/additionalResources.blade.php')) {
             $this->fileNames[] = '1_base/additionalResources';
-        }
-        else {
+        } else {
             $this->fileNames[] = $cleanbaseBladePath.'/additionalResources';
         }
 
@@ -51,25 +47,25 @@ class FileSystemService {
 
     public function getBladeTemplateComponentsFilesNames($componentsPath, $needAttachments = false)
     {
-        $dirElems = scanDir($componentsPath);
+        $dirElems = scandir($componentsPath);
 
-        foreach($dirElems as $dirElem) {
-            if($dirElem === '.' || $dirElem === '..')
-            continue;
+        foreach ($dirElems as $dirElem) {
+            if ($dirElem === '.' || $dirElem === '..') {
+                continue;
+            }
 
-            if(!$needAttachments && $dirElem === 'attachments')
-            continue;
+            if (! $needAttachments && $dirElem === 'attachments') {
+                continue;
+            }
 
-            if(is_dir($componentsPath.'/'.$dirElem)) {
+            if (is_dir($componentsPath.'/'.$dirElem)) {
                 $this->getBladeTemplateComponentsFilesNames($componentsPath.'/'.$dirElem);
             } else {
-                $includeElem = str_replace(resource_path().'/views/', '',  $componentsPath.'/'.$dirElem );
-                $includeElem = str_replace('.blade.php', '', $includeElem );
+                $includeElem = str_replace(resource_path().'/views/', '', $componentsPath.'/'.$dirElem);
+                $includeElem = str_replace('.blade.php', '', $includeElem);
                 $this->fileNames[] = $includeElem;
             }
         }
 
-
     }
-
 }

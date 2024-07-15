@@ -3,6 +3,7 @@
 namespace App\Models\Contractors;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ContractorFile extends Model
 {
@@ -10,9 +11,8 @@ class ContractorFile extends Model
 
     /**
      * Relation from file to contractor
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function contractor()
+    public function contractor(): HasOne
     {
         return $this->hasOne(Contractor::class, 'id', 'contractor_id');
     }

@@ -1,23 +1,23 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddReportGroupDeletePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_report_group_destroy';
 
     const PERMISSION_NAME = 'Удаление отчётных групп';
 
-    public function up()
+    public function up(): void
     {
         $insert = [];
 
         $insert[] = [
             'category' => 18,
-            "name" => self::PERMISSION_NAME,
-            "codename" => self::PERMISSION_CODENAME,
-            'created_at' => now()
+            'name' => self::PERMISSION_NAME,
+            'codename' => self::PERMISSION_CODENAME,
+            'created_at' => now(),
         ];
 
         DB::beginTransaction();
@@ -30,12 +30,12 @@ class AddReportGroupDeletePermission extends Migration
             [
                 'group_id' => 5,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 
@@ -44,10 +44,8 @@ class AddReportGroupDeletePermission extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permission = DB::table('permissions')->where('codename', self::PERMISSION_CODENAME)->first()->id;
 
@@ -58,4 +56,4 @@ class AddReportGroupDeletePermission extends Migration
 
         DB::commit();
     }
-}
+};

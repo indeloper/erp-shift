@@ -1,4 +1,4 @@
-FROM php:7.2-fpm as php
+FROM php:8.2-fpm as php
 
 ENV PHP_OPCACHE_ENABLE=1
 ENV PHP_OPCACHE_ENABLE_CLI=0
@@ -52,7 +52,7 @@ RUN docker-php-ext-enable redis.so
 
 WORKDIR /var/www
 
-COPY --chown=www-data .. .
+#RUN chgrp -R www-data .
 
 COPY ./php/php.ini /usr/local/etc/php/php.ini
 COPY ./php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf

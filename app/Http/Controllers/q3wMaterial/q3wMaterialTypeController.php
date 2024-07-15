@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
+use App\Http\Controllers\Controller;
 use App\Models\q3wMaterial\q3wMaterialType;
 use http\Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\View\View;
 
 class q3wMaterialTypeController extends Controller
 {
@@ -14,7 +16,7 @@ class q3wMaterialTypeController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response\Illuminate\View\View
      */
-    public function index()
+    public function index(): View
     {
         return view('materials.material-type');
     }
@@ -31,24 +33,21 @@ class q3wMaterialTypeController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         try {
-            $materialType = new q3wMaterialType(json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/));
+            $materialType = new q3wMaterialType(json_decode($request->all()['data'], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/));
             $materialType->save();
 
             return response()->json([
                 'result' => 'ok',
-                'key' => $materialType->id
+                'key' => $materialType->id,
             ], 200);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'result' => 'error',
-                'errors'  => $e->getMessage(),
+                'errors' => $e->getMessage(),
             ], 400);
         }
     }
@@ -56,7 +55,6 @@ class q3wMaterialTypeController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Request $request
      * @return string
      */
     public function show(Request $request)
@@ -64,20 +62,19 @@ class q3wMaterialTypeController extends Controller
 
         $dxLoadOptions = json_decode($request['data'])->dxLoadOptions;
 
-        $response = array(
-            "data" => (new q3wMaterialType)
+        $response = [
+            'data' => (new q3wMaterialType)
                 ->dxLoadOptions($dxLoadOptions)
                 ->get(),
-            "totalCount" => (new q3wMaterialType)->dxLoadOptions($dxLoadOptions)->count()
-        );
+            'totalCount' => (new q3wMaterialType)->dxLoadOptions($dxLoadOptions)->count(),
+        ];
 
-        $response = array(
-            "data" => (new q3wMaterialType)
+        $response = [
+            'data' => (new q3wMaterialType)
                 ->dxLoadOptions($dxLoadOptions)
                 ->get(),
-            "totalCount" => (new q3wMaterialType)->dxLoadOptions($dxLoadOptions)->count()
-        );
-
+            'totalCount' => (new q3wMaterialType)->dxLoadOptions($dxLoadOptions)->count(),
+        ];
 
         return json_encode($response, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
@@ -85,7 +82,7 @@ class q3wMaterialTypeController extends Controller
     public function byKey(Request $request)
     {
 
-        $id = $request->all()["key"];
+        $id = $request->all()['key'];
 
         return q3wMaterialType::findOrFail($id)->toJSON(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
@@ -93,7 +90,6 @@ class q3wMaterialTypeController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param Request $request
      * @return void
      */
     public function edit(Request $request)
@@ -103,28 +99,25 @@ class q3wMaterialTypeController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         try {
-            $id = $request->all()["key"];
-            $modifiedData = json_decode($request->all()["modifiedData"], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
+            $id = $request->all()['key'];
+            $modifiedData = json_decode($request->all()['modifiedData'], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
 
             $materialType = q3wMaterialType::findOrFail($id);
 
-            $materialType -> update($modifiedData);
+            $materialType->update($modifiedData);
 
             return response()->json([
-                'result' => 'ok'
+                'result' => 'ok',
             ], 200);
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'result' => 'error',
-                'errors'  => $e->getMessage(),
+                'errors' => $e->getMessage(),
             ], 400);
         }
 
@@ -132,25 +125,22 @@ class q3wMaterialTypeController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
         try {
-            $id = $request->all()["key"];
+            $id = $request->all()['key'];
 
             $materialType = q3wMaterialType::find($id);
-            $materialType -> delete();
+            $materialType->delete();
 
             return response()->json([
-                'result' => 'ok'
+                'result' => 'ok',
             ], 200);
-        } catch (Exception $e){
+        } catch (Exception $e) {
             return response()->json([
                 'result' => 'error',
-                'errors'  => $e->getMessage(),
+                'errors' => $e->getMessage(),
             ], 400);
         }
     }

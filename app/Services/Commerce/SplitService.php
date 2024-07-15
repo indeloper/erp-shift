@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Services\Commerce;
-
 
 use App\Models\CommercialOffer\CommercialOfferMaterialSplit;
 
@@ -18,15 +16,7 @@ class SplitService
         $this->dummySplit = new CommercialOfferMaterialSplit();
     }
 
-    /**
-     * @param CommercialOfferMaterialSplit $old_split
-     * @param $count
-     * @param $type
-     * @param $time
-     * @param $comment
-     * @return CommercialOfferMaterialSplit
-     */
-    public function splitMore($old_split, $count, $type, $time = null, $comment = '')
+    public function splitMore(CommercialOfferMaterialSplit $old_split, $count, $type, $time = null, $comment = ''): CommercialOfferMaterialSplit
     {
         $type = $this->convertTypeToNumeric($type);
 
@@ -34,19 +24,12 @@ class SplitService
             return $this->makeNewSplitFromParent($old_split, $count, $type, $time, $comment);
         } else {
             $existing_split = $old_split->children()->where('type', $type)->where('time', $time)->first() ?? $old_split->parent()->where('type', $type)->where('time', $time)->first();
+
             return $this->mergeRelatedSplitWithOldOne($old_split, $count, $existing_split);
         }
     }
 
-    /**
-     * @param CommercialOfferMaterialSplit $old_split
-     * @param $count
-     * @param $type
-     * @param $time
-     * @param $comment
-     * @return CommercialOfferMaterialSplit
-     */
-    public function makeNewSplitFromParent($old_split, $count, $type, $time = null, $comment = '')
+    public function makeNewSplitFromParent(CommercialOfferMaterialSplit $old_split, $count, $type, $time = null, $comment = ''): CommercialOfferMaterialSplit
     {
         $new_split = $old_split->replicate();
         $new_split->count = $count;
@@ -66,13 +49,7 @@ class SplitService
         return $new_split;
     }
 
-    /**
-     * @param CommercialOfferMaterialSplit $source_split
-     * @param $count
-     * @param $target_split
-     * @return CommercialOfferMaterialSplit
-     */
-    public function mergeRelatedSplitWithOldOne(CommercialOfferMaterialSplit $source_split, $count, $target_split)
+    public function mergeRelatedSplitWithOldOne(CommercialOfferMaterialSplit $source_split, $count, $target_split): CommercialOfferMaterialSplit
     {
         $target_split->count += $count;
 
@@ -84,25 +61,24 @@ class SplitService
     }
 
     /**
-     * @param $type
      * @return false|int|string
      */
     public function convertTypeToNumeric($type)
     {
-        if (!is_numeric($type)) {
+        if (! is_numeric($type)) {
             $type = array_search($type, $this->dummySplit->english_types);
         }
+
         return $type;
     }
 
     /**
      * Check if there are any child splits of modification type without parent_id
      * if so, tries to find a parent or deletes this split
-     * @param $splits
      */
     public function fixParentChildRelations($splits)
     {
-        foreach($splits->whereIn('type', $this->dummySplit->modification_types)->where('parent_id', null) as $orphan) {
+        foreach ($splits->whereIn('type', $this->dummySplit->modification_types)->where('parent_id', null) as $orphan) {
             $potential_parent = $splits->whereIn('type', $this->dummySplit->parent_types)->where('man_mat_id', $orphan->man_mat_id)->first();
             if ($potential_parent) {
                 $orphan->parent_id = $potential_parent->id;
@@ -113,21 +89,15 @@ class SplitService
         return $splits->whereIn('type', $this->dummySplit->parent_types)->union($splits->where('parent_id', '!=', null));
     }
 
-    /**
-     * @param CommercialOfferMaterialSplit $old_split
-     * @param int $type
-     * @param int $time
-     * @return bool
-     */
-    private function thisIsTheFirstSplitOfThisType(CommercialOfferMaterialSplit $old_split, $type, $time = null)
+    private function thisIsTheFirstSplitOfThisType(CommercialOfferMaterialSplit $old_split, int $type, ?int $time = null): bool
     {
-        return  $old_split->parent()->where('type', $type)->where('time', $time)->doesntExist() and
+        return $old_split->parent()->where('type', $type)->where('time', $time)->doesntExist() and
                 $old_split->children()->where('type', $type)->where('time', $time)->doesntExist();
     }
 
     private function decreaseOldSplitCount(CommercialOfferMaterialSplit $old_split, int $type, $count)
     {
-        if (!in_array($type, $this->dummySplit->modification_types)) {
+        if (! in_array($type, $this->dummySplit->modification_types)) {
             $old_split->decreaseCountBy($count);
         }
     }

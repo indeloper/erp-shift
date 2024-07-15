@@ -1,16 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddMaterialAccountingBaseMoveToNewStatePermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'mat_acc_base_move_to_new';
+
     const PERMISSION_NAME = 'Перевод материала с базы в состояние нового';
 
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -20,7 +19,7 @@ class AddMaterialAccountingBaseMoveToNewStatePermission extends Migration
             'category' => 7,
             'name' => self::PERMISSION_NAME,
             'codename' => self::PERMISSION_CODENAME,
-            'created_at' => now()
+            'created_at' => now(),
         ];
 
         DB::table('permissions')->insert($insert);
@@ -31,17 +30,17 @@ class AddMaterialAccountingBaseMoveToNewStatePermission extends Migration
             [
                 'group_id' => 13,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 19,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 27,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 
@@ -50,10 +49,8 @@ class AddMaterialAccountingBaseMoveToNewStatePermission extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionId = DB::table('permissions')->where('codename', self::PERMISSION_CODENAME)->first()->id;
 
@@ -63,4 +60,4 @@ class AddMaterialAccountingBaseMoveToNewStatePermission extends Migration
 
         DB::commit();
     }
-}
+};

@@ -3,19 +3,15 @@
 use App\Models\Manual\ManualMaterial;
 use App\Models\Manual\ManualMaterialCategory;
 use App\Models\Manual\ManualReference;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class FillOutManualReferenceCategory9 extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -25,15 +21,15 @@ class FillOutManualReferenceCategory9 extends Migration
 
         foreach ($category->materials as $material) {
             $wide = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Толщина стенки' . '%');
+                $q->where('name', 'like', '%'.'Толщина стенки'.'%');
             })->first();
 
             $lengthA = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Длина стороны а' . '%');
+                $q->where('name', 'like', '%'.'Длина стороны а'.'%');
             })->first();
 
             $lengthB = $material->parameters()->whereHas('attribute', function ($q) {
-                $q->where('name', 'like', '%' . 'Длина стороны б' . '%');
+                $q->where('name', 'like', '%'.'Длина стороны б'.'%');
             })->first();
 
             if (isset($wide->value) && isset($lengthA->value) && isset($lengthB->value)) {
@@ -56,10 +52,10 @@ class FillOutManualReferenceCategory9 extends Migration
 
         // create ManualReference with parameters based on exist materials
         foreach ($params->unique() as $index => $item) {
-            dump( $index . ' in ' . $params->unique()->count());
+            dump($index.' in '.$params->unique()->count());
 
             $newReference = ManualReference::create([
-                'name' => 'Труба профильная ' . $item[0]['value'] . '*' . $item[1]['value'] . '*' . $item[2]['value'] ,
+                'name' => 'Труба профильная '.$item[0]['value'].'*'.$item[1]['value'].'*'.$item[2]['value'],
                 'category_id' => $category->id,
             ]);
 
@@ -81,8 +77,7 @@ class FillOutManualReferenceCategory9 extends Migration
                         'Длина стороны а',
                         'Длина стороны б',
                         'Масса 1 м.п.',
-                    ]))
-                {
+                    ])) {
                     $newReference->parameters()->create([
                         'attr_id' => $parameter->attr_id,
                         'value' => $parameter->value,
@@ -96,10 +91,8 @@ class FillOutManualReferenceCategory9 extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $manualReferences = ManualReference::where('category_id', 9)->get();
 
@@ -108,4 +101,4 @@ class FillOutManualReferenceCategory9 extends Migration
             $manualReference->delete();
         }
     }
-}
+};

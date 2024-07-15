@@ -1,19 +1,15 @@
 <?php
 
 use App\Models\CommercialOffer\CommercialOfferManualRequirement;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class DeleteOneOfComOfferManualNote extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -25,11 +21,9 @@ class DeleteOneOfComOfferManualNote extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         CommercialOfferManualRequirement::create(['name' => 'Заказчик для погружения шпунта/монтажа системы крепления обеспечивает подъезд и разворот для длинномерного транспорта и безопасные подходы к месту разгрузки/складирования шпунта', 'need_value' => 0]);
     }
-}
+};

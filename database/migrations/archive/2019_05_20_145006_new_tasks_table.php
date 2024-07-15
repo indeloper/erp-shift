@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class NewTasksTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
             $table->dropColumn(['questionnaire_token', 'is_sent', 'sent_to', 'com_offer_id', 'com_offer_added', 'status_result_call']);
@@ -22,10 +20,8 @@ class NewTasksTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
             $table->dropColumn('target_id');
@@ -38,4 +34,4 @@ class NewTasksTable extends Migration
             $table->boolean('notify_send', 0)->change();
         });
     }
-}
+};

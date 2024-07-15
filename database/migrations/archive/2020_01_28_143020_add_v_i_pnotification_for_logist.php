@@ -1,24 +1,22 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddVIPnotificationForLogist extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 86;
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
         $notification_group = [
-            'notification_id'  => self::NOTIFICATION_TYPE,
+            'notification_id' => self::NOTIFICATION_TYPE,
             'user_id' => User::HARDCODED_PERSONS['router'],
         ];
 
@@ -29,10 +27,8 @@ class AddVIPnotificationForLogist extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -40,4 +36,4 @@ class AddVIPnotificationForLogist extends Migration
 
         DB::commit();
     }
-}
+};

@@ -1,18 +1,16 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
-class CreateNotificationsForUsersTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -28,55 +26,55 @@ class CreateNotificationsForUsersTable extends Migration
             // Tasks-related notifications
             [
                 'notification_id' => 6,
-                'user_id' => 27
+                'user_id' => 27,
             ],
             [
                 'notification_id' => 6,
-                'user_id' => 54
+                'user_id' => 54,
             ],
             [
                 'notification_id' => 7,
-                'user_id' => 27
+                'user_id' => 27,
             ],
             [
                 'notification_id' => 7,
-                'user_id' => 54
+                'user_id' => 54,
             ],
             [
                 'notification_id' => 22,
-                'user_id' => 27
+                'user_id' => 27,
             ],
             [
                 'notification_id' => 23,
-                'user_id' => 27
+                'user_id' => 27,
             ],
             [
                 'notification_id' => 26,
-                'user_id' => 27
+                'user_id' => 27,
             ],
             [
                 'notification_id' => 27,
-                'user_id' => 27
+                'user_id' => 27,
             ],
             [
                 'notification_id' => 29,
-                'user_id' => 27
+                'user_id' => 27,
             ],
             [
                 'notification_id' => 29,
-                'user_id' => 54
+                'user_id' => 54,
             ],
             [
                 'notification_id' => 34,
-                'user_id' => 27
+                'user_id' => 27,
             ],
             [
                 'notification_id' => 34,
-                'user_id' => 54
+                'user_id' => 54,
             ],
             [
                 'notification_id' => 37,
-                'user_id' => 27
+                'user_id' => 27,
             ],
         ]);
 
@@ -85,11 +83,9 @@ class CreateNotificationsForUsersTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('notifications_for_users');
     }
-}
+};

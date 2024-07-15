@@ -5,15 +5,11 @@ namespace Tests\Feature;
 use App\Models\Manual\ManualMaterial;
 use App\Models\MatAcc\MaterialAccountingOperation;
 use App\Models\MatAcc\MaterialAccountingOperationMaterials;
-use App\Models\MatAcc\MaterialAccountingOperationResponsibleUsers;
 use App\Models\User;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class MatAccPartCloseAcceptionTest extends TestCase
 {
-
     /**
      * Part Send axios pattern
      *
@@ -36,9 +32,6 @@ class MatAccPartCloseAcceptionTest extends TestCase
      */
     private $units;
 
-    /**
-     * @param $operation
-     */
     public function setUpWorkOperationWithOnePartSave($operation)
     {
         $operation->responsible_users()->create([
@@ -52,7 +45,7 @@ class MatAccPartCloseAcceptionTest extends TestCase
             'manual_material_id' => $manuals[0]->id,
             'unit' => 1,
             'type' => 3,
-            'count' => 100
+            'count' => 100,
         ]);
         MaterialAccountingOperationMaterials::create([
             'operation_id' => $operation->id,
@@ -70,7 +63,7 @@ class MatAccPartCloseAcceptionTest extends TestCase
                     'material_label' => $manuals[0]->name,
                     'material_count' => 50,
                     'units' => $this->units,
-                ]
+                ],
             ],
         ])->assertOk();
     }
@@ -83,9 +76,8 @@ class MatAccPartCloseAcceptionTest extends TestCase
         $this->withoutExceptionHandling();
     }
 
-
     /** @test */
-    public function it_creates_task_for_rp_on_part_close()
+    public function it_creates_task_for_rp_on_part_close(): void
     {
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 1]);
         $this->setUpWorkOperationWithOnePartSave($operation);

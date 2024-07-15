@@ -9,15 +9,13 @@ class WorkVolumeReqRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-//    protected $redirectRoute = 'request_error';
+    //    protected $redirectRoute = 'request_error';
 
     protected function prepareForValidation()
     {
@@ -36,7 +34,7 @@ class WorkVolumeReqRequest extends FormRequest
         $this->merge(['duplicate_pile' => $duplicate_pile, 'duplicate_tongue' => $duplicate_tongue]);
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'duplicate_tongue.not_in' => 'Шпунтовой объем работ с таким наименованием уже существует.',
@@ -46,10 +44,8 @@ class WorkVolumeReqRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'tongue_description' => ['required_with:add_tongue', 'required_without:pile_description', 'max:65530'],
@@ -60,8 +56,8 @@ class WorkVolumeReqRequest extends FormRequest
             'pile_documents.*' => '',
             'option_tongue' => '',
             'option_pile' => '',
-            'duplicate_tongue' => ['nullable', 'boolean', 'not_in:' . true],
-            'duplicate_pile' => ['nullable', 'boolean', 'not_in:' . true],
+            'duplicate_tongue' => ['nullable', 'boolean', 'not_in:'.true],
+            'duplicate_pile' => ['nullable', 'boolean', 'not_in:'.true],
             // 'work_volume_pile_id',
             // 'work_volume_tongue_id'
         ];

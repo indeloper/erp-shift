@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\ActionLog;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait Logable
 {
@@ -13,7 +14,7 @@ trait Logable
      * 2. new values - values, given to model
      * 3. old values - values, that model had before
      */
-    public function logs()
+    public function logs(): MorphMany
     {
         return $this->morphMany(ActionLog::class, 'logable');
     }
@@ -21,7 +22,6 @@ trait Logable
     /**
      * Method collect data for actions log
      * and store it to relation.
-     * @param string $event
      */
     public function generateAction(string $event = 'create')
     {
@@ -32,7 +32,6 @@ trait Logable
     /**
      * Method collect model data for actions log
      * and store it to relation.
-     * @param string $event
      */
     public function generatePastAction(string $event = 'create')
     {
@@ -43,8 +42,6 @@ trait Logable
     /**
      * Function parse model changes into array.
      * Special for ActionLog
-     * @param string $event
-     * @return array
      */
     public function collectDataForActionLogs(string $event = 'create'): array
     {
@@ -70,8 +67,6 @@ trait Logable
     /**
      * Function parse model values into array.
      * Special for Appointments, maybe something other
-     * @param string $event
-     * @return array
      */
     public function collectOriginDataForActionLogs(string $event = 'create'): array
     {

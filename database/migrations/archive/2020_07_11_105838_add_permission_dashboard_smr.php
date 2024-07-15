@@ -1,24 +1,22 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddPermissionDashboardSmr extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::table('permissions')->insert([
             // vehicle_categories
             [
                 'category' => 1,
-                "name" => 'Просмотр дашборда СМР',
-                "codename" => 'dashboard_smr',
-                'created_at' => now()
+                'name' => 'Просмотр дашборда СМР',
+                'codename' => 'dashboard_smr',
+                'created_at' => now(),
             ],
         ]);
 
@@ -28,27 +26,25 @@ class AddPermissionDashboardSmr extends Migration
             [
                 'group_id' => 5,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 8,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -59,4 +55,4 @@ class AddPermissionDashboardSmr extends Migration
 
         DB::commit();
     }
-}
+};

@@ -1,33 +1,27 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class RenameTechnicMovementCrudPermissions extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::table('permissions')->where('codename', 'technics_movement_crud')
-            ->update(['name'=>'Техника: перемещение - создание, редактирование, удаление']);
+            ->update(['name' => 'Техника: перемещение - создание, редактирование, удаление']);
 
         DB::table('permissions')->where('codename', 'technics_movement_read')
-            ->update(['name'=>'Техника: перемещение - просмотр всех записей']);        
+            ->update(['name' => 'Техника: перемещение - просмотр всех записей']);
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         //
     }
-}
+};

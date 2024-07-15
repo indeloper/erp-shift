@@ -1,21 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class TableProjectObjectDocumentStatusesChangeTableAndAddData extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('project_object_document_statuses', function (Blueprint $table) {
-            $table->unsignedBigInteger('status_type_id')->after('id')->comment('ID типа статуса');          
+            $table->unsignedBigInteger('status_type_id')->after('id')->comment('ID типа статуса');
             $table->integer('sortOrder')->after('status_type_id')->comment('Порядок сортировки');
         });
 
@@ -32,10 +30,8 @@ class TableProjectObjectDocumentStatusesChangeTableAndAddData extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('project_object_document_statuses', function (Blueprint $table) {
             $table->dropForeign('project_object_document_statuses_status_type_id_foreign');
@@ -58,39 +54,37 @@ class TableProjectObjectDocumentStatusesChangeTableAndAddData extends Migration
         DB::table('project_object_document_statuses')->insert([
             [
                 'name' => 'В архиве',
-                'style' => '#c5c7c5'
+                'style' => '#c5c7c5',
             ],
             [
                 'name' => 'Удален',
-                'style' => '#c5c7c5'
-            ]
+                'style' => '#c5c7c5',
+            ],
         ]);
 
         DB::table('project_object_document_statuses')->where('style', '#dd5e5e')->update([
-            'status_type_id' => 1
+            'status_type_id' => 1,
         ]);
 
         DB::table('project_object_document_statuses')->where('style', '#ffcd72')->update([
-            'status_type_id' => 2
+            'status_type_id' => 2,
         ]);
 
         DB::table('project_object_document_statuses')->where('style', '#1f931f')->update([
-            'status_type_id' => 3
+            'status_type_id' => 3,
         ]);
 
         DB::table('project_object_document_statuses')->where('style', '#c5c7c5')->update([
-            'status_type_id' => 4
+            'status_type_id' => 4,
         ]);
 
         $statusesIds = DB::table('project_object_document_statuses')->pluck('id');
-        
-        foreach($statusesIds as $statusId)
-        {
+
+        foreach ($statusesIds as $statusId) {
             DB::table('project_object_document_statuses')->where('id', $statusId)->update([
-                'sortOrder' => $statusId * 10
+                'sortOrder' => $statusId * 10,
             ]);
         }
-        
-        
+
     }
-}
+};

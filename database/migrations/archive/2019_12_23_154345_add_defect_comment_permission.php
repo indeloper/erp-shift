@@ -1,28 +1,24 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddDefectCommentPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_NAME = 'tech_acc_defect_comments_create';
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::table('permissions')->insert([
             // defects
             [
                 'category' => 15,
-                "name" => 'Создание комментариев к заявке о неисправности технического устройства',
-                "codename" => self::PERMISSION_NAME,
-                'created_at' => now()
+                'name' => 'Создание комментариев к заявке о неисправности технического устройства',
+                'codename' => self::PERMISSION_NAME,
+                'created_at' => now(),
             ],
         ]);
 
@@ -32,42 +28,40 @@ class AddDefectCommentPermission extends Migration
             [
                 'group_id' => 5,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 13,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 19,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 27,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 47,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -78,4 +72,4 @@ class AddDefectCommentPermission extends Migration
 
         DB::commit();
     }
-}
+};

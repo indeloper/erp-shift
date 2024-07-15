@@ -1,18 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddDefectCreatePermissionForPrincipalEngineer extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $permissionId = DB::table('permissions')->where('codename', 'tech_acc_defects_create')->first()->id;
 
@@ -20,17 +16,15 @@ class AddDefectCreatePermissionForPrincipalEngineer extends Migration
             [
                 'group_id' => 8,
                 'permission_id' => $permissionId,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -40,4 +34,4 @@ class AddDefectCreatePermissionForPrincipalEngineer extends Migration
 
         DB::commit();
     }
-}
+};

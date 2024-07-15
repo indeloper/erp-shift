@@ -1,18 +1,14 @@
 <?php
 
 use App\Models\Manual\ManualMaterialCategory;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddUnitCountToAllCategory extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $categories = ManualMaterialCategory::find([3, 4, 5, 6, 7, 8, 9, 11, 16]);
 
@@ -44,10 +40,8 @@ class AddUnitCountToAllCategory extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $categories = ManualMaterialCategory::find([3, 4, 5, 6, 7, 8, 9, 11, 16]);
 
@@ -61,4 +55,4 @@ class AddUnitCountToAllCategory extends Migration
             $category->attributesAll()->where('name', 'Длина')->delete();
         }
     }
-}
+};

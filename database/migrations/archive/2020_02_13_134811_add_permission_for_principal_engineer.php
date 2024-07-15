@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddPermissionForPrincipalEngineer extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAMES = [
         'tech_acc_our_technic_tickets_see',
@@ -17,10 +15,9 @@ class AddPermissionForPrincipalEngineer extends Migration
         'Просмотр всех заявок на неисправность',
     ];
 
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
-
 
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[0])->first()->id;
         $permissionTwo = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[1])->first()->id;
@@ -29,12 +26,12 @@ class AddPermissionForPrincipalEngineer extends Migration
             [
                 'group_id' => 8,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 8,
                 'permission_id' => $permissionTwo,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 
@@ -43,10 +40,8 @@ class AddPermissionForPrincipalEngineer extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[0])->first()->id;
         $permissionTwo = DB::table('permissions')->where('codename', self::PERMISSION_CODENAMES[1])->first()->id;
@@ -58,4 +53,4 @@ class AddPermissionForPrincipalEngineer extends Migration
 
         DB::commit();
     }
-}
+};

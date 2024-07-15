@@ -1,18 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddNotificationTypeForNewRespTask extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -22,19 +18,19 @@ class AddNotificationTypeForNewRespTask extends Migration
                 'id' => 63,
                 'group' => 6,
                 'name' => 'Уведомление о создании задачи Назначение ответственного руководителя проектов',
-                'for_everyone' => 0 // for groups
-            ]
+                'for_everyone' => 0, // for groups
+            ],
         ]);
 
         DB::table('notifications_for_groups')->insert([
             // Commercial Offer Notifications
             [
                 'notification_id' => 63,
-                'group_id' => 14
+                'group_id' => 14,
             ],
             [
                 'notification_id' => 63,
-                'group_id' => 23
+                'group_id' => 23,
             ],
         ]);
 
@@ -43,10 +39,8 @@ class AddNotificationTypeForNewRespTask extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -55,4 +49,4 @@ class AddNotificationTypeForNewRespTask extends Migration
 
         DB::commit();
     }
-}
+};

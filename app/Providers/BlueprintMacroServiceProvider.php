@@ -2,17 +2,15 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\ServiceProvider;
 
 class BlueprintMacroServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         Blueprint::macro('authorAndEditor', function () {
             $this->unsignedInteger('author_id')->comment('Идентификатор пользователя-автора записи');

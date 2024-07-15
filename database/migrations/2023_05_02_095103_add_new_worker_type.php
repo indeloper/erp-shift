@@ -1,26 +1,22 @@
 <?php
 
 use App\Models\LaborSafety\LaborSafetyWorkerType;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewWorkerType1 extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $laborSafetyWorkerTypesArray = [
-            'Замещающий геодезиста'
+            'Замещающий геодезиста',
         ];
 
         foreach ($laborSafetyWorkerTypesArray as $laborSafetyWorkerTypesElement) {
             $laborSafetyWorkerTypes = new LaborSafetyWorkerType([
-                'name' => $laborSafetyWorkerTypesElement
+                'name' => $laborSafetyWorkerTypesElement,
             ]);
             $laborSafetyWorkerTypes->save();
         }
@@ -28,11 +24,9 @@ class AddNewWorkerType1 extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         LaborSafetyWorkerType::where('name', '=', 'Замещающий геодезиста')->forceDelete();
     }
-}
+};

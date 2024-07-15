@@ -7,16 +7,14 @@ use App\Models\TechAcc\FuelTank\FuelOperationsHistory;
 use App\Models\TechAcc\FuelTank\FuelTankOperation;
 use App\Models\User;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class FuelOperationHistoryTest extends TestCase
 {
     /** @test */
-    public function it_stores_curr_and_prev_values_of_a_changed_field()
+    public function it_stores_curr_and_prev_values_of_a_changed_field(): void
     {
         $this->actingAs(User::whereIn('group_id', Group::PROJECT_MANAGERS)->first());
-        $operation = factory(FuelTankOperation::class)->state('outgo')->create(['value' => 10]);
+        $operation = FuelTankOperation::factory()->outgo()->create(['value' => 10]);
 
         $operation->value = 1;
         $operation->save();

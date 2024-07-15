@@ -3,18 +3,19 @@
 namespace App\Models\Contract;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ContractRequest extends Model
 {
     public $request_status = [
         1 => 'Не просмотрен',
         2 => 'Положительный',
-        3 => 'Отрицательный'
+        3 => 'Отрицательный',
     ];
 
     protected $fillable = ['name', 'user_id', 'contract_id', 'project_id', 'description', 'status', 'result_comment'];
 
-    public function files()
+    public function files(): HasMany
     {
         return $this->hasMany(ContractRequestFile::class, 'request_id', 'id');
     }

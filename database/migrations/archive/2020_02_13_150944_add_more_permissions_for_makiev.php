@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddMorePermissionsForMakiev extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'tech_acc_our_technic_tickets_see';
 
     const PERMISSION_NAME = 'Просмотр всех заявок на технику';
 
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -21,7 +19,7 @@ class AddMorePermissionsForMakiev extends Migration
             [
                 'group_id' => 35,
                 'permission_id' => $permissionOne,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 
@@ -30,10 +28,8 @@ class AddMorePermissionsForMakiev extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permissionOne = DB::table('permissions')->where('codename', self::PERMISSION_CODENAME)->first()->id;
 
@@ -43,4 +39,4 @@ class AddMorePermissionsForMakiev extends Migration
 
         DB::commit();
     }
-}
+};

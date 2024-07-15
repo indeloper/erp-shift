@@ -1,20 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddNewNotificationForPrincipleMechanicsAboutTechnicSetFree extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 86;
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -22,13 +18,13 @@ class AddNewNotificationForPrincipleMechanicsAboutTechnicSetFree extends Migrati
             'id' => self::NOTIFICATION_TYPE,
             'group' => 10,
             'name' => 'Уведомление об освобождении техники',
-            'for_everyone' => 0 // for groups
+            'for_everyone' => 0, // for groups
         ];
 
         DB::table('notification_types')->insert($new_type);
 
         $notification_group = [
-            'notification_id'  => self::NOTIFICATION_TYPE,
+            'notification_id' => self::NOTIFICATION_TYPE,
             'group_id' => 47,
         ];
 
@@ -39,10 +35,8 @@ class AddNewNotificationForPrincipleMechanicsAboutTechnicSetFree extends Migrati
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -51,4 +45,4 @@ class AddNewNotificationForPrincipleMechanicsAboutTechnicSetFree extends Migrati
 
         DB::commit();
     }
-}
+};

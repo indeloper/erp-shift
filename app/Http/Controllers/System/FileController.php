@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\System;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class FileController extends Controller
 {
-    public function file($filePath)
+    public function file($filePath): BinaryFileResponse
     {
-        if (!file_exists(storage_path('app/public'.DIRECTORY_SEPARATOR.($filePath)))){
+        if (! file_exists(storage_path('app/public'.DIRECTORY_SEPARATOR.($filePath)))) {
             abort('404');
         }
 

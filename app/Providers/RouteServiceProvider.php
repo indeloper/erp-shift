@@ -2,31 +2,22 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    /**
-     * This namespace is applied to your controller routes.
-     *
-     * In addition, it is set as the URL generator's root namespace.
-     *
-     * @var string
-     */
-    protected $namespace = 'App\Http\Controllers';
+    const HOME = '/';
 
     /**
      * Define your route model bindings, pattern filters, etc.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        Route::macro('registerBaseRoutes', function($controller, $attachmentsRoutes = false) {
+        Route::macro('registerBaseRoutes', function ($controller, $attachmentsRoutes = false) {
             Route::get('/', $controller.'@getPageCore')->name('getPageCore');
             Route::apiResource('resource', $controller);
-            if($attachmentsRoutes) {
+            if ($attachmentsRoutes) {
                 Route::post('uploadFile', $controller.'@uploadFile')->name('uploadFile');
                 Route::post('downloadAttachments', $controller.'@downloadAttachments')->name('downloadAttachments');
             }
@@ -37,10 +28,8 @@ class RouteServiceProvider extends ServiceProvider
 
     /**
      * Define the routes for the application.
-     *
-     * @return void
      */
-    public function map()
+    public function map(): void
     {
 
         $this->mapApiRoutes();
@@ -50,6 +39,7 @@ class RouteServiceProvider extends ServiceProvider
         // Подключаем маршруты для шаблона
         $this->mapLayoutRoutes();
         $this->mapProfileRoutes();
+        $this->mapNotificationsRoutes();
 
         //
     }
@@ -58,75 +48,69 @@ class RouteServiceProvider extends ServiceProvider
      * Define the "web" routes for the application.
      *
      * These routes all receive session state, CSRF protection, etc.
-     *
-     * @return void
      */
-    protected function mapWebRoutes()
+    protected function mapWebRoutes(): void
     {
-        Route::middleware('web')->namespace(($this->namespace))->group(base_path('routes/web.php'));
+        Route::middleware('web')->group(base_path('routes/web.php'));
 
-        Route::middleware(['web','activeuser', 'auth'])->namespace($this->namespace)->group(function() {
+        Route::middleware(['web', 'activeuser', 'auth'])->group(function () {
 
-                Route::prefix('contractors')->as('contractors::')->namespace('Commerce')->group(function () {
-                    require base_path('routes/modules/contractors.php');
-                });
+            Route::prefix('contractors')->as('contractors::')->group(function () {
+                require base_path('routes/modules/contractors.php');
+            });
 
-                Route::prefix('building')->as('building::')->namespace('Building')->group(function() {
-                    Route::prefix('mat_acc')->as('mat_acc::')->namespace('MaterialAccounting')->group(function() {
-                        Route::prefix('arrival')->as('arrival::')->group(function() {
-                            require base_path('routes/modules/building/material_accounting/arrival.php');
-                        });
-                        Route::prefix('write_off')->as('write_off::')->group(function() {
-                            require base_path('routes/modules/building/material_accounting/write_off.php');
-                        });
-                        Route::prefix('transformation')->as('transformation::')->group(function() {
-                            require base_path('routes/modules/building/material_accounting/transformation.php');
-                        });
-                        Route::prefix('moving')->as('moving::')->group(function() {
-                            require base_path('routes/modules/building/material_accounting/moving.php');
-                        });
-
-                        require base_path('routes/modules/building/material_accounting/main.php');
+            Route::prefix('building')->as('building::')->group(function () {
+                Route::prefix('mat_acc')->as('mat_acc::')->group(function () {
+                    Route::prefix('arrival')->as('arrival::')->group(function () {
+                        require base_path('routes/modules/building/material_accounting/arrival.php');
+                    });
+                    Route::prefix('write_off')->as('write_off::')->group(function () {
+                        require base_path('routes/modules/building/material_accounting/write_off.php');
+                    });
+                    Route::prefix('transformation')->as('transformation::')->group(function () {
+                        require base_path('routes/modules/building/material_accounting/transformation.php');
+                    });
+                    Route::prefix('moving')->as('moving::')->group(function () {
+                        require base_path('routes/modules/building/material_accounting/moving.php');
                     });
 
-                    Route::prefix('tech_acc')->as('tech_acc::')->namespace('TechAccounting')->group(function() {
-                        require base_path('routes/modules/building/tech_accounting/tech.php');
-                    });
-
-                    Route::prefix('vehicles')->as('vehicles::')->namespace('TechAccounting')->group(function() {
-                        require base_path('routes/modules/building/tech_accounting/vehicles.php');
-                    });
+                    require base_path('routes/modules/building/material_accounting/main.php');
                 });
 
-                Route::namespace('Commerce')->prefix('projects')->as('projects::')->group(function() {
-                    require base_path('routes/modules/projects.php');
+                Route::prefix('tech_acc')->as('tech_acc::')->group(function () {
+                    require base_path('routes/modules/building/tech_accounting/tech.php');
                 });
 
-                Route::namespace('System')->prefix('messages')->as('messages::')->group(function() {
-                    require base_path('routes/modules/messages.php');
+                Route::prefix('vehicles')->as('vehicles::')->group(function () {
+                    require base_path('routes/modules/building/tech_accounting/vehicles.php');
                 });
             });
+
+            Route::prefix('projects')->as('projects::')->group(function () {
+                require base_path('routes/modules/projects.php');
+            });
+
+            Route::prefix('messages')->as('messages::')->group(function () {
+                require base_path('routes/modules/messages.php');
+            });
+        });
     }
 
     /**
      * Define the "api" routes for the application.
      *
      * These routes are typically stateless.
-     *
-     * @return void
      */
-    protected function mapApiRoutes()
+    protected function mapApiRoutes(): void
     {
         Route::prefix('api')
             ->middleware('api')
-            ->namespace($this->namespace)
             ->group(base_path('routes/api.php'));
     }
 
     private function mapLayoutRoutes()
     {
         Route::middleware(['web', 'auth'])
-            ->namespace(($this->namespace))
             ->prefix('layout')
             ->name('layout::')
             ->group(base_path('routes/layout/layout.php'));
@@ -135,10 +119,14 @@ class RouteServiceProvider extends ServiceProvider
     private function mapProfileRoutes()
     {
         Route::middleware(['web', 'auth'])
-            ->namespace(($this->namespace))
             ->prefix('profile')
             ->name('profile::')
             ->group(base_path('routes/user/profile.php'));
     }
 
+    private function mapNotificationsRoutes()
+    {
+        Route::middleware(['web', 'auth', 'activeuser'])
+            ->group(base_path('routes/notifications/notifications.php'));
+    }
 }

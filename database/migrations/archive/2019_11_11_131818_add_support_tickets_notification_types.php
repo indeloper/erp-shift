@@ -1,19 +1,14 @@
 <?php
 
-use App\Models\Notifications\NotificationTypes;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddSupportTicketsNotificationTypes extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -23,13 +18,13 @@ class AddSupportTicketsNotificationTypes extends Migration
                 'id' => 53,
                 'group' => 3,
                 'name' => 'Уведомление о изменении срока приблизительного исполнения заявки в техническую поддержку',
-                'for_everyone' => 1
+                'for_everyone' => 1,
             ],
             [
                 'id' => 54,
                 'group' => 3,
                 'name' => 'Уведомление о изменении статуса заявки в техническую поддержку',
-                'for_everyone' => 1
+                'for_everyone' => 1,
             ],
         ]);
 
@@ -38,10 +33,8 @@ class AddSupportTicketsNotificationTypes extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -50,4 +43,4 @@ class AddSupportTicketsNotificationTypes extends Migration
 
         DB::commit();
     }
-}
+};

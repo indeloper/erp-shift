@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\TechAccounting;
 
 use App\Models\TechAcc\FuelTank\FuelTankOperation;
@@ -38,8 +39,7 @@ class FuelTankService
         foreach ($new_values as $field => $value) {
             if ($field == 'operation_date' and self::dateWasNotChanged($fuelTankOperation)) {
                 unset($new_values['operation_date']);
-            }
-            else {
+            } else {
                 $old_values[$field] = $fuelTankOperation->getOriginal($field);
             }
         }
@@ -58,6 +58,7 @@ class FuelTankService
         if ($fuelTankOperation->isDirty('operation_date')) {
             return Carbon::parse($fuelTankOperation->getDirty()['operation_date'])->isSameDay($fuelTankOperation->getOriginal('operation_date'));
         }
+
         return true;
     }
 }

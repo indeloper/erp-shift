@@ -1,18 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class CreateTechnicBrandModelsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('technic_brand_models', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -28,15 +26,13 @@ class CreateTechnicBrandModelsTable extends Migration
         });
 
         DB::statement("ALTER TABLE technic_brand_models COMMENT 'Модели техники'");
-        $this->uploadData(); 
+        $this->uploadData();
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('technic_brand_models');
     }
@@ -47,41 +43,40 @@ class CreateTechnicBrandModelsTable extends Migration
             [
                 'technic_brand_id' => 1,
                 'name' => '350С',
-                'description' => 'Энергоблок'
+                'description' => 'Энергоблок',
             ],
             [
                 'technic_brand_id' => 1,
                 'name' => '30Н1А',
-                'description' => 'Погружатель'
+                'description' => 'Погружатель',
             ],
             [
                 'technic_brand_id' => 1,
                 'name' => '600D',
-                'description' => 'Энергоблок'
+                'description' => 'Энергоблок',
             ],
 
             [
                 'technic_brand_id' => 2,
                 'name' => 'РР521',
-                'description' => 'Энергоблок'
+                'description' => 'Энергоблок',
             ],
             [
                 'technic_brand_id' => 2,
                 'name' => 'SVR18VM',
-                'description' => 'Погружатель'
+                'description' => 'Погружатель',
             ],
             [
                 'technic_brand_id' => 3,
                 'name' => 'SPU-15001W',
-                'description' => ''
+                'description' => '',
             ],
             [
                 'technic_brand_id' => 4,
                 'name' => 'ТЕ-200',
-                'description' => ''
+                'description' => '',
             ],
-
 
         ]);
     }
-}
+};

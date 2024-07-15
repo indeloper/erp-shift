@@ -254,10 +254,10 @@
                 colCount: 2,
                 items: [{
                     itemType: "group",
-                    colCount: 3,
+                    colCount: 4,
                     caption: "Списание",
                     items: [{
-                        colSpan: 3,
+                        colSpan: 4,
                         dataField: "source_project_object_name",
                         label: {
                             text: "Объект"
@@ -279,8 +279,20 @@
                         }
                     },
                         {
-                            name: "sourceResponsibleUserSelectBox",
+                            name: "materialOperationReasonSelectBox",
                             colSpan: 2,
+                            dataField: "material_operation_reason_name",
+                            label: {
+                                text: "Причина движения"
+                            },
+                            editorOptions: {
+                                readOnly: true
+                            }
+
+                        },
+                        {
+                            name: "sourceResponsibleUserSelectBox",
+                            colSpan: 1,
                             dataField: "source_responsible_user_name",
                             label: {
                                 text: "Ответственный"

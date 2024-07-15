@@ -3,6 +3,7 @@
 namespace App\Models\Manual;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ManualReferenceParameter extends Model
@@ -15,27 +16,27 @@ class ManualReferenceParameter extends Model
     {
         parent::boot();
 
-        static::saving(function($parameter) {
-            $comma_replaced = str_replace(',','.', $parameter->value);
+        static::saving(function ($parameter) {
+            $comma_replaced = str_replace(',', '.', $parameter->value);
             if (is_numeric($comma_replaced)) {
-                $parameter->value = (float)$comma_replaced;
+                $parameter->value = (float) $comma_replaced;
             }
         });
 
-        static::creating(function($parameter) {
-            $comma_replaced = str_replace(',','.', $parameter->value);
+        static::creating(function ($parameter) {
+            $comma_replaced = str_replace(',', '.', $parameter->value);
             if (is_numeric($comma_replaced)) {
-                $parameter->value = (float)$comma_replaced;
+                $parameter->value = (float) $comma_replaced;
             }
         });
     }
 
-    function getMatIdAttribute()
+    public function getMatIdAttribute()
     {
         return $this->manual_reference_id;
     }
 
-    public function attribute()
+    public function attribute(): BelongsTo
     {
         return $this->belongsTo(ManualMaterialCategoryAttribute::class, 'attr_id', 'id');
     }

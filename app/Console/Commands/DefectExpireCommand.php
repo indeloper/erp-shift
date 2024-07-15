@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class DefectExpireCommand extends Command
 {
     use NotificationGenerator;
+
     /**
      * The name and signature of the console command.
      *
@@ -35,10 +36,8 @@ class DefectExpireCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $expiring_defects = Defects::soonExpire()->get();
 

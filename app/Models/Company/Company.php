@@ -1,5 +1,7 @@
 <?php
+
 /**  * @mixin ..\Eloquent  */
+
 namespace App\Models\Company;
 
 use App\Traits\DefaultSortable;
@@ -9,9 +11,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Company extends Model
 {
-    use SoftDeletes, DevExtremeDataSourceLoadable, DefaultSortable;
+    use DefaultSortable, DevExtremeDataSourceLoadable, SoftDeletes;
 
-    protected $guarded = array('id');
+    protected $guarded = ['id'];
 
     public $defaultSortOrder = [
         'legal_form_id' => 'asc',

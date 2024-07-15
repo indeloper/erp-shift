@@ -1,20 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class AddNewBirthdayNotifications extends Migration
+return new class extends Migration
 {
     const NOTIFICATIONS = [
-        88 =>'Уведомление о дне рождения сотрудника за неделю',
+        88 => 'Уведомление о дне рождения сотрудника за неделю',
         89 => 'Уведомление о дне рождения сотрудника в день рождения',
     ];
+
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -24,7 +23,7 @@ class AddNewBirthdayNotifications extends Migration
                 'id' => $id,
                 'group' => 9,
                 'name' => $name,
-                'for_everyone' => 1
+                'for_everyone' => 1,
             ];
         }
 
@@ -35,10 +34,8 @@ class AddNewBirthdayNotifications extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -46,4 +43,4 @@ class AddNewBirthdayNotifications extends Migration
 
         DB::commit();
     }
-}
+};

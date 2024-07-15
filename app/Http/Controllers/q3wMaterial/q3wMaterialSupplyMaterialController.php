@@ -2,19 +2,11 @@
 
 namespace App\Http\Controllers\q3wMaterial;
 
-use App\Models\q3wMaterial\operations\q3wOperationMaterial;
-use App\Models\q3wMaterial\q3wMaterial;
-use App\Models\q3wMaterial\q3wMaterialBrand;
-use App\Models\q3wMaterial\q3wMaterialBrandsRelation;
-use App\Models\q3wMaterial\q3wMaterialStandard;
-use App\Models\q3wMaterial\q3wMaterialSupplyMaterial;
-use App\Models\q3wMaterial\q3wMaterialSupplyPlanning;
-use App\Models\q3wMaterial\q3wMaterialType;
-use App\Models\q3wMaterial\q3wStandardPropertiesRelations;
-use http\Exception;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
+use App\Models\q3wMaterial\q3wMaterial;
+use App\Models\q3wMaterial\q3wMaterialSupplyMaterial;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class q3wMaterialSupplyMaterialController extends Controller
 {
@@ -48,20 +40,17 @@ class q3wMaterialSupplyMaterialController extends Controller
                 'q3w_materials.quantity',
                 'q3w_material_standards.name as standard_name',
                 'q3w_material_standards.weight',
-                'q3w_material_comments.comment'
+                'q3w_material_comments.comment',
             ])
             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $data = json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY);
+        $data = json_decode($request->all()['data'], JSON_OBJECT_AS_ARRAY);
 
         foreach ($data as $dataValue) {
             $sourceMaterial = q3wMaterial::findOrFail($dataValue['material_id']);
@@ -69,12 +58,12 @@ class q3wMaterialSupplyMaterialController extends Controller
             $materialSupplyMaterial = q3wMaterialSupplyMaterial::where('supply_planning_id', '=', $dataValue['supply_planning_id'])
                 ->where('material_id', '=', $dataValue['material_id'])
                 ->first();
-            if (!isset($materialSupplyMaterial)) {
+            if (! isset($materialSupplyMaterial)) {
                 $materialSupplyMaterial = new q3wMaterialSupplyMaterial([
-                        'supply_planning_id' => $dataValue['supply_planning_id'],
-                        'material_id' => $dataValue['material_id'],
-                        'amount' => $sourceMaterial->amount
-                    ]
+                    'supply_planning_id' => $dataValue['supply_planning_id'],
+                    'material_id' => $dataValue['material_id'],
+                    'amount' => $sourceMaterial->amount,
+                ]
                 );
                 $materialSupplyMaterial->save();
             }
@@ -82,39 +71,33 @@ class q3wMaterialSupplyMaterialController extends Controller
 
         return response()->json([
             'result' => 'ok',
-            'key' => $materialSupplyMaterial->id
+            'key' => $materialSupplyMaterial->id,
         ], 200);
     }
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
-        $id = $request->all()["key"];
-        $modifiedData = json_decode($request->all()["modifiedData"], JSON_OBJECT_AS_ARRAY);
+        $id = $request->all()['key'];
+        $modifiedData = json_decode($request->all()['modifiedData'], JSON_OBJECT_AS_ARRAY);
 
         $materialSupplyPlanningRow = q3wMaterialSupplyMaterial::findOrFail($id);
 
         $materialSupplyPlanningRow->update($modifiedData);
 
         return response()->json([
-            'result' => 'ok'
+            'result' => 'ok',
         ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
-        $data = json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY);
+        $data = json_decode($request->all()['data'], JSON_OBJECT_AS_ARRAY);
 
         foreach ($data as $dataValue) {
             q3wMaterialSupplyMaterial::where('supply_planning_id', '=', $dataValue['supply_planning_id'])
@@ -123,7 +106,7 @@ class q3wMaterialSupplyMaterialController extends Controller
         }
 
         return response()->json([
-            'result' => 'ok'
+            'result' => 'ok',
         ], 200);
     }
 }

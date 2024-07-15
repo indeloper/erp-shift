@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Contractors\Contractor;
-
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -36,10 +35,8 @@ class CheckContractorContactsAdding extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         DB::beginTransaction();
 
@@ -60,6 +57,6 @@ class CheckContractorContactsAdding extends Command
 
         DB::commit();
 
-        return $this->info('Contactless contractors checked!');
+        $this->info('Contactless contractors checked!');
     }
 }

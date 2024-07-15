@@ -1,21 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
-
 use App\Models\Manual\ManualMaterialCategory;
-
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class FillInSheetSquereWeight extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -27,8 +21,8 @@ class FillInSheetSquereWeight extends Migration
         foreach ($category->materials as $material) {
             if (isset($material->parameters()->whereAttrId($attr_2->id)->first()->value)) {
                 $material->parameters()->create([
-                    'value' => (1 / (float)str_replace(',','.', (($material->parameters()->whereAttrId($attr_2->id)->first()->value) ?? 0)) * 1000),
-                    'attr_id' => $attr_1->id
+                    'value' => (1 / (float) str_replace(',', '.', (($material->parameters()->whereAttrId($attr_2->id)->first()->value) ?? 0)) * 1000),
+                    'attr_id' => $attr_1->id,
                 ]);
             }
         }
@@ -38,11 +32,9 @@ class FillInSheetSquereWeight extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
 
     }
-}
+};

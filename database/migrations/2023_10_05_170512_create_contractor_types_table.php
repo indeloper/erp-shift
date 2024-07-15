@@ -1,18 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class CreateContractorTypesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('contractor_types', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -23,39 +21,36 @@ class CreateContractorTypesTable extends Migration
         });
 
         DB::statement("ALTER TABLE contractor_types COMMENT 'Типы контрагентов'");
-        $this->uploadData(); 
+        $this->uploadData();
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('contractor_types');
     }
-    
+
     public function uploadData()
     {
         DB::table('contractor_types')->insert([
             [
                 'name' => 'Заказчик',
-                'slug' => 'customer'
+                'slug' => 'customer',
             ],
             [
                 'name' => 'Подрядчик',
-                'slug' => 'executor'
+                'slug' => 'executor',
             ],
             [
                 'name' => 'Поставщик материалов',
-                'slug' => 'materials_supplier'
+                'slug' => 'materials_supplier',
             ],
             [
                 'name' => 'Поставщик топлива',
-                'slug' => 'fuel_supplier'
-            ]
+                'slug' => 'fuel_supplier',
+            ],
         ]);
     }
-
-}
+};

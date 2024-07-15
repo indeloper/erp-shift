@@ -11,7 +11,6 @@ class ManualReferenceController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -22,8 +21,6 @@ class ManualReferenceController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Manual\ManualReference  $manualReference
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ManualReference $manualReference)
@@ -34,7 +31,6 @@ class ManualReferenceController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Manual\ManualReference  $manualReference
      * @return \Illuminate\Http\Response
      */
     public function destroy(ManualReference $manualReference)

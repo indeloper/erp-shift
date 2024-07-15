@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddContractInfoColumnsToCommercialOffersTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('commercial_offers', function (Blueprint $table) {
             $table->string('contract_number')->nullable();
@@ -21,13 +19,11 @@ class AddContractInfoColumnsToCommercialOffersTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('commercial_offers', function (Blueprint $table) {
             $table->dropColumn(['contract_number', 'contract_date']);
         });
     }
-}
+};

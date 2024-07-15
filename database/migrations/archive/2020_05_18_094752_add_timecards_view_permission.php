@@ -1,24 +1,22 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddTimecardsViewPermission extends Migration
+return new class extends Migration
 {
     const PERMISSION_CODENAME = 'human_resources_timecards_view';
 
     const PERMISSION_NAME = 'Просмотр Табеля рабочего времени';
 
-    public function up()
+    public function up(): void
     {
         $insert = [];
 
         $insert[] = [
             'category' => 18,
-            "name" => self::PERMISSION_NAME,
-            "codename" => self::PERMISSION_CODENAME,
-            'created_at' => now()
+            'name' => self::PERMISSION_NAME,
+            'codename' => self::PERMISSION_CODENAME,
+            'created_at' => now(),
         ];
 
         DB::beginTransaction();
@@ -31,32 +29,32 @@ class AddTimecardsViewPermission extends Migration
             [
                 'group_id' => 5,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 6,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 8,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 13,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 19,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
             [
                 'group_id' => 27,
                 'permission_id' => $permission,
-                'created_at' => now()
+                'created_at' => now(),
             ],
         ]);
 
@@ -65,10 +63,8 @@ class AddTimecardsViewPermission extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $permission = DB::table('permissions')->where('codename', self::PERMISSION_CODENAME)->first()->id;
 
@@ -79,4 +75,4 @@ class AddTimecardsViewPermission extends Migration
 
         DB::commit();
     }
-}
+};

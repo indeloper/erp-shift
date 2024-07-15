@@ -1,18 +1,16 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 
-class CreateUserDisabledNotificationsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -32,115 +30,115 @@ class CreateUserDisabledNotificationsTable extends Migration
                 'notification_id' => 28,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 30,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 29,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 37,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 38,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 39,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 40,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 42,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 41,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 6,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 21,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 25,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 23,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 27,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 4,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 50,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 7,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 47,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
             [
                 'notification_id' => 48,
                 'user_id' => 6,
                 'in_telegram' => 0,
-                'in_system' => 0
+                'in_system' => 0,
             ],
         ]);
 
@@ -149,11 +147,9 @@ class CreateUserDisabledNotificationsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('user_disabled_notifications');
     }
-}
+};

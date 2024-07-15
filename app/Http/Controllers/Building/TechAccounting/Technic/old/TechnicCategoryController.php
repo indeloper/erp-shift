@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Building\TechAccounting\Technic\old;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Building\TechAccounting\StoreTechnicCategoryRequest;
 use App\Http\Requests\Building\TechAccounting\UpdateTechnicCategoryRequest;
 use App\Models\TechAcc\TechnicCategory;
 use App\Services\TechAccounting\TechnicCategoryService;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class TechnicCategoryController extends Controller
 {
-//resource methods
-    public function index()
+    //resource methods
+    public function index(): View
     {
         $technic_categories = TechnicCategory::with('category_characteristics')
             ->withCount('technics')
@@ -24,7 +25,7 @@ class TechnicCategoryController extends Controller
         ]);
     }
 
-    public function show($category_id)
+    public function show($category_id): View
     {
         $category = TechnicCategory::with('category_characteristics')->findOrFail($category_id);
 
@@ -33,10 +34,11 @@ class TechnicCategoryController extends Controller
         ]);
     }
 
-
     public function create()
     {
-        if (auth()->user()->cannot('tech_acc_tech_category_create')) return redirect()->back();
+        if (auth()->user()->cannot('tech_acc_tech_category_create')) {
+            return redirect()->back();
+        }
 
         return view('tech_accounting.technics.create_category');
     }
@@ -54,7 +56,9 @@ class TechnicCategoryController extends Controller
 
     public function edit($technic_category_id)
     {
-        if (auth()->user()->cannot('tech_acc_tech_category_update')) return redirect()->back();
+        if (auth()->user()->cannot('tech_acc_tech_category_update')) {
+            return redirect()->back();
+        }
         $technic_category = TechnicCategory::with('category_characteristics')->findOrFail($technic_category_id);
 
         return view('tech_accounting.technics.edit_category', [
@@ -64,7 +68,9 @@ class TechnicCategoryController extends Controller
 
     public function update(UpdateTechnicCategoryRequest $request, $technic_category_id)
     {
-        if (auth()->user()->cannot('tech_acc_tech_category_update')) return redirect()->back();
+        if (auth()->user()->cannot('tech_acc_tech_category_update')) {
+            return redirect()->back();
+        }
         $category_service = new TechnicCategoryService();
         $category_service->updateTechnicCategoryWithCharacteristics($request->all(), $technic_category_id);
 
@@ -76,7 +82,9 @@ class TechnicCategoryController extends Controller
 
     public function destroy(TechnicCategory $technicCategory)
     {
-        if (auth()->user()->cannot('tech_acc_tech_category_delete')) return response()->json(false);
+        if (auth()->user()->cannot('tech_acc_tech_category_delete')) {
+            return response()->json(false);
+        }
 
         DB::beginTransaction();
 
@@ -89,7 +97,7 @@ class TechnicCategoryController extends Controller
         ]);
     }
 
-    public function display_trashed()
+    public function display_trashed(): View
     {
         $technic_categories = TechnicCategory::onlyTrashed()->with('category_characteristics')
             ->withCount('trashed_technics')
@@ -100,7 +108,7 @@ class TechnicCategoryController extends Controller
         ]);
     }
 
-    public function show_trashed($category_id)
+    public function show_trashed($category_id): View
     {
         $category = TechnicCategory::onlyTrashed()->with('category_characteristics')->findOrFail($category_id);
 

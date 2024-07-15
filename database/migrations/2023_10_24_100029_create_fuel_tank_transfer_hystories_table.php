@@ -1,18 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class CreateFuelTankTransferHystoriesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('fuel_tank_transfer_hystories', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -39,7 +37,7 @@ class CreateFuelTankTransferHystoriesTable extends Migration
             $table->foreign('fuel_tank_flow_id')->references('id')->on('fuel_tank_flows');
 
             $table->integer('fuel_level')->nullable()->comment('Остаток топлива в емкости');
-            
+
             $table->date('event_date')->comment('Дата время факта события');
             $table->timestamps();
             $table->softDeletes();
@@ -51,11 +49,9 @@ class CreateFuelTankTransferHystoriesTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('fuel_tank_transfer_hystories');
     }
-}
+};

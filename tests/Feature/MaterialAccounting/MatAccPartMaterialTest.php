@@ -10,8 +10,6 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class MatAccPartMaterialTest extends TestCase
 {
@@ -20,11 +18,11 @@ class MatAccPartMaterialTest extends TestCase
     public $units_name = [
         1 => 'т',
         2 => 'шт',
-        3 => 'м.п'
+        3 => 'м.п',
     ];
 
     /** @test */
-    public function it_decrease_fact_when_delete_part_close()
+    public function it_decrease_fact_when_delete_part_close(): void
     {
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 1]);
         $mats = [
@@ -33,7 +31,7 @@ class MatAccPartMaterialTest extends TestCase
                 'manual_material_id' => 1,
                 'unit' => 1,
                 'type' => 9,
-                'count' => 100
+                'count' => 100,
             ]),
             MaterialAccountingOperationMaterials::create([
                 'operation_id' => $operation->id,
@@ -47,7 +45,7 @@ class MatAccPartMaterialTest extends TestCase
                 'unit' => 1,
                 'type' => 1,
                 'count' => 200]),
-            ];
+        ];
 
         $controller = new MaterialAccountingController();
         $request = new Request();
@@ -59,7 +57,7 @@ class MatAccPartMaterialTest extends TestCase
     }
 
     /** @test */
-    public function it_decrease_fact_when_delete_part_close_on_transformation()
+    public function it_decrease_fact_when_delete_part_close_on_transformation(): void
     {
         //1.2.4.5.6.7.8.9
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 3]);
@@ -69,7 +67,7 @@ class MatAccPartMaterialTest extends TestCase
                 'manual_material_id' => 1,
                 'unit' => 1,
                 'type' => 8,
-                'count' => 100
+                'count' => 100,
             ]),
             MaterialAccountingOperationMaterials::create([
                 'operation_id' => $operation->id,
@@ -83,7 +81,7 @@ class MatAccPartMaterialTest extends TestCase
                 'unit' => 1,
                 'type' => 1,
                 'count' => 200]),
-            ];
+        ];
 
         $controller = new MaterialAccountingController();
         $request = new Request();
@@ -96,7 +94,7 @@ class MatAccPartMaterialTest extends TestCase
     }
 
     /** @test */
-    public function it_change_fact_when_update_part_close()
+    public function it_change_fact_when_update_part_close(): void
     {
         $this->actingAs(User::first());
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 1]);
@@ -109,7 +107,7 @@ class MatAccPartMaterialTest extends TestCase
                 'manual_material_id' => $man_mat->id,
                 'unit' => $unit,
                 'type' => 9,
-                'count' => 100
+                'count' => 100,
             ]),
             MaterialAccountingOperationMaterials::create([
                 'operation_id' => $operation->id,
@@ -123,7 +121,7 @@ class MatAccPartMaterialTest extends TestCase
                 'unit' => $unit,
                 'type' => 1,
                 'count' => 200]),
-            ];
+        ];
 
         $controller = new MaterialAccountingController();
         $request = new Request();
@@ -141,7 +139,7 @@ class MatAccPartMaterialTest extends TestCase
     }
 
     /** @test */
-    public function it_change_fact_when_update_part_close_on_transformation()
+    public function it_change_fact_when_update_part_close_on_transformation(): void
     {
         $this->actingAs(User::first());
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 4]);
@@ -154,7 +152,7 @@ class MatAccPartMaterialTest extends TestCase
                 'manual_material_id' => $man_mat->id,
                 'unit' => $unit,
                 'type' => 9,
-                'count' => 100
+                'count' => 100,
             ]),
             MaterialAccountingOperationMaterials::create([
                 'operation_id' => $operation->id,
@@ -168,7 +166,7 @@ class MatAccPartMaterialTest extends TestCase
                 'unit' => $unit,
                 'type' => 2,
                 'count' => 200]),
-            ];
+        ];
 
         $controller = new MaterialAccountingController();
         $request = new Request();
@@ -185,7 +183,7 @@ class MatAccPartMaterialTest extends TestCase
     }
 
     /** @test */
-    public function it_change_fact_when_update_part_close_on_moving()
+    public function it_change_fact_when_update_part_close_on_moving(): void
     {
         $this->actingAs(User::first());
         $operation = MaterialAccountingOperation::create(['status' => 1, 'type' => 4]);
@@ -198,7 +196,7 @@ class MatAccPartMaterialTest extends TestCase
                 'manual_material_id' => $man_mat->id,
                 'unit' => $unit,
                 'type' => 8,
-                'count' => 100
+                'count' => 100,
             ]),
             MaterialAccountingOperationMaterials::create([
                 'operation_id' => $operation->id,
@@ -212,7 +210,7 @@ class MatAccPartMaterialTest extends TestCase
                 'unit' => $unit,
                 'type' => 1,
                 'count' => 200]),
-            ];
+        ];
         $operation->status = 2;
         $operation->save();
         $controller = new MaterialAccountingController();

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Building\TechAccounting\Fuel;
 
 use App\Actions\Fuel\FuelActions;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\StandardEntityResourceController;
 use App\Models\Comment;
 use App\Models\Company\Company;
@@ -18,6 +16,8 @@ use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
 use App\Models\TechAcc\OurTechnic;
 use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
+use App\Notifications\Fuel\NewFuelTankResponsibleNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +31,7 @@ class FuelTankController extends StandardEntityResourceController
         $this->sectionTitle = 'Топливные емкости';
         $this->baseModel = new FuelTank;
         $this->routeNameFixedPart = 'building::tech_acc::fuel::tanks::';
-        $this->baseBladePath = resource_path() . '/views/tech_accounting/fuel/tanks/objects';
+        $this->baseBladePath = resource_path().'/views/tech_accounting/fuel/tanks/objects';
         $this->isMobile = $this->isMobile($this->baseBladePath);
         $this->components = $this->getModuleComponents();
         $this->modulePermissionsGroups = [17];
@@ -55,7 +55,7 @@ class FuelTankController extends StandardEntityResourceController
 
         $entities = $this->baseModel
             ->dxLoadOptions($options)
-            ->when(!User::find($userId)->hasPermission('watch_any_fuel_tanks'), function ($query) use ($userId) {
+            ->when(! User::find($userId)->hasPermission('watch_any_fuel_tanks'), function ($query) use ($userId) {
                 return $query->where('responsible_id', $userId);
             })
             ->selectRaw(
@@ -80,43 +80,44 @@ class FuelTankController extends StandardEntityResourceController
             ->when($this->isMobile, function ($query) {
                 return $query->with('object', 'responsible');
             })
-            ->when(!empty($searchValueQuery), function ($query) use ($searchValueQuery) {
-                $objectIds = ProjectObject::where('short_name', 'LIKE', '%' . $searchValueQuery . '%')->pluck('id')->toArray();
-                $tankIds = FuelTank::where('tank_number', 'LIKE', '%' . $searchValueQuery . '%')->pluck('id')->toArray();
+            ->when(! empty($searchValueQuery), function ($query) use ($searchValueQuery) {
+                $objectIds = ProjectObject::where('short_name', 'LIKE', '%'.$searchValueQuery.'%')->pluck('id')->toArray();
+                $tankIds = FuelTank::where('tank_number', 'LIKE', '%'.$searchValueQuery.'%')->pluck('id')->toArray();
+
                 return $query
                     ->whereIn('object_id', $objectIds)
                     ->orWhereIn('id', $tankIds);
             })
             ->get();
 
-        return json_encode(array(
-            "data" => $entities
-        ),
+        return json_encode([
+            'data' => $entities,
+        ],
             JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
 
     }
 
     public function afterStore($tank, $data, $dataToStore)
     {
-        if(empty($data['externalOperations'])) {
+        if (empty($data['externalOperations'])) {
             FuelTankTransferHistory::create([
                 'author_id' => Auth::user()->id,
                 'fuel_tank_id' => $tank->id,
                 'object_id' => $tank->object_id,
                 'responsible_id' => $tank->responsible_id,
                 'fuel_level' => 0,
-                'event_date' => $data['event_date'] ?? now()
+                'event_date' => $data['event_date'] ?? now(),
             ]);
         }
-        
-        if(!empty($data['externalOperations'])) {
+
+        if (! empty($data['externalOperations'])) {
             $this->handleFuelOperations($data['externalOperations'], $data['externalDeletedOperations'], $tank->id);
         }
     }
 
     public function beforeUpdate($tank, $data)
     {
-        if(empty($data['externalOperations']) && empty($data['externalDeletedOperations'])) {
+        if (empty($data['externalOperations']) && empty($data['externalDeletedOperations'])) {
             FuelTankTransferHistory::create([
                 'author_id' => Auth::user()->id,
                 'fuel_tank_id' => $tank->id,
@@ -126,10 +127,10 @@ class FuelTankController extends StandardEntityResourceController
                 'responsible_id' => $data['responsible_id'] ?? $tank->responsible_id ?? null,
                 'fuel_level' => $tank->fuel_level,
                 'event_date' => $data['event_date'] ?? now(),
-                'tank_moving_confirmation' => null
+                'tank_moving_confirmation' => null,
             ]);
         }
-        
+
         if (empty($data['responsible_id'])) {
             $data['awaiting_confirmation'] = false;
         } else {
@@ -137,7 +138,7 @@ class FuelTankController extends StandardEntityResourceController
             $this->notifyNewTankResponsible($tank);
         }
 
-        if(!empty($data['externalOperations']) || !empty($data['externalDeletedOperations'])) {
+        if (! empty($data['externalOperations']) || ! empty($data['externalDeletedOperations'])) {
             $this->handleFuelOperations($data['externalOperations'], $data['externalDeletedOperations']);
         }
 
@@ -156,19 +157,19 @@ class FuelTankController extends StandardEntityResourceController
     public function validateTankNumberUnique(Request $request)
     {
 
-        if(!$request->id) {
+        if (! $request->id) {
             return json_encode([
-                'result' => !FuelTank::where(
+                'result' => ! FuelTank::where(
                     'tank_number', $request->value
-                )->exists()
+                )->exists(),
             ],
                 JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
         } else {
             return json_encode([
-                'result' => !FuelTank::where([
+                'result' => ! FuelTank::where([
                     ['id', '<>', $request->id],
-                    ['tank_number', $request->value]
-                ])->exists()
+                    ['tank_number', $request->value],
+                ])->exists(),
             ],
                 JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
         }
@@ -179,8 +180,8 @@ class FuelTankController extends StandardEntityResourceController
         $data = json_decode($request->data);
         $tank = $this->baseModel::findOrFail($data->id);
 
-        if($tank->object_id == $data->object_id && $tank->responsible_id == $data->responsible_id) {
-            return json_encode(['message'=>'Отказ. Попытка создать новую запись с текущими параметрами.']);
+        if ($tank->object_id == $data->object_id && $tank->responsible_id == $data->responsible_id) {
+            return json_encode(['message' => 'Отказ. Попытка создать новую запись с текущими параметрами.']);
         }
 
         FuelTankTransferHistory::create([
@@ -192,21 +193,21 @@ class FuelTankController extends StandardEntityResourceController
             'responsible_id' => $data->responsible_id,
             'fuel_level' => $tank->fuel_level,
             'event_date' => $data->event_date,
-            'tank_moving_confirmation' => (int)$tank->responsible_id === (int)$data->responsible_id ? true : null
+            'tank_moving_confirmation' => (int) $tank->responsible_id === (int) $data->responsible_id ? true : null,
             // 'tank_moving_confirmation' => (int)$tank->responsible_id === (int)$data->responsible_id
         ]);
 
-        if(!empty($data->comment_movement_tmp)) {
+        if (! empty($data->comment_movement_tmp)) {
             Comment::create([
                 'commentable_id' => $tank->id,
-                'commentable_type' => 'App\Models\TechAcc\FuelTank\FuelTank',
+                'commentable_type' => \App\Models\TechAcc\FuelTank\FuelTank::class,
                 'comment' => $data->comment_movement_tmp,
                 'author_id' => Auth::user()->id,
 
             ]);
         }
 
-        if((int)$tank->responsible_id !== (int)$data->responsible_id) {
+        if ((int) $tank->responsible_id !== (int) $data->responsible_id) {
             $needNotification = true;
             $tank->awaiting_confirmation = true;
             $tank->comment_movement_tmp = $data->comment_movement_tmp ?? null;
@@ -219,7 +220,7 @@ class FuelTankController extends StandardEntityResourceController
 
         $tank->save();
 
-        if(!empty($needNotification)) {
+        if (! empty($needNotification)) {
             $this->notifyNewTankResponsible($tank);
         }
 
@@ -231,7 +232,7 @@ class FuelTankController extends StandardEntityResourceController
         $fuelTankId = json_decode($request->fuelTankId);
         $tank = $this->baseModel::findOrFail($fuelTankId);
 
-        if (!$tank->awaiting_confirmation) {
+        if (! $tank->awaiting_confirmation) {
             return;
         }
 
@@ -243,12 +244,13 @@ class FuelTankController extends StandardEntityResourceController
 
     public function getFuelTankConfirmationFormData(Request $request)
     {
-        $fuelTankId = (int)json_decode($request->fuelTankId);
+        $fuelTankId = (int) json_decode($request->fuelTankId);
         $tank = $this->baseModel::findOrFail($fuelTankId);
         $responseData = new \stdClass();
 
-        if(!$tank->awaiting_confirmation) {
+        if (! $tank->awaiting_confirmation) {
             $responseData->status = 'not need confirmation';
+
             return json_encode($responseData, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
         }
 
@@ -262,52 +264,62 @@ class FuelTankController extends StandardEntityResourceController
         return json_encode($responseData, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
     }
 
-    public function notifyNewTankResponsible($tank)
+    /**
+     * @return void
+     */
+    public function notifyNewTankResponsible(FuelTank $tank)
     {
-        (new FuelNotifications)->notifyNewFuelTankResponsibleUser($tank);
+        NewFuelTankResponsibleNotification::send(
+            $tank->responsible_id,
+            [
+                'name' => (new FuelNotifications)->renderNewFuelTankResponsible($tank)->render(),
+                'tank_id' => $tank->id,
+            ]
+        );
     }
 
     public function handleFuelOperations($operations, $deletedOperations, $newFuelTankId = null)
     {
         $fuelTankFlowController = new FuelTankFlowController;
 
-        foreach($operations as $operation) {
+        foreach ($operations as $operation) {
 
-            $data = (array)$operation;
+            $data = (array) $operation;
 
-            if(!empty($data['id']) && empty($data['guid'])) {
+            if (! empty($data['id']) && empty($data['guid'])) {
 
                 $entity = FuelTankFlow::findOrFail($data['id']);
 
                 DB::beginTransaction();
-                    $beforeUpdateResult = $fuelTankFlowController->beforeUpdate($entity, $data);
-                    $data = $beforeUpdateResult['data'];
-                    $dataToUpdate = $this->getFuelFlowDataToStore($data);
-                    $entity->update($dataToUpdate);
-                    $fuelTankFlowController->afterUpdate($entity, $data, $dataToUpdate);
+                $beforeUpdateResult = $fuelTankFlowController->beforeUpdate($entity, $data);
+                $data = $beforeUpdateResult['data'];
+                $dataToUpdate = $this->getFuelFlowDataToStore($data);
+                $entity->update($dataToUpdate);
+                $fuelTankFlowController->afterUpdate($entity, $data, $dataToUpdate);
                 DB::commit();
 
             } else {
                 DB::beginTransaction();
-                    if($newFuelTankId) {
-                        $data['fuel_tank_id'] = $newFuelTankId;
-                    }
-                    $beforeStoreResult = $fuelTankFlowController->beforeStore($data);
-                    $data = $beforeStoreResult['data'];
-                    $dataToStore = $this->getFuelFlowDataToStore($data);
-                    $entity = FuelTankFlow::create($dataToStore);
-                    $fuelTankFlowController->afterStore($entity, $data, $dataToStore);
+                if ($newFuelTankId) {
+                    $data['fuel_tank_id'] = $newFuelTankId;
+                }
+                $beforeStoreResult = $fuelTankFlowController->beforeStore($data);
+                $data = $beforeStoreResult['data'];
+                $dataToStore = $this->getFuelFlowDataToStore($data);
+                $entity = FuelTankFlow::create($dataToStore);
+                $fuelTankFlowController->afterStore($entity, $data, $dataToStore);
                 DB::commit();
+
                 return;
             }
         }
 
         foreach ($deletedOperations as $deletedOperation) {
             DB::beginTransaction();
-                $entity = FuelTankFlow::findOrFail($deletedOperation);
-                $fuelTankFlowController->beforeDelete($entity);
-                $entity->delete();
-                $fuelTankFlowController->afterDelete($entity);
+            $entity = FuelTankFlow::findOrFail($deletedOperation);
+            $fuelTankFlowController->beforeDelete($entity);
+            $entity->delete();
+            $fuelTankFlowController->afterDelete($entity);
             DB::commit();
         }
     }
@@ -351,16 +363,16 @@ class FuelTankController extends StandardEntityResourceController
 
         $this->additionalResources->
         fuelTanks =
-            FuelTank::leftJoin('fuel_tank_transfer_histories', function($join) {
+            FuelTank::leftJoin('fuel_tank_transfer_histories', function ($join) {
                 $join->on('fuel_tank_transfer_histories.fuel_tank_id', '=', 'fuel_tanks.id')
-                ->where('tank_moving_confirmation', true);
+                    ->where('tank_moving_confirmation', true);
             })
-            ->selectRaw('
-                fuel_tanks.*, 
+                ->selectRaw('
+                fuel_tanks.*,
                 MAX(event_date) as lastMovementConfirmationDate
             ')
-            ->groupBy('fuel_tanks.id')
-            ->get();
+                ->groupBy('fuel_tanks.id')
+                ->get();
 
         $this->additionalResources->
             fuelResponsibles =

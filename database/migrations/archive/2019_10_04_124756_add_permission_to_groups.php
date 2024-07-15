@@ -1,18 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\Models\Permission;
+use Illuminate\Database\Migrations\Migration;
 
-class AddPermissionToGroups extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $permissions = Permission::all();
 
@@ -23,7 +19,7 @@ class AddPermissionToGroups extends Migration
         $group_permissions_8 = [];
         $group_permissions_9 = [];
 
-        foreach($permissions as $permission) {
+        foreach ($permissions as $permission) {
             $group_permissions_5[] = ['group_id' => 5, 'permission_id' => $permission->id];
             $group_permissions_6[] = ['group_id' => 6, 'permission_id' => $permission->id];
             if ($permission->codename != 'users_permissions') {
@@ -37,7 +33,7 @@ class AddPermissionToGroups extends Migration
         $group_permissions_10 = [];
         $group_permissions_11 = [];
 
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -47,16 +43,16 @@ class AddPermissionToGroups extends Migration
                 'users_edit',
                 'users_delete',
                 'users_permissions',
-                'users_vacations'
+                'users_vacations',
             ]
         ) as $permission) {
             $group_permissions_10[] = ['group_id' => 10, 'permission_id' => $permission->id];
-            $group_permissions_11[] = ['group_id' => 11, 'permission_id' => $permission->id] ;
+            $group_permissions_11[] = ['group_id' => 11, 'permission_id' => $permission->id];
         }
 
         // department id 7
         $group_permissions_13 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -78,11 +74,11 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_13[] = ['group_id' => 13, 'permission_id' => $permission->id] ;
+            $group_permissions_13[] = ['group_id' => 13, 'permission_id' => $permission->id];
         }
 
         $group_permissions_14 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -97,7 +93,7 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_14[] = ['group_id' => 14, 'permission_id' => $permission->id] ;
+            $group_permissions_14[] = ['group_id' => 14, 'permission_id' => $permission->id];
         }
 
         //department id 8
@@ -105,7 +101,7 @@ class AddPermissionToGroups extends Migration
         $group_permissions_15 = [];
         $group_permissions_16 = [];
         $group_permissions_17 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -121,7 +117,7 @@ class AddPermissionToGroups extends Migration
 
         // department id 10
         $group_permissions_19 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -147,11 +143,11 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_19[] = ['group_id' => 19, 'permission_id' => $permission->id] ;
+            $group_permissions_19[] = ['group_id' => 19, 'permission_id' => $permission->id];
         }
 
         $group_permissions_23 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -167,25 +163,25 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_23[] = ['group_id' => 23, 'permission_id' => $permission->id] ;
+            $group_permissions_23[] = ['group_id' => 23, 'permission_id' => $permission->id];
         }
 
         // others department id 10
         $others_dep_10 = [];
         foreach ([20, 21, 22, 24, 25, 26] as $group_id) {
-            foreach($permissions->whereIn('codename',
+            foreach ($permissions->whereIn('codename',
                 [
                     'tasks',
                     'users',
                 ]
             ) as $permission) {
-                $others_dep_10[] = ['group_id' => $group_id, 'permission_id' => $permission->id] ;
+                $others_dep_10[] = ['group_id' => $group_id, 'permission_id' => $permission->id];
             }
         }
 
         // department id 11
         $group_permissions_27 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -215,11 +211,11 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_27[] = ['group_id' => 27, 'permission_id' => $permission->id] ;
+            $group_permissions_27[] = ['group_id' => 27, 'permission_id' => $permission->id];
         }
 
         $group_permissions_31 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -237,26 +233,26 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_31[] = ['group_id' => 31, 'permission_id' => $permission->id] ;
+            $group_permissions_31[] = ['group_id' => 31, 'permission_id' => $permission->id];
         }
 
         // others department id 11
         $others_dep_11 = [];
         foreach ([28, 29, 30, 32, 33, 34, 35, 36, 37, 38] as $group_id) {
-            foreach($permissions->whereIn('codename',
+            foreach ($permissions->whereIn('codename',
                 [
                     'tasks',
                     'users',
                 ]
             ) as $permission) {
-                $others_dep_11[] = ['group_id' => $group_id, 'permission_id' => $permission->id] ;
+                $others_dep_11[] = ['group_id' => $group_id, 'permission_id' => $permission->id];
             }
         }
 
         // others department id 12
         $others_dep_12 = [];
         foreach ([39, 40, 41, 42, 43, 44, 45] as $group_id) {
-            foreach($permissions->whereIn('codename',
+            foreach ($permissions->whereIn('codename',
                 [
                     'tasks',
                     'mat_acc_report_card',
@@ -268,14 +264,14 @@ class AddPermissionToGroups extends Migration
                     'users',
                 ]
             ) as $permission) {
-                $others_dep_12[] = ['group_id' => $group_id, 'permission_id' => $permission->id] ;
+                $others_dep_12[] = ['group_id' => $group_id, 'permission_id' => $permission->id];
             }
         }
 
         // others department id 13
         $others_dep_13 = [];
         foreach ([46, 47, 48] as $group_id) {
-            foreach($permissions->whereIn('codename',
+            foreach ($permissions->whereIn('codename',
                 [
                     'tasks',
                     'mat_acc_report_card',
@@ -287,13 +283,13 @@ class AddPermissionToGroups extends Migration
                     'users',
                 ]
             ) as $permission) {
-                $others_dep_13[] = ['group_id' => $group_id, 'permission_id' => $permission->id] ;
+                $others_dep_13[] = ['group_id' => $group_id, 'permission_id' => $permission->id];
             }
         }
 
         // department id 14
         $group_permissions_49 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -319,11 +315,11 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_49[] = ['group_id' => 49, 'permission_id' => $permission->id] ;
+            $group_permissions_49[] = ['group_id' => 49, 'permission_id' => $permission->id];
         }
 
         $group_permissions_50 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -351,12 +347,12 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_50[] = ['group_id' => 50, 'permission_id' => $permission->id] ;
+            $group_permissions_50[] = ['group_id' => 50, 'permission_id' => $permission->id];
         }
 
         // department id 15
         $group_permissions_51 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -367,12 +363,12 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_51[] = ['group_id' => 51, 'permission_id' => $permission->id] ;
+            $group_permissions_51[] = ['group_id' => 51, 'permission_id' => $permission->id];
         }
 
         // department id 16
         $group_permissions_53 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -397,11 +393,11 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_53[] = ['group_id' => 53, 'permission_id' => $permission->id] ;
+            $group_permissions_53[] = ['group_id' => 53, 'permission_id' => $permission->id];
         }
 
         $group_permissions_52 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -425,11 +421,11 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_52[] = ['group_id' => 52, 'permission_id' => $permission->id] ;
+            $group_permissions_52[] = ['group_id' => 52, 'permission_id' => $permission->id];
         }
 
         $group_permissions_54 = [];
-        foreach($permissions->whereIn('codename',
+        foreach ($permissions->whereIn('codename',
             [
                 'tasks',
                 'tasks_default_myself',
@@ -460,7 +456,7 @@ class AddPermissionToGroups extends Migration
                 'users',
             ]
         ) as $permission) {
-            $group_permissions_54[] = ['group_id' => 54, 'permission_id' => $permission->id] ;
+            $group_permissions_54[] = ['group_id' => 54, 'permission_id' => $permission->id];
         }
 
         DB::table('group_permissions')->insert($group_permissions_5);
@@ -493,11 +489,9 @@ class AddPermissionToGroups extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
 
     }
-}
+};

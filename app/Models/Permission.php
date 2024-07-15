@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use App\Traits\DevExtremeDataSourceLoadable;
 use App\Models\Notifications\NotificationsForPermissions;
+use App\Traits\DevExtremeDataSourceLoadable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Permission extends Model
 {
@@ -38,24 +39,24 @@ class Permission extends Model
 
     protected $appends = ['label', 'key'];
 
-    function getLabelAttribute()
+    public function getLabelAttribute()
     {
         return $this->name;
     }
 
-    function getKeyAttribute()
+    public function getKeyAttribute()
     {
         return $this->id;
     }
 
-    public function relatedNotifications()
+    public function relatedNotifications(): HasMany
     {
         return $this->hasMany(NotificationsForPermissions::class, 'permission', 'codename');
     }
 
     public function getUsersIdsByCodename($codename = null)
     {
-        if (!$codename) {
+        if (! $codename) {
             return [];
         }
 
@@ -75,10 +76,10 @@ class Permission extends Model
 
     public function scopeUsersIdsByCodename(Builder $query, $codename = null)
     {
-        if (!$codename) {
+        if (! $codename) {
             return [];
         }
-        
+
         return $this->getUsersIdsByCodename($codename);
     }
 }

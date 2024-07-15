@@ -1,18 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
-class SyncIsUploadedColumn extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
         $com_offers = \App\Models\CommercialOffer\CommercialOffer::whereDoesntHave('gantts')->get();
@@ -28,11 +24,9 @@ class SyncIsUploadedColumn extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         \App\Models\CommercialOffer\CommercialOffer::query()->update(['is_uploaded' => 0]);
     }
-}
+};

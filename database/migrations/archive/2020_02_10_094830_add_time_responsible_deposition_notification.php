@@ -3,16 +3,14 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddTimeResponsibleDepositionNotification extends Migration
+return new class extends Migration
 {
     const NOTIFICATION_TYPE = 91;
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::beginTransaction();
 
@@ -20,7 +18,7 @@ class AddTimeResponsibleDepositionNotification extends Migration
             'id' => self::NOTIFICATION_TYPE,
             'group' => 10,
             'name' => 'Уведомление о снятии с позиции ответственного за учёт рабочего времени на проекте',
-            'for_everyone' => 1
+            'for_everyone' => 1,
         ];
 
         DB::table('notification_types')->insert($new_types);
@@ -30,10 +28,8 @@ class AddTimeResponsibleDepositionNotification extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         DB::beginTransaction();
 
@@ -41,4 +37,4 @@ class AddTimeResponsibleDepositionNotification extends Migration
 
         DB::commit();
     }
-}
+};

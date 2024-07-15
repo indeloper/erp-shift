@@ -131,12 +131,12 @@
     </style>
 </head>
 
-<body @if(Session::has('sidebar_mini')) @if(Session::get('sidebar_mini')) class="sidebar-mini" @endif @endif>
+<body @if(Session::has('sidebar_mini') && Session::get('sidebar_mini')) class="sidebar-mini dx-viewport" @else class="dx-viewport" @endif>
 <div class="wrapper">
     <div class="sidebar"
          @if (config("app.env") == "local")
              data-color="red"
-         @elseif (config("app.env") == "local_dev")
+         @elseif (config("app.env") == "remote-dev")
              data-color="orange"
          @else
              data-color="purple"

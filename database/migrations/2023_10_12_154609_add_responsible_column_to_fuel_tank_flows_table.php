@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddResponsibleColumnToFuelTankFlowsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('fuel_tank_flows', function (Blueprint $table) {
             $table->unsignedInteger('responsible_id')->nullable()->after('author_id')->comment('ID ответственного');
@@ -21,14 +19,12 @@ class AddResponsibleColumnToFuelTankFlowsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('fuel_tank_flows', function (Blueprint $table) {
             $table->dropForeign(['responsible_id']);
             $table->dropColumn('responsible_id');
         });
     }
-}
+};

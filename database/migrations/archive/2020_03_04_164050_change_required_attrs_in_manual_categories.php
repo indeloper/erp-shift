@@ -1,18 +1,14 @@
 <?php
 
 use App\Models\Manual\ManualMaterialCategory;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class ChangeRequiredAttrsInManualCategories extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $category = ManualMaterialCategory::find(3);
         $category->load('materials.parameters', 'attributes');
@@ -27,13 +23,11 @@ class ChangeRequiredAttrsInManualCategories extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $category = ManualMaterialCategory::find(3);
         $category->load('materials.parameters', 'attributes');
         $category->attributes()->where('name', 'Длина')->update(['is_required' => 1]);
     }
-}
+};

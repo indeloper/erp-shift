@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class AddSerialNumberManufactureYearRegistrationNumberToOurTechnicsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('our_technics', function (Blueprint $table) {
             $table->integer('manufacture_year')->nullable()->after('technic_brand_model_id')->comment('Год выпуска');
@@ -22,10 +20,8 @@ class AddSerialNumberManufactureYearRegistrationNumberToOurTechnicsTable extends
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::table('our_technics', function (Blueprint $table) {
             $table->dropColumn('manufacture_year');
@@ -33,4 +29,4 @@ class AddSerialNumberManufactureYearRegistrationNumberToOurTechnicsTable extends
             $table->dropColumn('registration_number');
         });
     }
-}
+};

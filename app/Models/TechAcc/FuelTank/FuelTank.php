@@ -3,28 +3,28 @@
 namespace App\Models\TechAcc\FuelTank;
 
 use App\Models\Company\Company;
-use App\Traits\Defectable;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\Logable;
-use App\Traits\DevExtremeDataSourceLoadable;
-
-use Illuminate\Database\Eloquent\Model;
-
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-
 use App\Models\ProjectObject;
 use App\Models\User;
 use App\Traits\DefaultSortable;
+use App\Traits\Defectable;
+use App\Traits\DevExtremeDataSourceLoadable;
+use App\Traits\Logable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FuelTank extends Model
 {
-    use SoftDeletes, Defectable, DevExtremeDataSourceLoadable, Logable, DefaultSortable;
+    use DefaultSortable, Defectable, DevExtremeDataSourceLoadable, Logable, SoftDeletes;
+    use HasFactory;
 
     protected $guarded = ['id'];
 
     public $defaultSortOrder = [
-        'tank_number' => 'asc'
+        'tank_number' => 'asc',
     ];
 
     // protected $with = [
@@ -45,18 +45,17 @@ class FuelTank extends Model
     //     });
     // }
 
-
-    public function object()
+    public function object(): BelongsTo
     {
         return $this->belongsTo(ProjectObject::class);
     }
 
-    public function responsible()
+    public function responsible(): BelongsTo
     {
         return $this->belongsTo(User::class, 'responsible_id');
     }
 
-    public function company()
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
@@ -66,12 +65,12 @@ class FuelTank extends Model
         return "Топливная емкость $this->tank_number";
     }
 
-    public function operations()
+    public function operations(): HasMany
     {
         return $this->hasMany(FuelTankOperation::class);
     }
 
-    public function trashed_operations()
+    public function trashed_operations(): HasMany
     {
         return $this->hasMany(FuelTankOperation::class)->onlyTrashed();
     }

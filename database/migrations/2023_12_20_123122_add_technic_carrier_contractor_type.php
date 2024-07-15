@@ -1,47 +1,43 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddTechnicCarrierContractorType extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         DB::table('contractor_types')->insert($this->getNewEntrises());
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
-    { 
-        foreach(self::NEW_ENTRIES as $newEntry) {
+    public function down(): void
+    {
+        foreach (self::NEW_ENTRIES as $newEntry) {
             DB::table('contractor_types')->where('slug', $newEntry['slug'])->delete();
         }
     }
 
-    public function getNewEntrises() {
+    public function getNewEntrises()
+    {
         $newEntries = self::NEW_ENTRIES;
-        foreach($newEntries as $key=>$newEntry) {
+        foreach ($newEntries as $key => $newEntry) {
             $newEntries[$key]['created_at'] = now();
             $newEntries[$key]['updated_at'] = now();
         }
+
         return $newEntries;
     }
 
     const NEW_ENTRIES = [
         [
-            'name' => 'Перевозчик техники', 
+            'name' => 'Перевозчик техники',
             'slug' => 'technic_carrier',
         ],
     ];
-}
+};

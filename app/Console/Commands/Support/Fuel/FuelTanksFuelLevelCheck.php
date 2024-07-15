@@ -6,7 +6,6 @@ use App\Models\TechAcc\FuelTank\FuelTank;
 use App\Models\TechAcc\FuelTank\FuelTankFlow;
 use App\Models\TechAcc\FuelTank\FuelTankFlowType;
 use App\Models\TechAcc\FuelTank\FuelTankTransferHistory;
-use App\Models\User;
 use App\Notifications\Fuel\FuelNotifications;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -33,7 +32,6 @@ class FuelTanksFuelLevelCheck extends Command
      *
      * @return void
      */
-
     public function __construct()
     {
         parent::__construct();
@@ -44,42 +42,40 @@ class FuelTanksFuelLevelCheck extends Command
      *
      * @return mixed
      */
-
-    public function configure() {
+    public function configure()
+    {
         $this->addOption('dateFrom', null, InputOption::VALUE_REQUIRED, 'Начальная дата, с которой ведется расчет');
     }
 
-    public function handle()
+    public function handle(): void
     {
         $dateFrom = Carbon::parse($this->option('dateFrom'));
-        foreach(FuelTank::all() as $tank) {
+        foreach (FuelTank::all() as $tank) {
             $transferHistoryFuelLevelDateFrom = $this->getTransferHistoryFuelLevelDateFrom($tank, $dateFrom);
             $fuelOperationsVolumesSum = $this->getFuelOperationsVolumesSum($tank, $dateFrom);
-            $calculatedTankFuelLevel = (int)$transferHistoryFuelLevelDateFrom + (int)$fuelOperationsVolumesSum;
+            $calculatedTankFuelLevel = (int) $transferHistoryFuelLevelDateFrom + (int) $fuelOperationsVolumesSum;
             $periodReportTankFuelLevel = $this->getPeriodReportTankFuelLevel($tank);
             $tankFuelLevel = $tank->fuel_level;
-            $isOk = 
-                $calculatedTankFuelLevel === $periodReportTankFuelLevel 
+            $isOk =
+                $calculatedTankFuelLevel === $periodReportTankFuelLevel
                 && $calculatedTankFuelLevel === $tankFuelLevel
                 ? true : false;
 
-            if(!$isOk) {
-                
+            if (! $isOk) {
                 $data = [
                     'tank' => $tank,
                     'dateFrom' => $dateFrom,
                     'calculatedTankFuelLevel' => $calculatedTankFuelLevel,
-                    'periodReportTankFuelLevel' => $periodReportTankFuelLevel
+                    'periodReportTankFuelLevel' => $periodReportTankFuelLevel,
                 ];
 
                 (new FuelNotifications)->notifyAdminsAboutFuelBalanceMissmatches($data);
 
-            
                 // echo PHP_EOL."
                 //         id: $tank->id
                 //         num: $tank->tank_number
-                //         calculatedTankFuelLevel: $calculatedTankFuelLevel 
-                //         periodReportTankFuelLevel: $periodReportTankFuelLevel 
+                //         calculatedTankFuelLevel: $calculatedTankFuelLevel
+                //         periodReportTankFuelLevel: $periodReportTankFuelLevel
                 //         tankFuelLevel: $tankFuelLevel
                 //         isOk: $isOk
                 //         transferHistoryFuelLevelDateFrom: $transferHistoryFuelLevelDateFrom
@@ -93,31 +89,30 @@ class FuelTanksFuelLevelCheck extends Command
     {
         return FuelTankTransferHistory::where([
             ['fuel_tank_id', $tank->id],
-            ['event_date', '<' , $dateFrom],
-            ['fuel_tank_flow_id', '<>', NULL],
+            ['event_date', '<', $dateFrom],
+            ['fuel_tank_flow_id', '<>', null],
         ])
-        ->orderByDesc('event_date')
-        ->orderByDesc('id')
-        ->first()
-        ->fuel_level ?? 0
-        ;
+            ->orderByDesc('event_date')
+            ->orderByDesc('id')
+            ->first()
+        ->fuel_level ?? 0;
     }
 
     public function getFuelOperationsVolumesSum($tank, $dateFrom)
     {
         $incomesAndAdjusmentsSum = FuelTankFlow::where([
             ['fuel_tank_id', $tank->id],
-            ['event_date', '>=', $dateFrom]
+            ['event_date', '>=', $dateFrom],
         ])
-        ->whereIn('fuel_tank_flow_type_id', FuelTankFlowType::whereIn('slug', ['income', 'adjustment'])->pluck('id')->toArray())
-        ->sum('volume');
+            ->whereIn('fuel_tank_flow_type_id', FuelTankFlowType::whereIn('slug', ['income', 'adjustment'])->pluck('id')->toArray())
+            ->sum('volume');
 
         $outcomesSum = FuelTankFlow::where([
             ['fuel_tank_id', $tank->id],
-            ['event_date', '>=', $dateFrom]
+            ['event_date', '>=', $dateFrom],
         ])
-        ->whereIn('fuel_tank_flow_type_id', FuelTankFlowType::whereIn('slug', ['outcome'])->pluck('id')->toArray())
-        ->sum('volume');
+            ->whereIn('fuel_tank_flow_type_id', FuelTankFlowType::whereIn('slug', ['outcome'])->pluck('id')->toArray())
+            ->sum('volume');
 
         return $incomesAndAdjusmentsSum - $outcomesSum;
     }
@@ -125,14 +120,12 @@ class FuelTanksFuelLevelCheck extends Command
     public function getPeriodReportTankFuelLevel($tank)
     {
         return FuelTankTransferHistory::where([
-                ['fuel_tank_id', $tank->id],
-                ['fuel_tank_flow_id', '<>', NULL],
-            ])
+            ['fuel_tank_id', $tank->id],
+            ['fuel_tank_flow_id', '<>', null],
+        ])
             ->orderByDesc('event_date')
             ->orderByDesc('id')
             ->first()
-            ->fuel_level ?? 0
-            ;
+            ->fuel_level ?? 0;
     }
-
 }

@@ -3,17 +3,21 @@
 namespace App\Models\TechAcc\Vehicles;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VehicleCategories extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
         'user_id',
         'name',
-        'description'
+        'description',
     ];
 
     protected $with = [
@@ -24,36 +28,32 @@ class VehicleCategories extends Model
     // Relations
     /**
      * Relation for vehicle category author
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function author()
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     /**
      * Relation for vehicle category author
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function characteristics()
+    public function characteristics(): HasMany
     {
         return $this->hasMany(VehicleCategoryCharacteristics::class, 'category_id', 'id');
     }
 
     /**
      * Relation for vehicles
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function vehicles()
+    public function vehicles(): HasMany
     {
         return $this->hasMany(OurVehicles::class, 'category_id', 'id');
     }
 
     /**
      * Relation for trashed vehicles
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function trashed_vehicles()
+    public function trashed_vehicles(): HasMany
     {
         return $this->hasMany(OurVehicles::class, 'category_id', 'id')->onlyTrashed();
     }
@@ -63,7 +63,6 @@ class VehicleCategories extends Model
      * This function delete vehicle category characteristics
      * and update characteristics values in vehicle category
      * examples
-     * @param $deleted_characteristic_ids
      */
     public function deleteCharacteristics($deleted_characteristic_ids)
     {
@@ -75,7 +74,6 @@ class VehicleCategories extends Model
     /**
      * This function delete vehicle category characteristic
      * and also delete parameters from this category vehicles
-     * @param $characteristic_id
      */
     public function deleteCharacteristic($characteristic_id): void
     {
@@ -84,7 +82,6 @@ class VehicleCategories extends Model
 
     /**
      * This function create or update vehicle category characteristics
-     * @param array $characteristics
      */
     public function updateCharacteristics(array $characteristics)
     {
