@@ -17,6 +17,7 @@ use Illuminate\View\View;
 
 class FuelTankOperationController extends Controller
 {
+
     public function __construct()
     {
         parent::__construct();
@@ -29,16 +30,19 @@ class FuelTankOperationController extends Controller
      */
     public function index(Request $request): View
     {
-        $paginated = FuelTankOperation::filter($request->all())->paginate(10);
+        $paginated              = FuelTankOperation::filter($request->all())
+            ->paginate(10);
         $fuelTankOperationCount = $paginated->total();
-        $fuelTankOperations = $paginated->items();
+        $fuelTankOperations     = $paginated->items();
 
-        return view('tech_accounting.fuel.old.accounting', ['data' => [
-            'operations' => $fuelTankOperations,
-            'total_count' => $fuelTankOperationCount,
-            'owners' => OurTechnic::$owners,
-            'types' => FuelTankOperation::getModel()->types_json,
-        ]]);
+        return view('tech_accounting.fuel.old.accounting', [
+            'data' => [
+                'operations'  => $fuelTankOperations,
+                'total_count' => $fuelTankOperationCount,
+                'owners'      => OurTechnic::$owners,
+                'types'       => FuelTankOperation::getModel()->types_json,
+            ],
+        ]);
     }
 
     /**
@@ -104,8 +108,10 @@ class FuelTankOperationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFuelTankOperation $request, FuelTankOperation $FuelTankOperation): Response
-    {
+    public function update(
+        UpdateFuelTankOperation $request,
+        FuelTankOperation $FuelTankOperation
+    ): Response {
         $FuelTankOperation->update($request->all());
 
         if ($request->file_ids) {
@@ -148,28 +154,38 @@ class FuelTankOperationController extends Controller
         if (empty($output)) {
             $output = $request->all();
         }
-        $paginated = FuelTankOperation::filter($output)->paginate(10);
+        $paginated              = FuelTankOperation::filter($output)
+            ->paginate(10);
         $fuelTankOperationCount = $paginated->total();
-        $fuelTankOperations = $paginated->items();
+        $fuelTankOperations     = $paginated->items();
 
-        return response(['fuelTankOperations' => $fuelTankOperations, 'fuelTankOperationCount' => $fuelTankOperationCount]);
+        return response([
+            'fuelTankOperations'     => $fuelTankOperations,
+            'fuelTankOperationCount' => $fuelTankOperationCount,
+        ]);
     }
 
     public function createReport(Request $request): View
     {
-        $operations = FuelTankOperation::filter($request->toArray())->orderBy('operation_date')->get();
-        $responsible_user = User::with('group')->findOrFail($request->responsible_receiver_id);
-        $object = ProjectObject::find($request->object_id);
-        $fuelTank = FuelTank::find($request->fuel_tank_id);
-        $mode = $request->mode;
-        $first_operation = $operations->first();
-        $start_value = $first_operation->result_value ?? 0 - ($first_operation ? $first_operation->value_diff : 0);
+        $operations       = FuelTankOperation::filter($request->toArray())
+            ->orderBy('operation_date')->get();
+        $responsible_user = User::with('group')
+            ->findOrFail($request->responsible_receiver_id);
+        $object           = ProjectObject::find($request->object_id);
+        $fuelTank         = FuelTank::find($request->fuel_tank_id);
+        $mode             = $request->mode;
+        $first_operation  = $operations->first();
+        $start_value      = $first_operation->result_value ??
+            0 - ($first_operation ? $first_operation->value_diff : 0);
 
         if ($start_value < 0) {
             $start_value = 0;
         }
 
-        return view('tech_accounting.fuel.old.report', compact(['operations', 'responsible_user', 'object', 'start_value', 'fuelTank', 'mode']));
+        return view('tech_accounting.fuel.old.report', compact([
+            'operations', 'responsible_user', 'object', 'start_value',
+            'fuelTank', 'mode',
+        ]));
     }
 
     public function getFuelTanksOperations(Request $request): JsonResponse
@@ -178,4 +194,5 @@ class FuelTankOperationController extends Controller
 
         return response()->json($operations);
     }
+
 }
