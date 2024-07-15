@@ -1262,6 +1262,384 @@
     </div>
 
 
+    <div class="modal fade" id="calc-mounts" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="form_mount_calc" action="{{ route('projects::work_volume::create_mount_calc', $work_volume->id) }}" method="post">
+                    @csrf
+                    <div>
+                        <h3>Обвязочная балка</h3>
+                        <section>
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="checkbox-radios">
+                                        <div class="form-check form-check-radio">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="radio" name="is_out" value="0" checked>
+                                                <span class="form-check-sign"></span>
+                                                Конструктивный
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-radio">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="radio" name="is_out" value="1">
+                                                <span class="form-check-sign"></span>
+                                                Извлекаемый
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="col-12">
+                                <div class="material_place first_material">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label for="">Тип балки</label>
+                                        </div>
+                                        <div class="col-md-8" style="width:86%; padding-right:0px">
+                                            <select name="strapping_beam[]" style="width:100%;" onchange="calc_change_mat(this)" class="selectpicker material-type select_beam" ajax_material_find="get_beam" data-title="Выберите тип балки" data-style="btn-default btn-outline" data-menu-style="dropdown-blue">
+                                            </select>
+                                        </div>
+                                        <div class="col-1" style="width:10%;padding-top:6px">
+                                            <button rel="tooltip" type="button" class="btn-danger btn-link btn padding-actions mn-0" onclick="remove_material_place(this)" data-original-title="Удалить" style="margin top:6px">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row amount" style="display:none">
+                                        <div class="col-md-3">
+                                            <label for="">Кол-во, м.п.<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="strapping_beam_count[]" class="form-control mat_length" min="0.001" step="0.001" max="10000000" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="">Кол-во, т<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="strapping_beam_count_weight[]" class="form-control mat_weight mat_beam" min="0.001" step="0.001" max="10000000" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:20px">
+                                    <div class="col-md-12 text-center">
+                                        <button type="button" class="btn btn-outline btn-sm btn-round" onclick="add_new_material(this)">
+                                            <i class="fa fa-plus"></i>
+                                            Добавить балку
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <h3>Угловые распоры</h3>
+                        <section>
+                            <div class="material_place first_material">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="">Тип трубы</label>
+                                    </div>
+                                    <div class="col-md-8" style="width:86%; padding-right:0px">
+                                        <select name="corner_strut[]" style="width:100%;" class="selectpicker material-type select_pipe" onchange="calc_change_mat(this)" ajax_material_find="get_pipe" data-title="Выберите тип трубы" data-style="btn-default btn-outline" data-menu-style="dropdown-blue">
+                                        </select>
+                                    </div>
+                                    <div class="col-1"  style="width:10%;padding-top:6px">
+                                        <button rel="tooltip" type="button" class="btn-danger btn-link btn padding-actions mn-0" onclick="remove_material_place(this)" data-original-title="Удалить">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="amount" style="display:none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label for="">Кол-во, шт<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="corner_strut_count[]" class="form-control common_mat_count" min="1" step="1" max="10000000" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="">Длина, м.п.<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="corner_strut_length[]" class="form-control mat_length" min="0.001" step="0.001" max="10000000" required>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top: 8px;">
+                                        <div class="col-md-6"></div>
+                                        <div class="col-md-2">
+                                            <label for="">Тоннаж, т<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="corner_strut_count_weight[]" class="form-control mat_weight" min="0.001" step="0.001" max="10000000" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:20px">
+                                <div class="col-md-12 text-center">
+                                    <button type="button" class="btn btn-outline btn-sm btn-round" onclick="add_new_material(this)">
+                                        <i class="fa fa-plus"></i>
+                                        Добавить распору
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                        <h3>Поперечные распоры</h3>
+                        <section>
+                            <div class="material_place first_material">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="">Тип трубы</label>
+                                    </div>
+                                    <div class="col-md-8" style="width:86%; padding-right:0px">
+                                        <select name="cross_strut[]" style="width:100%;" class="selectpicker material-type select_pipe" onchange="calc_change_mat(this)" ajax_material_find="get_pipe" data-title="Выберите тип трубы" data-style="btn-default btn-outline" data-menu-style="dropdown-blue">
+                                        </select>
+                                    </div>
+                                    <div class="col-1" style="width:10%;padding-top:6px">
+                                        <button rel="tooltip" type="button" class="btn-danger btn-link btn padding-actions mn-0" onclick="remove_material_place(this)" data-original-title="Удалить">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="amount" style="display:none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label for="">Кол-во, шт<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="cross_strut_count[]" class="form-control common_mat_count" min="1" max="10000000" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="">Длина, м.п.<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="cross_strut_length[]" class="form-control mat_length" min="0.001" step="0.001" max="10000000" required>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top: 8px;">
+                                        <div class="col-md-6"></div>
+                                        <div class="col-md-2">
+                                            <label for="">Тоннаж, т<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="cross_strut_count_weight[]" class="form-control mat_weight" min="0.001" step="0.001" max="10000000" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:20px">
+                                <div class="col-md-12 text-center">
+                                    <button type="button" class="btn btn-outline btn-sm btn-round" onclick="add_new_material(this)">
+                                        <i class="fa fa-plus"></i>
+                                        Добавить распору
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                        <h3>Подкосы</h3>
+                        <section>
+                            <div class="material_place first_material">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="">Тип трубы</label>
+                                    </div>
+                                    <div class="col-md-8" style="width:86%; padding-right:0px">
+                                        <select name="strut[]" style="width:100%;" class="selectpicker material-type select_pipe" onchange="calc_change_mat(this)" ajax_material_find="get_pipe" data-title="Выберите тип трубы" data-style="btn-default btn-outline" data-menu-style="dropdown-blue">
+                                        </select>
+                                    </div>
+                                    <div class="col-1"  style="width:10%;padding-top:6px">
+                                        <button rel="tooltip" type="button" class="btn-danger btn-link btn padding-actions mn-0" onclick="remove_material_place(this)" data-original-title="Удалить">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="amount" style="display:none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label for="">Кол-во, шт<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="strut_count[]" class="form-control common_mat_count" min="1" max="10000000" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="">Длина, м.п.<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="strut_length[]" class="form-control mat_length" min="0.001" step="0.001" max="10000000" required>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top: 8px;">
+                                        <div class="col-md-6"></div>
+                                        <div class="col-md-2">
+                                            <label for="">Тоннаж, т<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="strut_count_weight[]" class="form-control mat_weight" min="0.001" step="0.001" max="10000000" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:20px">
+                                <div class="col-md-12 text-center">
+                                    <button type="button" class="btn btn-outline btn-sm btn-round" onclick="add_new_material(this)">
+                                        <i class="fa fa-plus"></i>
+                                        Добавить подкос
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                        <h3>Закладные детали</h3>
+                        <section>
+                            <div class="material_place first_material">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="">Тип детали</label>
+                                    </div>
+                                    <div class="col-md-8" style="width:86%; padding-right:0px">
+                                        <select name="embedded_parts[]" style="width:100%;" class="selectpicker material-type embedded_parts_select" ajax_material_find="get_detail" data-title="Выберите тип закладной детали" data-style="btn-default btn-outline" data-menu-style="dropdown-blue">
+                                        </select>
+                                    </div>
+                                    <div class="col-1"  style="width:10%;padding-top:6px">
+                                        <button rel="tooltip" type="button" class="btn-danger btn-link btn padding-actions mn-0" onclick="remove_material_place(this)" data-original-title="Удалить">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row amount" style="display:none">
+                                    <div class="col-md-3">
+                                        <label for="">Кол-во, шт.<star class="star">*</star></label>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" name="embedded_parts_count[]" class="form-control common_nodes_count node_count" min="1" max="10000000" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="">Кол-во, т.</label>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" name="embedded_parts_weight[]" class="form-control node_weight" max="10000000" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:20px">
+                                <div class="col-md-12 text-center">
+                                    <button type="button" class="btn btn-outline btn-sm btn-round" onclick="add_new_material(this)">
+                                        <i class="fa fa-plus"></i>
+                                        Добавить деталь
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                        <h3>Стойки</h3>
+                        <section>
+                            <div class="material_place first_material">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="">Тип трубы</label>
+                                    </div>
+                                    <div class="col-md-8" style="width:86%; padding-right:0px">
+                                        <select name="racks[]" style="width:100%;" class="selectpicker material-type select_pipe" onchange="calc_change_mat(this)" ajax_material_find="get_pipe" data-title="Выберите тип трубы" data-style="btn-default btn-outline" data-menu-style="dropdown-blue">
+                                        </select>
+                                    </div>
+                                    <div class="col-1"  style="width:10%;padding-top:6px">
+                                        <button rel="tooltip" type="button" class="btn-danger btn-link btn padding-actions mn-0" onclick="remove_material_place(this)" data-original-title="Удалить">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="amount" style="display:none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label for="">Кол-во, шт<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="racks_count[]" class="form-control common_mat_count" min="1" max="10000000" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="">Длина, м.п.<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="racks_length[]" onchange="" class="form-control mat_length" min="0.001" step="0.001" max="10000000" required>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top: 8px;">
+                                        <div class="col-md-6"></div>
+                                        <div class="col-md-2">
+                                            <label for="">Тоннаж, т<star class="star">*</star></label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" name="racks_count_weight[]" class="form-control mat_weight" min="0.001" step="0.001" max="10000000" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:20px">
+                                <div class="col-md-12 text-center">
+                                    <button type="button" class="btn btn-outline btn-sm btn-round" onclick="add_new_material(this)">
+                                        <i class="fa fa-plus"></i>
+                                        Добавить стойку
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                        <h3>Узлы (оп. стол., лист г/к)</h3>
+                        <section>
+                            <div class="material_place first_material">
+                                <div class="row unit_node">
+                                    <div class="col-md-3">
+                                        <label for="">Тип узла</label>
+                                    </div>
+                                    <div class="col-md-8" style="width:86%; padding-right:0px">
+                                        <select name="nodes[]" style="width:100%;" class="selectpicker material-type nodes_select" ajax_material_find="get_nodes" data-title="Выберите тип узла" data-style="btn-default btn-outline" data-menu-style="dropdown-blue">
+                                        </select>
+                                    </div>
+                                    <div class="col-1" style="width:10%;padding-top:6px">
+                                        <button rel="tooltip" type="button" class="btn-danger btn-link btn padding-actions mn-0" onclick="remove_material_place(this)" data-original-title="Удалить">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row amount" style="display:none">
+                                    <div class="col-md-3">
+                                        <label for="">Кол-во, <span>шт</span>.<star class="star">*</star></label>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input name="nodes_count[]" type="number" class="form-control common_nodes_count node_count" min="1" max="10000000" required>
+                                    </div>
+                                    <div class="col-md-2 node_weight_hide">
+                                        <label for="">Кол-во, т.</label>
+                                    </div>
+                                    <div class="col-md-3 node_weight_hide">
+                                        <input type="number" name="nodes_weight[]" class="form-control node_weight" max="10000000" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:20px">
+                                <div class="col-md-12 text-center">
+                                    <button type="button" class="btn btn-outline btn-sm btn-round" onclick="add_new_material(this)">
+                                        <i class="fa fa-plus"></i>
+                                        Добавить узел
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </form>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
         <!-- система крепления -->
         <div class="modal fade bd-example-modal-lg show" id="calc-mounts" area-hidden="true" role="dialog" aria-labelledby="modal-search" style="display: none;">
             <div class="modal-dialog modal-lg" role="document">

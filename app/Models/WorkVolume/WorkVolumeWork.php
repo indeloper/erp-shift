@@ -12,26 +12,31 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class WorkVolumeWork extends Model
 {
+
     use Reviewable;
 
     protected $appends = ['shown_materials'];
 
     protected $guarded = [];
 
-    public function materials() //all materials. here raw materials (without complects)
+    public function materials(
+    ) //all materials. here raw materials (without complects)
     {
-        return $this->belongsToMany(WorkVolumeMaterial::class, 'work_volume_work_materials', 'wv_work_id', 'wv_material_id');
+        return $this->belongsToMany(WorkVolumeMaterial::class,
+            'work_volume_work_materials', 'wv_work_id', 'wv_material_id');
     }
 
-    public function getShownMaterialsAttribute() //materials to show. complect parts is replaced with parent complect
+    public function getShownMaterialsAttribute(
+    ) //materials to show. complect parts is replaced with parent complect
     {
-        $raw_materials = $this->materials->where('work_volume_id', $this->work_volume_id);
-        $materials = collect([]);
+        $raw_materials = $this->materials->where('work_volume_id',
+            $this->work_volume_id);
+        $materials     = collect([]);
 
         foreach ($raw_materials as $raw) {
             $material = $raw;
             if ($raw->complect_id) {
-                if (! $raw->complect) {
+                if ( ! $raw->complect) {
                     $raw->complect_id = null;
                     $raw->save();
                 } else {
@@ -39,7 +44,9 @@ class WorkVolumeWork extends Model
                 }
             }
 
-            if (! in_array($material->id, $materials->pluck('id')->toArray())) {
+            if ( ! in_array($material->id,
+                $materials->pluck('id')->toArray())
+            ) {
                 $materials->push($material);
             }
         }
@@ -49,17 +56,20 @@ class WorkVolumeWork extends Model
 
     public function relations(): HasMany
     {
-        return $this->hasMany(WorkVolumeWorkMaterial::class, 'wv_work_id', 'id');
+        return $this->hasMany(WorkVolumeWorkMaterial::class, 'wv_work_id',
+            'id');
     }
 
     public function manual(): BelongsTo
     {
-        return $this->belongsTo(ManualWork::class, 'manual_work_id', 'id')->withTrashed();
+        return $this->belongsTo(ManualWork::class, 'manual_work_id', 'id')
+            ->withTrashed();
     }
 
     public function complects_relations(): HasMany
     {
-        return $this->hasMany(WVWorkMaterialComplect::class, 'wv_work_id', 'id');
+        return $this->hasMany(WVWorkMaterialComplect::class, 'wv_work_id',
+            'id');
     }
 
     /**
@@ -67,7 +77,8 @@ class WorkVolumeWork extends Model
      */
     public function subcontractor_file(): HasOne
     {
-        return $this->hasOne(ContractorFile::class, 'id', 'subcontractor_file_id');
+        return $this->hasOne(ContractorFile::class, 'id',
+            'subcontractor_file_id');
     }
 
     /**
@@ -75,8 +86,9 @@ class WorkVolumeWork extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne | null
      */
-    public function subcontractor(): HasOne
+    public function subcontractor()
     {
         return $this->subcontractor_file->contractor ?? null;
     }
+
 }
