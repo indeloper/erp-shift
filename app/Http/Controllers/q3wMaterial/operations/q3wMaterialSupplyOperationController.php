@@ -163,6 +163,7 @@ class q3wMaterialSupplyOperationController extends Controller
             'destination_responsible_user_id' => $requestData['destination_responsible_user_id'],
             'contractor_id' => $requestData['contractor_id'],
             'consignment_note_number' => $requestData['consignment_note_number'],
+            'material_operation_reason_id' => $requestData['material_operation_reason_id']
         ]);
         $materialOperation->save();
 
@@ -187,7 +188,9 @@ class q3wMaterialSupplyOperationController extends Controller
 
             $inputMaterialAmount = $inputMaterial['amount'];
             $inputMaterialQuantity = $inputMaterial['quantity'];
-            if (empty($inputMaterial['comment'])) {
+
+            // Если коммит пустой, или в нем нет ни одной буквы
+            if (!isset($inputMaterial['comment']) || empty(trim($inputMaterial['comment'])) || !preg_match('/[\p{L}\p{N}]/u', $inputMaterial['comment'])) {
                 $inputMaterialComment = null;
             } else {
                 $inputMaterialComment = $inputMaterial['comment'];
@@ -297,9 +300,11 @@ class q3wMaterialSupplyOperationController extends Controller
         $operation = q3wMaterialOperation::leftJoin('project_objects', 'project_objects.id', '=', 'q3w_material_operations.destination_project_object_id')
             ->leftJoin('users', 'users.id', '=', 'q3w_material_operations.destination_responsible_user_id')
             ->leftJoin('contractors', 'contractors.id', '=', 'q3w_material_operations.contractor_id')
+            ->leftJoin('q3w_material_operation_reasons', 'q3w_material_operation_reasons.id', '=', 'q3w_material_operations.material_operation_reason_id')
             ->get(['q3w_material_operations.*',
                 'project_objects.short_name as destination_project_object_name',
                 'contractors.short_name as contractor_name',
+                'q3w_material_operation_reasons.name as material_operation_reason_name',
                 DB::Raw('CONCAT(`users`.`last_name`, " ", UPPER(SUBSTRING(`users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`users`.`patronymic`, 1, 1)), ".") as destination_responsible_user_name'),
             ])
             ->where('id', '=', $request->operationId)

@@ -1,0 +1,207 @@
+Index: app/Http/Controllers/q3wMaterial/q3wMaterialController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/q3wMaterial/q3wMaterialController.php b/app/Http/Controllers/q3wMaterial/q3wMaterialController.php
+--- a/app/Http/Controllers/q3wMaterial/q3wMaterialController.php	(revision 206b215c5c7d05042e35275242568bc988bbf925)
++++ b/app/Http/Controllers/q3wMaterial/q3wMaterialController.php	(revision 18150ec0ea9e37ddb5f8ca925b34f037e18f9045)
+@@ -598,15 +598,16 @@
+             ->select([
+                 'q3w_material_standards.id as id',
+                 'q3w_material_standards.name as standard_name',
++                'q3w_material_types.accounting_type',
+                 DB::raw('IFNULL(CASE WHEN `q3w_material_types`.`accounting_type` = 1 AND `coming_to_material_amount` > 1 THEN 1 ELSE `coming_to_material_amount` END, 0) as `coming_to_material_amount`'),
+                 DB::raw('IFNULL(`coming_to_material_quantity`, 0) as `coming_to_material_quantity`'),
+                 DB::raw('IFNULL(round((`coming_to_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `coming_to_material_weight`'),
+                 DB::raw('IFNULL(CASE WHEN `q3w_material_types`.`accounting_type` = 1 AND `outgoing_material_amount` > 1 THEN 1 ELSE `outgoing_material_amount` END, 0) as `outgoing_material_amount`'),
+                 DB::raw('IFNULL(`outgoing_material_quantity`, 0) as `outgoing_material_quantity`'),
+                 DB::raw('IFNULL(round((`outgoing_material_quantity` * `q3w_material_standards`.`weight`), 3), 0) as `outgoing_material_material_weight`'),
+-                DB::raw('IFNULL(CASE WHEN `accounting_type` = 1 AND `amount_remains` > 1 THEN 1 WHEN `accounting_type` = 1 AND `amount_remains` >= 1 AND `quantity_remains` = 0 THEN 0 ELSE `amount_remains` END, 0) as `amount_remains`'),
+-                DB::raw('IFNULL(`quantity_remains`, 0) as `quantity_remains`'),
+-                DB::raw('IFNULL(round((`quantity_remains` * `q3w_material_standards`.`weight`), 3), 0) as `weight_remains`')])
++                DB::raw('IFNULL(CASE WHEN `accounting_type` = 1 AND `amount_remains` > 1 THEN 1 WHEN `accounting_type` = 1 AND `amount_remains` >= 1 AND `quantity_remains` = 0 THEN 0 ELSE `amount_remains` END, 0) as `amount_remains_from_snapshot`'),
++                DB::raw('IFNULL(`quantity_remains`, 0) as `quantity_remains_from_snapshot`'),
++                DB::raw('IFNULL(round((`quantity_remains` * `q3w_material_standards`.`weight`), 3), 0) as `weight_remains_from_snapshot`')])
+             ->orderBy('q3w_material_standards.material_type')
+             ->orderBy('q3w_material_standards.name');
+     }
+Index: app/Services/q3wMaterialAccounting/Reports/MaterialRemainsXLSXReport.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Services/q3wMaterialAccounting/Reports/MaterialRemainsXLSXReport.php b/app/Services/q3wMaterialAccounting/Reports/MaterialRemainsXLSXReport.php
+--- a/app/Services/q3wMaterialAccounting/Reports/MaterialRemainsXLSXReport.php	(revision 206b215c5c7d05042e35275242568bc988bbf925)
++++ b/app/Services/q3wMaterialAccounting/Reports/MaterialRemainsXLSXReport.php	(revision 18150ec0ea9e37ddb5f8ca925b34f037e18f9045)
+@@ -64,7 +64,7 @@
+ 
+         return [
+             [
+-                'Остатки материалов на ' .  Carbon::parse($this->date)->format('d.m.Y')
++                'Остатки материалов на ' . Carbon::parse($this->date)->format('d.m.Y')
+             ],
+             [
+                 'Фильтры: ' . $this->filterText
+@@ -107,22 +107,33 @@
+         $lineNumber = self::startLineNumber;
+ 
+         foreach ($this->materialRemains as $material) {
++            switch ($material['accounting_type']) {
++                case 1:
++                    if (round($material['coming_to_material_weight'] - $material['outgoing_material_material_weight'], 3) != 0) {
++                        $amount = 1;
++                    } else {
++                        $amount = 0;
++                    }
++                    break;
++                default:
++                    $amount = '=B' . $lineNumber . '-E' . $lineNumber;
++            }
+ 
+             $results->push([
+                 $material['standard_name'],
+-                (string) $material['coming_to_material_amount'],
+-                (string) $material['coming_to_material_quantity'],
+-                (string) $material['coming_to_material_weight'],
+-                (string) $material['outgoing_material_amount'],
+-                (string) $material['outgoing_material_quantity'],
+-                (string) $material['outgoing_material_material_weight'],
+-                (string) $material['amount_remains'],
+-                (string) $material['quantity_remains'],
+-                (string) $material['weight_remains']
++                (string)$material['coming_to_material_amount'],
++                (string)$material['coming_to_material_quantity'],
++                (string)$material['coming_to_material_weight'],
++                (string)$material['outgoing_material_amount'],
++                (string)$material['outgoing_material_quantity'],
++                (string)$material['outgoing_material_material_weight'],
++                (string)$amount,
++                '=C' . $lineNumber . '-F' . $lineNumber,
++                '=D' . $lineNumber . '-G' . $lineNumber
+             ]);
+ 
+             $number++;
+-            $lineNumber ++;
++            $lineNumber++;
+         }
+ 
+         $this->lastLineNumber = $lineNumber - 1;
+@@ -135,7 +146,7 @@
+     public function registerEvents(): array
+     {
+         return [
+-            AfterSheet::class => function(AfterSheet $event) {
++            AfterSheet::class => function (AfterSheet $event) {
+                 $event->sheet->setAutoFilter('A6:J6');
+ 
+                 //Main header styles
+@@ -147,15 +158,15 @@
+                 $event->sheet->getDelegate()->mergeCells('E5:G5');
+                 $event->sheet->getDelegate()->mergeCells('H5:J5');
+ 
+-                $event->sheet->horizontalAlign('A1' , Alignment::HORIZONTAL_CENTER);
+-                $event->sheet->horizontalAlign('A2' , Alignment::HORIZONTAL_LEFT);
++                $event->sheet->horizontalAlign('A1', Alignment::HORIZONTAL_CENTER);
++                $event->sheet->horizontalAlign('A2', Alignment::HORIZONTAL_LEFT);
+ 
+-                $event->sheet->horizontalAlign('A4' , Alignment::HORIZONTAL_CENTER);
+-                $event->sheet->horizontalAlign('A5' , Alignment::HORIZONTAL_CENTER);
+-                $event->sheet->verticalAlign('A5' , Alignment::VERTICAL_CENTER);
+-                $event->sheet->horizontalAlign('B5' , Alignment::HORIZONTAL_CENTER);
+-                $event->sheet->horizontalAlign('E5' , Alignment::HORIZONTAL_CENTER);
+-                $event->sheet->horizontalAlign('H5' , Alignment::HORIZONTAL_CENTER);
++                $event->sheet->horizontalAlign('A4', Alignment::HORIZONTAL_CENTER);
++                $event->sheet->horizontalAlign('A5', Alignment::HORIZONTAL_CENTER);
++                $event->sheet->verticalAlign('A5', Alignment::VERTICAL_CENTER);
++                $event->sheet->horizontalAlign('B5', Alignment::HORIZONTAL_CENTER);
++                $event->sheet->horizontalAlign('E5', Alignment::HORIZONTAL_CENTER);
++                $event->sheet->horizontalAlign('H5', Alignment::HORIZONTAL_CENTER);
+ 
+                 $event->sheet->getStyle('A1')
+                     ->applyFromArray([
+@@ -186,7 +197,7 @@
+                         ]
+                     ]);
+ 
+-                $event->sheet->getStyle('A'. self::startLineNumber .':A' . $this->lastLineNumber)
++                $event->sheet->getStyle('A' . self::startLineNumber . ':A' . $this->lastLineNumber)
+                     ->applyFromArray([
+                         'font' => [
+                             'bold' => true
+@@ -207,7 +218,7 @@
+                         ]
+                     ]);
+ 
+-                $event->sheet->getStyle('B'. self::startLineNumber .':D' . $this->lastLineNumber)
++                $event->sheet->getStyle('B' . self::startLineNumber . ':D' . $this->lastLineNumber)
+                     ->applyFromArray([
+                         'font' => [
+                             'color' => array('rgb' => '335633'),
+@@ -228,7 +239,7 @@
+                         ]
+                     ]);
+ 
+-                $event->sheet->getStyle('E'. self::startLineNumber .':G' . $this->lastLineNumber)
++                $event->sheet->getStyle('E' . self::startLineNumber . ':G' . $this->lastLineNumber)
+                     ->applyFromArray([
+                         'font' => [
+                             'color' => array('rgb' => '762828'),
+@@ -249,7 +260,7 @@
+                         ]
+                     ]);
+ 
+-                $event->sheet->getStyle('H'. self::startLineNumber .':J' . $this->lastLineNumber)
++                $event->sheet->getStyle('H' . self::startLineNumber . ':J' . $this->lastLineNumber)
+                     ->applyFromArray([
+                         'font' => [
+                             'color' => array('rgb' => '20205a'),
+Index: resources/views/materials/material-remains.blade.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/resources/views/materials/material-remains.blade.php b/resources/views/materials/material-remains.blade.php
+--- a/resources/views/materials/material-remains.blade.php	(revision 206b215c5c7d05042e35275242568bc988bbf925)
++++ b/resources/views/materials/material-remains.blade.php	(revision 18150ec0ea9e37ddb5f8ca925b34f037e18f9045)
+@@ -236,17 +236,37 @@
+                                             {
+                                                 caption: "шт.",
+                                                 dataField: "amount_remains",
+-                                                cellTemplate: getCellTemplate
++                                                cellTemplate: getCellTemplate,
++                                                calculateCellValue: function(rowData) {
++                                                    let amountRemainsWeigth = rowData.coming_to_material_weight - rowData.outgoing_material_material_weight;
++
++                                                    switch (rowData.accounting_type) {
++                                                        case 1:
++                                                            if (round((rowData.coming_to_material_weight - rowData.outgoing_material_material_weight)/1000)*1000 !== 0) {
++                                                                return 1
++                                                            } else {
++                                                                return 0
++                                                            }
++                                                        default:
++                                                            return rowData.coming_to_material_amount - rowData.outgoing_material_amount;
++                                                    }
++                                                }
+                                             },
+                                             {
+                                                 caption: "п.м./м²",
+                                                 dataField: "quantity_remains",
+-                                                cellTemplate: getCellTemplate
++                                                cellTemplate: getCellTemplate,
++                                                calculateCellValue: function(rowData) {
++                                                    return rowData.coming_to_material_quantity - rowData.outgoing_material_quantity;
++                                                }
+                                             },
+                                             {
+                                                 caption: "тн.",
+                                                 dataField: "weight_remains",
+-                                                cellTemplate: getCellTemplate
++                                                cellTemplate: getCellTemplate,
++                                                calculateCellValue: function(rowData) {
++                                                    return rowData.coming_to_material_weight - rowData.outgoing_material_material_weight;
++                                                }
+                                             }
+                                         ]
+                                     }

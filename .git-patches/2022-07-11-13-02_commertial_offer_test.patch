@@ -1,0 +1,17 @@
+Index: app/Models/CommercialOffer/CommercialOffer.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/CommercialOffer/CommercialOffer.php b/app/Models/CommercialOffer/CommercialOffer.php
+--- a/app/Models/CommercialOffer/CommercialOffer.php	(revision c5456376b9c2f9586a989cc8f92feacaa771f78b)
++++ b/app/Models/CommercialOffer/CommercialOffer.php	(date 1657534264103)
+@@ -540,7 +540,7 @@
+             return true;
+         }
+         return $pdf_new->stream('commercial_offer_' . $today . '.pdf');
+-//         return view('projects.commercial_offer.offer', $data);
++//       return view('projects.commercial_offer.offer', $data);
+     }
+ 
+     /**

@@ -1,0 +1,38 @@
+Index: app/Http/Controllers/q3wMaterial/operations/q3wMaterialTransferOperationController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/q3wMaterial/operations/q3wMaterialTransferOperationController.php b/app/Http/Controllers/q3wMaterial/operations/q3wMaterialTransferOperationController.php
+--- a/app/Http/Controllers/q3wMaterial/operations/q3wMaterialTransferOperationController.php	(revision 229f20fa41c53c67a87e041d3e95aad60006d6cd)
++++ b/app/Http/Controllers/q3wMaterial/operations/q3wMaterialTransferOperationController.php	(revision a2c81091d89c0a015ecb9a5bf2fd50e64096c9dd)
+@@ -174,12 +174,8 @@
+                         ->where('standard_id', $operationMaterial->standard->id)
+                         ->where('quantity', $operationMaterial->quantity)
+                         ->where(function ($query) use ($operationMaterial, $operationMaterialComment, $operationMaterialInitialComment) {
+-                            if (empty($operationMaterialComment->comment)) {
+-                                if (empty($operationMaterial->initial_comment_id)) {
+-                                    $query->whereNull('comment_id');
+-                                } else {
+-                                    $query->where('comment', 'like', $operationMaterialInitialComment->comment);
+-                                }
++                            if (empty($operationMaterialComment)) {
++                                $query->whereNull('comment_id');
+                             } else {
+                                 $query->where('comment', 'like', $operationMaterialComment->comment);
+                             }
+@@ -203,12 +199,8 @@
+                         ->where('project_object', $operation->destination_project_object_id)
+                         ->where('standard_id', $operationMaterial->standard->id)
+                         ->where(function ($query) use ($operationMaterial, $operationMaterialComment, $operationMaterialInitialComment) {
+-                            if (empty($operationMaterialComment->comment)) {
+-                                if (empty($operationMaterial->initial_comment_id)) {
+-                                    $query->whereNull('comment_id');
+-                                } else {
+-                                    $query->where('comment', 'like', $operationMaterialInitialComment->comment);
+-                                }
++                            if (empty($operationMaterialComment)) {
++                                $query->whereNull('comment_id');
+                             } else {
+                                 $query->where('comment', 'like', $operationMaterialComment->comment);
+                             }

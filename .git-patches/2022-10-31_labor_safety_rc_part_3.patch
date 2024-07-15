@@ -1,0 +1,2427 @@
+Index: app/Http/Controllers/LaborSafety/LaborSafetyOrderTypeController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/LaborSafety/LaborSafetyOrderTypeController.php b/app/Http/Controllers/LaborSafety/LaborSafetyOrderTypeController.php
+--- a/app/Http/Controllers/LaborSafety/LaborSafetyOrderTypeController.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
++++ b/app/Http/Controllers/LaborSafety/LaborSafetyOrderTypeController.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -18,6 +18,24 @@
+     {
+         return view('labor-safety.labor-safety-order-types');
+     }
++    /**
++     * Returns the JSON of data.
++     *
++     * @return string
++     */
++    public function shortNameList(Request $request) {
++        $loadOptions = json_decode($request['loadOptions']);
++
++        return (new LaborSafetyOrderType())
++            ->dxLoadOptions($loadOptions)
++            ->get(
++                [
++                    'id',
++                    'short_name'
++                ]
++            )
++            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
++    }
+ 
+     /**
+      * Returns the JSON of data.
+Index: app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php b/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php
+--- a/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
++++ b/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -19,8 +19,16 @@
+ use Illuminate\Support\Facades\Auth;
+ use Illuminate\Support\Facades\DB;
+ use Illuminate\Support\Str;
++use PhpOffice\PhpWord\ComplexType\ProofState;
+ use PhpOffice\PhpWord\PhpWord;
+ use PhpOffice\PhpWord\Shared\Html;
++use PhpOffice\PhpWord\Style\Language;
++use function morphos\Russian\inflectName;
++
++class LaborSafetyHtml extends Html
++{
++
++}
+ 
+ class LaborSafetyRequestController extends Controller
+ {
+@@ -29,6 +37,12 @@
+     const PAGE_BREAK_DELIMITER = '<pagebreak></pagebreak>'; // Needs to modify vendor component https://github.com/PHPOffice/PHPWord/issues/1601
+ 
+ 
++    private function mb_lcfirst($string, $charset = 'UTF-8'): string
++    {
++        return mb_strtolower(mb_substr($string, 0, 1, $charset), $charset) .
++            mb_substr($string, 1, mb_strlen($string, $charset), $charset);
++    }
++
+     /**
+      * Display a view of the resource.
+      *
+@@ -49,14 +63,28 @@
+         $loadOptions = json_decode($request['loadOptions']);
+ 
+         $query = (new LaborSafetyRequest())
+-            ->dxLoadOptions($loadOptions);
++            ->dxLoadOptions($loadOptions)
++            ->get(
++                [
++                    'id',
++                    'order_date',
++                    'company_id',
++                    'project_object_id',
++                    'author_user_id',
++                    'implementer_user_id',
++                    'responsible_employee_id',
++                    'sub_responsible_employee_id',
++                    'request_status_id',
++                    DB::raw("IF(ISNULL(`generated_html`), 0, 1) as `is_orders_generated`"),
++                    'comment'
++                ]
++            );
+ 
+         if (!Auth::user()->can('labor_safety_order_list_access') || !Auth::user()->is_su) {
+             $query->where('author_user_id', '=', Auth::id());
+         }
+ 
+         return $query
+-            ->get()
+             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+     }
+ 
+@@ -85,11 +113,34 @@
+         $laborSafetyRequestRow->save();
+ 
+         if (isset($workers)) {
++            if (isset($laborSafetyRequestRow->responsible_employee_id)){
++                $newWorker = new LaborSafetyRequestWorker(
++                    [
++                        'request_id' => $laborSafetyRequestRow->id,
++                        'worker_employee_id' => $laborSafetyRequestRow->responsible_employee_id,
++                        'worker_type_id' => 1
++                    ]
++                );
++                $newWorker->save();
++            }
++
++            if (isset($laborSafetyRequestRow->sub_responsible_employee_id)){
++                $newWorker = new LaborSafetyRequestWorker(
++                    [
++                        'request_id' => $laborSafetyRequestRow->id,
++                        'worker_employee_id' => $laborSafetyRequestRow->sub_responsible_employee_id,
++                        'worker_type_id' => 2
++                    ]
++                );
++                $newWorker->save();
++            }
++
+             foreach ($workers as $worker) {
+                 $newWorker = new LaborSafetyRequestWorker(
+                     [
+                         'request_id' => $laborSafetyRequestRow->id,
+-                        'worker_employee_id' => $worker["worker_employee_id"]
++                        'worker_employee_id' => $worker["worker_employee_id"],
++                        'worker_type_id' => 3
+                     ]
+                 );
+                 $newWorker->save();
+@@ -114,18 +165,35 @@
+         $id = $request->all()["key"];
+ 
+         $modifiedData = json_decode($request->all()["modifiedData"], JSON_OBJECT_AS_ARRAY);
+-        $orders = $modifiedData["ordersData"];
++        $workers = $modifiedData["workers"];
+ 
+-        $generateOrders = $modifiedData["perform_orders"];
+-
+-        unset($modifiedData["ordersData"]);
++        unset($modifiedData["workers"]);
+         unset($modifiedData["perform_orders"]);
+ 
+         $requestRow = LaborSafetyRequest::findOrFail($id);
+ 
+         DB::beginTransaction();
+ 
+-        $this->insertOrUpdateOrdersData($orders, $id);
++        LaborSafetyOrderWorker::where('request_id', '=' , $id)->forceDelete();
++
++        if (isset($workers)) {
++            foreach ($workers as $worker){
++                if (isset($worker['orders'])) {
++                    foreach ($worker['orders'] as $orderType) {
++                        $orderWorker = new LaborSafetyOrderWorker([
++                            'request_id' => $id,
++                            'order_type_id' => $orderType,
++                            'requests_worker_id' => $worker['id']
++                        ]);
++                        $orderWorker->save();
++                    }
++                }
++            }
++        }
++
++        $requestRow->update($modifiedData);
++
++        $generateOrders = Auth::user()->can('labor_safety_generate_documents_access');
+ 
+         if ($generateOrders) {
+             $modifiedData["generated_html"] = $this->generateRequestHtmlData($requestRow);
+@@ -143,16 +211,12 @@
+ 
+     public function generateRequestHtmlData($request)
+     {
+-        $orders = LaborSafetyRequestOrder::join('labor_safety_order_types', 'labor_safety_request_orders.order_type_id', '=', 'labor_safety_order_types.id')
+-            ->where('labor_safety_request_orders.request_id', '=', $request->id)
+-            ->where('labor_safety_request_orders.include_in_formation', '=', 1)
++        $orders = LaborSafetyOrderWorker::join('labor_safety_order_types', 'labor_safety_order_workers.order_type_id', '=', 'labor_safety_order_types.id')
++            ->where('labor_safety_order_workers.request_id', '=', $request->id)
++            ->distinct()
++            ->orderBy('labor_safety_order_workers.order_type_id')
+             ->get([
+-                'labor_safety_request_orders.id',
+-                'labor_safety_request_orders.request_id',
+-                'labor_safety_request_orders.order_type_id',
+-                'labor_safety_request_orders.responsible_employee_id',
+-                'labor_safety_request_orders.sub_responsible_employee_id',
+-                'labor_safety_request_orders.include_in_formation',
++                'labor_safety_order_workers.order_type_id',
+                 'labor_safety_order_types.order_type_category_id',
+                 'labor_safety_order_types.name',
+                 'labor_safety_order_types.short_name',
+@@ -163,7 +227,6 @@
+         $resultHtml = '';
+ 
+         foreach ($orders as $order) {
+-
+             $orderTemplate = $this->fillTemplateData($request, $order, $order->template);
+ 
+             $resultHtml .= $this->getCompanyHeaderTemplateWithData($request) . $orderTemplate . self::PAGE_BREAK_DELIMITER;
+@@ -172,12 +235,28 @@
+         return $resultHtml;
+     }
+ 
++    /**
++     * @throws \Exception
++     */
+     function fillTemplateData($request, $order, $orderTemplate)
+     {
+         $variables = $this->getArrayOfTemplateVariables($orderTemplate);
+         $projectObject = ProjectObject::find($request->project_object_id);
+-        $responsibleEmployee = Employee::find($order->responsible_employee_id);
+-        $subResponsibleEmployee = Employee::find($order->sub_responsible_employee_id);
++
++        $responsibleEmployee = Employee::find(LaborSafetyRequestWorker::where('request_id', '=', $request->id)
++            ->where('worker_type_id', '=', 1)
++            ->get()
++            ->first()
++            ->worker_employee_id);
++
++        $subResponsibleWorker = LaborSafetyRequestWorker::where('request_id', '=', $request->id)
++            ->where('worker_type_id', '=', 2)
++            ->get()
++            ->first();
++        if (isset($subResponsibleWorker)) {
++            $subResponsibleEmployee = Employee::find($subResponsibleWorker->worker_employee_id);
++        }
++
+         $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+ 
+         $prettyOrderDate = Carbon::parse($request->order_date)->format('«d»') .
+@@ -201,28 +280,50 @@
+                     $orderTemplate = str_replace($variable, $prettyOrderDate, $orderTemplate);
+                     break;
+                 case "{responsible_employee_name_initials_before}":
++                    if (isset($responsibleEmployee)) {
++                        $responsibleEmployeeName = $responsibleEmployee->format('f. p. L', 'именительный');
++                        $orderTemplate = str_replace($variable, $responsibleEmployeeName, $orderTemplate);
++                    }
++                    break;
+                 case "{responsible_employee_name_initials_after}":
++                    if (isset($responsibleEmployee)) {
++                        $responsibleEmployeeName = $responsibleEmployee->format('L f. p.', 'винительный');
++                        $orderTemplate = str_replace($variable, $responsibleEmployeeName, $orderTemplate);
++                    }
++                    break;
+                 case "{responsible_employee_full_name}":
+                     if (isset($responsibleEmployee)) {
+-                        $orderTemplate = str_replace($variable, $responsibleEmployee->employee_1c_name, $orderTemplate);
++                        $responsibleEmployeeName = $responsibleEmployee->format('L F P', 'винительный');
++                        $orderTemplate = str_replace($variable, $responsibleEmployeeName, $orderTemplate);
+                     }
+                     break;
+                 case "{responsible_employee_post}":
+                     if (isset($responsibleEmployee)) {
+-                        $employeePostName = Employees1cPost::find($responsibleEmployee->employee_1c_post_id)->name;
++                        $employeePostName = $this->mb_lcfirst(Employees1cPost::find($responsibleEmployee->employee_1c_post_id)->name);
+                         $orderTemplate = str_replace($variable, $employeePostName, $orderTemplate);
+                     }
+                     break;
+                 case "{subresponsible_employee_name_initials_after}":
++                    if (isset($subResponsibleEmployee)) {
++                        $subResponsibleEmployeeName = $subResponsibleEmployee->format('L f. p.', 'винительный');
++                        $orderTemplate = str_replace($variable, $subResponsibleEmployeeName, $orderTemplate);
++                    }
++                    break;
+                 case "{subresponsible_employee_name_initials_before}":
++                    if (isset($subResponsibleEmployee)) {
++                        $subResponsibleEmployeeName = $subResponsibleEmployee->format('f. p. L', 'именительный');
++                        $orderTemplate = str_replace($variable, $subResponsibleEmployeeName, $orderTemplate);
++                    }
++                    break;
+                 case "{subresponsible_employee_full_name}":
+                     if (isset($subResponsibleEmployee)) {
+-                        $orderTemplate = str_replace($variable, $subResponsibleEmployee->employee_1c_name, $orderTemplate);
++                        $subResponsibleEmployeeName = $subResponsibleEmployee->format('L F P', 'винительный');
++                        $orderTemplate = str_replace($variable, $subResponsibleEmployeeName, $orderTemplate);
+                     }
+                     break;
+                 case "{subresponsible_employee_post}":
+                     if (isset($subResponsibleEmployee)) {
+-                        $employeePostName = Employees1cPost::find($subResponsibleEmployee->employee_1c_post_id)->name;
++                        $employeePostName = $this->mb_lcfirst(Employees1cPost::find($subResponsibleEmployee->employee_1c_post_id)->name);
+                         $orderTemplate = str_replace($variable, $employeePostName, $orderTemplate);
+                     }
+                     break;
+@@ -236,16 +337,16 @@
+                     $orderTemplate = str_replace($variable, $projectObject->cadastral_number, $orderTemplate);
+                     break;
+                 case "{workers_list}":
+-                    $orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($order), $orderTemplate);
++                    $orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
+                     break;
+                 case "{sign_list}":
+-                    $this->getSignList($order);
++                    $orderTemplate = str_replace($variable, $this->getSignList($request, $order), $orderTemplate);
+                     break;
+             }
+         }
+ 
+-        if (!isset($responsibleEmployee)) {
+-            $pattern = '/\[optional-section-start\|subresponsible_employee].+\[optional-section-end\|subresponsible_employee]/';
++        if (!isset($subResponsibleEmployee)) {
++            $pattern = '/\[optional-section-start\|subresponsible_employee].*?\[optional-section-end\|subresponsible_employee]/s';
+             $orderTemplate = preg_replace($pattern, '', $orderTemplate);
+         } else {
+             $orderTemplate = str_replace(['[optional-section-start|subresponsible_employee]', '[optional-section-end|subresponsible_employee]'], '', $orderTemplate);
+@@ -262,14 +363,16 @@
+         return array_unique($variables[0]);
+     }
+ 
+-    function getWorkersListForTemplate($order)
++    function getWorkersListForTemplate($request, $order)
+     {
+         $workersList = '<ol style="list-style-type: disc;">';
+ 
+-        $workers = LaborSafetyOrderWorker::where('request_order_id', '=', $order->id)->get();
++        $workers = LaborSafetyOrderWorker::where('request_id', '=', $request->id)
++            ->where('order_type_id', '=', $order->order_type_id)
++            ->get();
+ 
+         foreach ($workers as $worker) {
+-            $employeeId = $worker->worker_employee_id;
++            $employeeId = LaborSafetyRequestWorker::find($worker->requests_worker_id)->worker_employee_id;
+             $employee = Employee::find($employeeId);
+             $postName = Employees1cPost::find($employee->employee_1c_post_id)->name;
+ 
+@@ -280,24 +383,22 @@
+         return $workersList;
+     }
+ 
+-    function getSignList($order)
++    function getSignList($request, $order)
+     {
+-        $signList = '<table style="width: 100%; height: 28px;"><tbody>';
+-
+-        if (isset($order->responsible_employee_id)) {
+-            $employeeName = Employee::find($order->responsible_employee_id)->employee_1c_name;
+-            $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
+-        }
++        $signList = '<table style="width: 100%;"><tbody>';
+ 
+-        if (isset($order->sub_responsible_employee_id)) {
+-            $employeeName = Employee::find($order->sub_responsible_employee_id)->employee_1c_name;
+-            $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
+-        }
+-
+-        $workers = LaborSafetyOrderWorker::where('request_order_id', '=', $order->id)->get();
++        $workers = LaborSafetyOrderWorker::join('labor_safety_request_workers', 'requests_worker_id', '=', 'labor_safety_request_workers.id')
++            ->where('labor_safety_order_workers.request_id', '=', $request->id)
++            ->where('order_type_id', '=', $order->order_type_id)
++            ->orderBy('worker_type_id')
++            ->get(
++                [
++                    'worker_employee_id'
++                ]
++            );
+ 
+         foreach ($workers as $worker) {
+-            $employeeName = Employee::find($worker->worker_employee_id)->employee_1c_name;
++            $employeeName = Employee::find($worker->worker_employee_id)->format(' f. p. L');
+             $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
+         }
+ 
+@@ -331,6 +432,9 @@
+                 case "{company_email}":
+                     $companyTemplate = str_replace($variable, $company->email, $companyTemplate);
+                     break;
++                case "{company_name}":
++                    $companyTemplate = str_replace($variable, $company->name, $companyTemplate);
++                    break;
+             }
+         }
+ 
+@@ -344,41 +448,34 @@
+         $request = LaborSafetyRequest::find($requestId);
+         $responsibleEmployees = [];
+ 
+-        if (Auth::user()->can('labor_safety_generate_documents_access')) {
+-            $responsibleEmployees[] = [
+-                'id' => (string)Str::uuid(),
+-                'worker_employee_id' => $request->responsible_employee_id,
+-                'employee_role' => 'Ответственный'
+-            ];
+-
+-            if (isset($request->sub_responsible_employee_id)) {
+-                $responsibleEmployees[] = [
+-                    'id' => (string)Str::uuid(),
+-                    'worker_employee_id' => $request->responsible_employee_id,
+-                    'employee_role' => 'Замещающий ответственного'
+-                ];
+-            }
+-        }
+-
+         $workers = LaborSafetyRequestWorker::where('request_id', '=', $requestId)
+-            ->leftJoin('labor_safety_order_workers', 'labor_safety_request_workers.id', '=', 'labor_safety_order_workers.requests_worker_id')
++            ->leftJoin('employees', 'labor_safety_request_workers.worker_employee_id', 'employees.id')
++            ->leftJoin('companies', 'employees.company_id', '=', 'companies.id')
++            ->leftJoin('employees_1c_posts', 'employees.employee_1c_post_id', '=', 'employees_1c_posts.id')
++            ->leftJoin('labor_safety_worker_types', 'labor_safety_request_workers.worker_type_id', '=', 'labor_safety_worker_types.id')
++            ->where(function ($query) {
++                if (!Auth::user()->can('labor_safety_generate_documents_access')) {
++                    $query->where('worker_type_id', '=', 3);
++                }
++            })
++            ->orderBy('labor_safety_request_workers.worker_type_id')
+             ->get(
+                 [
+                     'labor_safety_request_workers.id',
+                     'labor_safety_request_workers.worker_employee_id',
+-                    DB::Raw("'Сотрудник' as `employee_role`")
++                    'labor_safety_worker_types.name as employee_role',
++                    'employees.id as employee_id',
++                    'employee_1c_name',
++                    'companies.name as company_name',
++                    'employees_1c_posts.name as post_name'
+                 ]
+             )
+             ->toArray();
+ 
+-        $workers = array_merge($responsibleEmployees, $workers);
+-
+-        $orderTypesList = LaborSafetyOrderType::all();
+-
+-        foreach ($workers as $worker) {
+-            forEach($orderTypesList as $orderType) {
+-
+-            }
++        foreach ($workers as $key => $value) {
++            $workers[$key]['orders'] = LaborSafetyOrderWorker::where('request_id', '=', $requestId)
++                ->where('requests_worker_id', '=', $value['id'])
++                ->pluck('order_type_id');
+         }
+ 
+         return json_encode($workers);
+@@ -404,11 +501,21 @@
+ 
+         $phpWord = new PhpWord();
+ 
++        $phpWord->setDefaultParagraphStyle(["spaceBefore" => 0, "spaceAfter" => 0]);
++        $phpWord->setDefaultFontName('Calibri');
++
++        $proofState = new ProofState();
++        $proofState->setGrammar(ProofState::CLEAN);
++        $proofState->setSpelling(ProofState::CLEAN);
++        $phpWord->getSettings()->setDecimalSymbol(',');
++        $phpWord->getSettings()->setThemeFontLang(new Language(Language::RU_RU));
++        $phpWord->getSettings()->setProofState($proofState);
++
+         $section = $phpWord->addSection();
+ 
+         Html::addHtml($section, $html, false, false);
+ 
+-        $phpWord->save('File.docx', 'Word2007', true);
++        $phpWord->save('Список приказов.docx', 'Word2007', true);
+         exit;
+     }
+ }
+Index: app/Models/LaborSafety/LaborSafetyWorkerType.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/LaborSafety/LaborSafetyWorkerType.php b/app/Models/LaborSafety/LaborSafetyWorkerType.php
+new file mode 100644
+--- /dev/null	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
++++ b/app/Models/LaborSafety/LaborSafetyWorkerType.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -0,0 +1,14 @@
++<?php
++/**  * @mixin ..\Eloquent  */
++namespace App\Models\LaborSafety;
++
++use App\Traits\DevExtremeDataSourceLoadable;
++use Illuminate\Database\Eloquent\Model;
++use Illuminate\Database\Eloquent\SoftDeletes;
++
++class LaborSafetyWorkerType extends Model
++{
++    use SoftDeletes, DevExtremeDataSourceLoadable;
++
++    protected $guarded = array('id');
++}
+Index: app/Models/OneC/Employee.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/OneC/Employee.php b/app/Models/OneC/Employee.php
+--- a/app/Models/OneC/Employee.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
++++ b/app/Models/OneC/Employee.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -2,6 +2,7 @@
+ /**  * @mixin ..\Eloquent  */
+ namespace App\Models\OneC;
+ 
++use App\Models\User;
+ use App\Traits\DevExtremeDataSourceLoadable;
+ use Illuminate\Database\Eloquent\Model;
+ use Illuminate\Database\Eloquent\SoftDeletes;
+@@ -11,4 +12,20 @@
+     use SoftDeletes, DevExtremeDataSourceLoadable;
+ 
+     protected $guarded = array('id');
++
++    /**
++     * @param $format
++     * F - Full firstname;
++     * f - Fist letter of firstName;
++     * L - Full lastname;
++     * l - Fist letter of lastname;
++     * P - Full patronymic;
++     * p - Fist letter of patronymic;
++     * @param $declension
++     * @return string
++     */
++    public function format($format = null, $declension = null): string
++    {
++        return User::withoutGlobalScopes()->find($this->user_id)->format($format, $declension);
++    }
+ }
+Index: app/Models/User.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/User.php b/app/Models/User.php
+--- a/app/Models/User.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
++++ b/app/Models/User.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -4,7 +4,11 @@
+ 
+ use App\Models\HumanResources\{Appointment, Brigade, JobCategory, ReportGroup, Timecard};
+ use App\Models\MatAcc\MaterialAccountingOperation;
++use Exception;
+ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
++use morphos\Russian\FirstNamesInflection;
++use morphos\Russian\LastNamesInflection;
++use morphos\Russian\MiddleNamesInflection;
+ use App\Models\Notifications\{NotificationsForUsers, NotificationTypes, UserDisabledNotifications};
+ use App\Models\TechAcc\OurTechnicTicket;
+ use App\Models\Vacation\{
+@@ -18,6 +22,8 @@
+ use Illuminate\Notifications\Notifiable;
+ use Illuminate\Support\Facades\DB;
+ use Illuminate\Http\Request;
++use function morphos\Russian\inflectName;
++
+ class User extends Authenticatable
+ {
+     use Notifiable, Reviewable, Messagable, TicketResponsibleUser, Logable, Appointmentable, DevExtremeDataSourceLoadable;
+@@ -418,11 +424,11 @@
+      * can create only drafts of operations and cannot
+      * create real operations of given $type
+      * @param string $type
+-     * @return bool | \Exception
++     * @return bool | Exception
+      */
+     public function isOperationDrafter(string $type)
+     {
+-        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) return new \Exception("Given Operation type doesn't exist");
++        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) return new Exception("Given Operation type doesn't exist");
+ 
+         return boolval($this->can("mat_acc_{$type}_draft_create") and $this->cannot("mat_acc_{$type}_create"));
+     }
+@@ -431,11 +437,11 @@
+      * This function will return true if given user
+      * can create operations of given $type
+      * @param string $type
+-     * @return bool | \Exception
++     * @return bool | Exception
+      */
+     public function isOperationCreator(string $type)
+     {
+-        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) return new \Exception("Given Operation type doesn't exist");
++        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) return new Exception("Given Operation type doesn't exist");
+ 
+         return boolval($this->can("mat_acc_{$type}_create"));
+     }
+@@ -808,4 +814,51 @@
+ 
+         return false;
+     }
++
++    /**
++     * @param string $format
++     * F - Full firstname;
++     * f - Fist letter of firstName;
++     * L - Full lastname;
++     * l - Fist letter of lastname;
++     * P - Full patronymic;
++     * p - Fist letter of patronymic;
++     * @param $declension
++     * @return array|string|string[]
++     * @throws Exception
++     */
++    public function format(string $format = 'L F P', $declension = null) {
++        $fullName = $this->long_full_name;
++        if (!empty($declension)) {
++            $fullName = inflectName($fullName, $declension);
++        }
++
++        $lastName = explode(' ', $fullName)[0];
++        $firstName = explode(' ', $fullName)[1];
++        $patronymic = explode(' ', $fullName)[2];
++
++        $result = $format;
++
++        if (mb_strpos($result, 'l') > 0){
++            $lastName = mb_substr($lastName, 0, 1, 'UTF-8');
++            $result = str_replace('l', $lastName, $result);
++        } else {
++            $result = str_replace('L', $lastName, $result);
++        }
++
++        if (mb_strpos($result, 'f') > 0){
++            $firstName = mb_substr($firstName, 0, 1, 'UTF-8');
++            $result = str_replace('f', $firstName, $result);
++        } else {
++            $result = str_replace('F', $firstName, $result);
++        }
++
++        if (mb_strpos($result, 'p') > 0){
++            $patronymic = mb_substr($patronymic, 0, 1, 'UTF-8');
++            $result = str_replace('p', $patronymic, $result);
++        } else {
++            $result = str_replace('P', $patronymic, $result);
++        }
++        return $result;
++    }
+ }
+Index: composer.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/composer.json b/composer.json
+--- a/composer.json	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
++++ b/composer.json	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -24,7 +24,8 @@
+         "niklasravnsborg/laravel-pdf": "^3.1",
+         "pusher/pusher-php-server": "^3.4",
+         "ext-json": "*",
+-        "phpoffice/phpword": "v0.18.*"
++        "phpoffice/phpword": "v0.18.*",
++        "wapmorgan/morphos": "*"
+ 
+     },
+     "require-dev": {
+Index: database/migrations/2022_08_22_110550_add_tables_for_labor_safety_mode.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/database/migrations/2022_08_22_110550_add_tables_for_labor_safety_mode.php b/database/migrations/2022_08_22_110550_add_tables_for_labor_safety_mode.php
+--- a/database/migrations/2022_08_22_110550_add_tables_for_labor_safety_mode.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
++++ b/database/migrations/2022_08_22_110550_add_tables_for_labor_safety_mode.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -1,8 +1,11 @@
+ <?php
+ 
++use App\Models\Company\CompanyReportTemplate;
++use App\Models\Company\CompanyReportTemplateType;
+ use App\Models\LaborSafety\LaborSafetyOrderType;
+ use App\Models\LaborSafety\LaborSafetyOrderTypeCategory;
+ use App\Models\LaborSafety\LaborSafetyRequestStatus;
++use App\Models\LaborSafety\LaborSafetyWorkerType;
+ use App\Models\Permission;
+ use App\Models\Company\Company;
+ use App\Models\Timesheet\EmployeesReportGroup;
+@@ -21,13 +24,6 @@
+      */
+     public function up()
+     {
+-        /*if (!Schema::hasColumn('employees_report_groups', 'individual_1c_uid')) {
+-            Schema::table('users', function (Blueprint $table) {
+-                $table->string('individual_1c_uid')->nullable()->comment('Уникальный идентификатор физического лица в 1С');
+-            });
+-            DB::statement("ALTER TABLE users COMMENT 'Список пользователей системы'");
+-        }*/
+-
+         if (!Schema::hasTable('employees_report_groups')) {
+             Schema::create('employees_report_groups', function (Blueprint $table) {
+                 $table->increments('id')->comment('Уникальный идентификатор');
+@@ -70,7 +66,7 @@
+                 'company_1c_uid' => 'empty',
+                 'name' => 'ООО «СК ГОРОД»',
+                 'full_name' => 'Общество с ограниченной ответственностью «СК ГОРОД»',
+-                'legal_address' => '',
++                'legal_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, каб. 406',
+                 'actual_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, каб. 406',
+                 'phone' => '+7 (812) 335-90-90',
+                 'ogrn' => '1107847027045',
+@@ -81,7 +77,7 @@
+             $company->save();
+ 
+             $company = new Company([
+-                'company_1c_uid' => 'empty',
++                'company_1c_uid' => 'a5f0bc19-9bf1-11e9-812f-00155d630402',
+                 'name' => 'ООО «ГОРОД»',
+                 'full_name' => 'Общество с ограниченной ответственностью «ГОРОД»',
+                 'legal_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, помещ. 56-н, каб. 406',
+@@ -94,20 +90,6 @@
+             ]);
+             $company->save();
+ 
+-            $company = new Company([
+-                'company_1c_uid' => 'empty',
+-                'name' => 'ООО «РЕНТМАСТЕР»',
+-                'full_name' => 'Общество с ограниченной ответственностью «РЕНТМАСТЕР»',
+-                'legal_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
+-                'actual_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
+-                'phone' => '',
+-                'ogrn' => '1197847099229',
+-                'inn' => '7807227475',
+-                'web_site' => '',
+-                'email' => 'rentmaster10@yandex.ru'
+-            ]);
+-            $company->save();
+-
+             $company = new Company([
+                 'company_1c_uid' => 'empty',
+                 'name' => 'ООО «СТРОЙМАСТЕР»',
+@@ -121,6 +103,20 @@
+                 'email' => 'stroymaster9@yandex.ru'
+             ]);
+             $company->save();
++
++            $company = new Company([
++                'company_1c_uid' => 'empty',
++                'name' => 'ООО «РЕНТМАСТЕР»',
++                'full_name' => 'Общество с ограниченной ответственностью «РЕНТМАСТЕР»',
++                'legal_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
++                'actual_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
++                'phone' => '',
++                'ogrn' => '1197847099229',
++                'inn' => '7807227475',
++                'web_site' => '',
++                'email' => 'rentmaster10@yandex.ru'
++            ]);
++            $company->save();
+         }
+ 
+         if (!Schema::hasTable('company_report_template_types')) {
+@@ -135,7 +131,7 @@
+ 
+             $reportTemplateTypeArray = ['header', 'footer'];
+             foreach ($reportTemplateTypeArray as $reportTemplateTypeElement) {
+-                $reportTemplateType = new EmployeesReportGroup([
++                $reportTemplateType = new CompanyReportTemplateType([
+                     'name' => $reportTemplateTypeElement
+                 ]);
+                 $reportTemplateType->save();
+@@ -157,26 +153,26 @@
+             });
+             DB::statement("ALTER TABLE company_report_templates COMMENT 'Шаблоны для отчетов по компаниям'");
+ 
+-            $companiesReportTemplateArray = ['1|1|<table style="height: 142px; width: 100%; border-collapse: collapse;" border="1"><tbody><tr style="height: 142px;"><td style="width: 50%;"><img src="https://erp.sk-gorod.com/img/sk-gorod-logo.png" /></td><td style="width: 50%;"><p style="text-align: right;">{company_requisites}</p></td></tr></tbody></table>',
++            $companiesReportTemplateArray = [
++                '1|1|<table style="width: 100%; height: 120px; border-collapse: collapse;"><tbody><tr><td style="width: 50%;"><img src="https://erp.sk-gorod.com/img/sk-gorod-logo.png" width="286"/></td><td style="width: 50%;"><p style="text-align: right;">{company_name}</p><p style="text-align: right;">{company_legal_address}</p><p style="text-align: right;">Тел.: {company_phone}</p><p style="text-align: right;">{company_web_site}</p><p style="text-align: right;">{company_email}</p></td></tr></tbody></table>',
+             ];
+ 
+             foreach ($companiesReportTemplateArray as $companiesReportTemplateElement) {
+-                $laborSafetyOrderType = new LaborSafetyOrderType([
++                $companiesReportTemplate = new CompanyReportTemplate([
+                     'company_id' => explode('|', $companiesReportTemplateElement)[0],
+                     'template_type' => explode('|', $companiesReportTemplateElement)[1],
+                     'template' => explode('|', $companiesReportTemplateElement)[2],
+-
+                 ]);
+-                $laborSafetyOrderType->save();
++                $companiesReportTemplate->save();
+             }
+         }
+ 
+         if (!Schema::hasTable('employees_1c_subdivisions')) {
+             Schema::create('employees_1c_subdivisions', function (Blueprint $table) {
+                 $table->increments('id')->comment('Уникальный идентификатор');
+-                $table->integer('subdivision_parent_id')->unsigned()->comment('Уникальный идентификатор');
++                $table->integer('subdivision_parent_id')->nullable()->unsigned()->comment('Уникальный идентификатор');
+                 $table->string('name')->comment('Наименование должности');
+-                $table->string('subdivisions_1c_uid')->comment('Уникальный идентификатор 1С');
++                $table->string('subdivision_1c_uid')->comment('Уникальный идентификатор 1С');
+                 $table->integer('company_id')->unsigned()->comment('ID организации');
+ 
+                 $table->foreign('company_id')->references('id')->on('companies');
+@@ -184,24 +180,23 @@
+                 $table->timestamps();
+                 $table->softDeletes();
+             });
+-            DB::statement("ALTER TABLE employees_1c_subdivisions COMMENT 'Список подразделений, синхронизировано с 1С'");
++            DB::statement("ALTER TABLE employees_1c_subdivisions COMMENT 'Список подразделений, синхронизированных с 1С'");
+         }
+ 
+         if (!Schema::hasTable('employees_1c_posts')) {
+             Schema::create('employees_1c_posts', function (Blueprint $table) {
+                 $table->increments('id')->comment('Уникальный идентификатор');
+                 $table->string('name')->comment('Наименование должности');
++                $table->string('declination_format')->comment('Формат склонения');
+                 $table->string('post_1c_uid')->comment('Наименование отчетной группы');
+-                $table->integer('subdivision_id')->unsigned()->comment('ID подразделения');
+                 $table->integer('company_id')->unsigned()->comment('ID организации');
+ 
+-                $table->foreign('subdivision_id')->references('id')->on('employees_1c_subdivisions');
+                 $table->foreign('company_id')->references('id')->on('companies');
+ 
+                 $table->timestamps();
+                 $table->softDeletes();
+             });
+-            DB::statement("ALTER TABLE employees_1c_posts COMMENT 'Должности сотрудников, синхронизированные c 1С'");
++            DB::statement("ALTER TABLE employees_1c_posts COMMENT 'Должности сотрудников, синхронизированных c 1С'");
+         }
+ 
+         if (!Schema::hasTable('employees')) {
+@@ -210,7 +205,6 @@
+                 $table->integer('user_id')->unsigned()->comment('Пользователь');
+ 
+                 $table->string('employee_1c_name')->comment('Имя сотрудника в 1С');
+-
+                 $table->string('personnel_number')->comment('Табельный номер сотрудника');
+                 $table->string('employee_1c_uid')->comment('Уникальный идентификатор сотрудника в 1С');
+                 $table->integer('employee_1c_post_id')->unsigned()->comment('Уникальный идентификатор должности сотрудника в 1С');
+@@ -220,7 +214,14 @@
+                 $table->date('employment_date')->comment('Дата приема на работу');
+                 $table->date('dismissal_date')->comment('Дата увольнения');
+ 
+-                $table->integer('report_group_id')->unsigned()->comment('Наименование отчетной группы');
++                $table->integer('report_group_id')->unsigned()->nullable()->comment('Отчетная группа');
++
++                $table->string('temp_last_name')->comment('Фамилия сотрудника (для первичной синхронизации сотрудников)');
++                $table->string('temp_first_name')->comment('Имя сотрудника (для первичной синхронизации сотрудников)');
++                $table->string('temp_patronymic')->comment('Отчество сотрудника (для первичной синхронизации сотрудников)');
++
++                $table->date('temp_birthday')->comment('Дата рождения сотрудника (для первичной синхронизации сотрудников)');
++
+ 
+                 $table->timestamps();
+                 $table->softDeletes();
+@@ -230,7 +231,7 @@
+                 $table->foreign('company_id')->references('id')->on('companies');
+                 $table->foreign('employee_1c_subdivision_id')->references('id')->on('employees_1c_subdivisions');
+             });
+-            DB::statement("ALTER TABLE employees COMMENT 'Список сотрудников организаций, синхронизированный с 1С.'");
++            DB::statement("ALTER TABLE employees COMMENT 'Список сотрудников организаций, синхронизированных с 1С.'");
+         }
+ 
+         $permission = new Permission();
+@@ -365,7 +366,7 @@
+         if (!Schema::hasTable('labor_safety_requests')) {
+             Schema::create('labor_safety_requests', function (Blueprint $table) {
+                 $table->increments('id')->comment('Уникальный идентификатор');
+-
++                $table->integer('order_number')->unsigned()->comment('Номер приказа');
+                 $table->date('order_date')->index()->comment('Дата приказа');
+                 $table->integer('company_id')->unsigned()->comment('ID компании');
+                 $table->integer('project_object_id')->unsigned()->comment('ID объекта');
+@@ -374,6 +375,7 @@
+                 $table->bigInteger('responsible_employee_id')->unsigned()->comment('ID ответственного сотрудника');
+                 $table->bigInteger('sub_responsible_employee_id')->unsigned()->nullable()->comment('ID замещающего ответственного сотрудника');
+                 $table->integer('request_status_id')->unsigned()->comment('ID статуса заявки');
++                $table->mediumText('generated_html')->nullable()->comment('Сформированные приказы');
+                 $table->text('comment')->comment('Комментарий');
+ 
+                 $table->foreign('company_id')->references('id')->on('companies');
+@@ -404,14 +406,39 @@
+             DB::statement("ALTER TABLE labor_safety_request_orders COMMENT 'Приказы для заявок на формирование приказов в модуле «Охрана труда»'");
+         }
+ 
++        if (!Schema::hasTable('labor_safety_worker_types')) {
++            Schema::create('labor_safety_worker_types', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->string('name')->comment('Значение');
++
++                $table->timestamps();
++                $table->softDeletes();
++            });
++        }
++        DB::statement("ALTER TABLE labor_safety_worker_types COMMENT 'Типы сотрудников (рабочих), для формирования приказов в модуле «Охрана труда»'");
++
++        $laborSafetyWorkerTypesArray = ['Ответственный',
++            'Зам. ответственного',
++            'Сотрудник'
++        ];
++
++        foreach ($laborSafetyWorkerTypesArray as $laborSafetyWorkerTypesElement) {
++            $laborSafetyWorkerTypes = new LaborSafetyWorkerType([
++                'name' => $laborSafetyWorkerTypesElement
++            ]);
++            $laborSafetyWorkerTypes->save();
++        }
++
+         if (!Schema::hasTable('labor_safety_request_workers')) {
+             Schema::create('labor_safety_request_workers', function (Blueprint $table) {
+                 $table->increments('id')->comment('Уникальный идентификатор');
+                 $table->integer('request_id')->unsigned()->comment('ID Заявки');
+                 $table->bigInteger('worker_employee_id')->unsigned()->comment('ID сотрудника');
++                $table->integer('worker_type_id')->unsigned()->comment('ID типа сотрудника');
+ 
+                 $table->foreign('request_id')->references('id')->on('labor_safety_requests');
+                 $table->foreign('worker_employee_id', 'l_s_r_worker_employee_id_foreign')->references('id')->on('employees');
++                $table->foreign('worker_type_id')->references('id')->on('labor_safety_worker_types');
+ 
+                 $table->timestamps();
+                 $table->softDeletes();
+@@ -422,17 +449,23 @@
+         if (!Schema::hasTable('labor_safety_order_workers')) {
+             Schema::create('labor_safety_order_workers', function (Blueprint $table) {
+                 $table->increments('id')->comment('Уникальный идентификатор');
+-                $table->integer('order_id')->unsigned()->comment('ID приказа');
++                $table->integer('request_id')->unsigned()->comment('ID заявки');
++                $table->integer('order_type_id')->unsigned()->comment('ID типа приказа');
+                 $table->integer('requests_worker_id')->unsigned()->comment('ID записи со ссылкой на сотрудника, сформированному при подаче заявки');
+ 
+-                $table->foreign('order_id')->references('id')->on('labor_safety_request_orders');
+-                $table->foreign('requests_worker_id', 'order_worker_employee_id_foreign')->references('id')->on('labor_safety_request_workers');
++                $table->foreign('request_id')->references('id')->on('labor_safety_requests');
++                $table->foreign('order_type_id')->references('id')->on('labor_safety_order_types');
++                $table->foreign('requests_worker_id')->references('id')->on('labor_safety_request_workers');
+ 
+                 $table->timestamps();
+                 $table->softDeletes();
+             });
+             DB::statement("ALTER TABLE labor_safety_order_workers COMMENT 'Список сотрудников (рабочих), которые участвуют при формировании приказов в модуле «Охрана труда»'");
+         }
++
++        (new employeeSubdivisionsSeeder)->run();
++        (new employeePostsSeeder)->run();
++        (new employeesSeeder)->run();
+     }
+ 
+     /**
+@@ -466,22 +499,24 @@
+             $permission->forceDelete();
+         }
+ 
+-        /*        Schema::dropIfExists('employees');
+-                Schema::dropIfExists('employees_1c_posts');
+-                Schema::dropIfExists('employees_1c_subdivisions');
+-                Schema::dropIfExists('employees_report_groups');*/
+-
+-        /*Schema::dropIfExists('labor_safety_order_workers');
++        Schema::dropIfExists('labor_safety_order_workers');
+         Schema::dropIfExists('labor_safety_request_workers');
++        Schema::dropIfExists('labor_safety_worker_types');
+         Schema::dropIfExists('labor_safety_request_orders');
+         Schema::dropIfExists('labor_safety_requests');
+-        /*Schema::dropIfExists('labor_safety_request_statuses');
+-              Schema::dropIfExists('labor_safety_order_types');
+-               Schema::dropIfExists('labor_safety_order_type_categories');
++
++        Schema::dropIfExists('employees');
++        Schema::dropIfExists('employees_1c_posts');
++        Schema::dropIfExists('employees_1c_subdivisions');
++        Schema::dropIfExists('employees_report_groups');
+ 
+-               Schema::dropIfExists('company_report_templates');
+-               Schema::dropIfExists('company_report_template_types');
+-               Schema::dropIfExists('companies');*/
++        Schema::dropIfExists('company_report_templates');
++        Schema::dropIfExists('company_report_template_types');
++        Schema::dropIfExists('companies');
++
++        /*Schema::dropIfExists('labor_safety_request_statuses');
++        Schema::dropIfExists('labor_safety_order_types');
++        Schema::dropIfExists('labor_safety_order_type_categories');*/
+ 
+         /*Schema::table('users', function (Blueprint $table) {
+             $table->dropColumn('individual_1c_uid');
+Index: database/seeds/employeePostsSeeder.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/database/seeds/employeePostsSeeder.php b/database/seeds/employeePostsSeeder.php
+new file mode 100644
+--- /dev/null	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
++++ b/database/seeds/employeePostsSeeder.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -0,0 +1,318 @@
++<?php
++
++use App\Models\Company\Company;
++use App\Models\OneC\Employees1cpost;
++use App\Models\OneC\Employees1cSubdivision;
++use Illuminate\Database\Seeder;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Log;
++use SebastianBergmann\Environment\Console;
++
++class employeePostsSeeder extends Seeder
++{
++    /**
++     * Run the database seeds.
++     *
++     * @return void
++     */
++    public function run()
++    {
++        $posts = json_decode('{"data": [
++                                                    {
++                                                    "postUID": "",
++                                                    "postName": "",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "e0b05280-9d8e-11e9-812f-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "",
++                                                    "postName": "",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "d3dc5e53-9e35-11e9-812f-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "",
++                                                    "postName": "",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "d3dc5e52-9e35-11e9-812f-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "73a97e6c-f364-11ea-80fe-1831bfcfda3c",
++                                                    "postName": "Главный инженер",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "600682a9-f364-11ea-80fe-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "e0b0526e-9d8e-11e9-812f-00155d630402",
++                                                    "postName": "Руководитель проектов",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "38c5089f-b8e9-11e9-8130-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "d3dc5e62-9e35-11e9-812f-00155d630402",
++                                                    "postName": "Стропальщик",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "9d4f0eab-7118-11eb-8100-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "e0b0526e-9d8e-11e9-812f-00155d630402",
++                                                    "postName": "Руководитель проектов",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "38c508af-b8e9-11e9-8130-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "d3dc5e61-9e35-11e9-812f-00155d630402",
++                                                    "postName": "Геодезист",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "05367189-e0ec-11e9-8132-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "d3dc5e62-9e35-11e9-812f-00155d630402",
++                                                    "postName": "Стропальщик",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "d42d826a-ebdf-11e9-8132-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "e0b0526d-9d8e-11e9-812f-00155d630402",
++                                                    "postName": "Производитель работ",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "78d8cfb1-9fd7-11e9-812f-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "d42d8293-ebdf-11e9-8132-00155d630402",
++                                                    "postName": "Специалист по охране труда",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "d42d8292-ebdf-11e9-8132-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "32a3e7b1-e427-11e9-8132-00155d630402",
++                                                    "postName": "Инженер ПТО",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "83850fae-7692-11eb-8100-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "d678693f-8ca0-11eb-8100-1831bfcfda3c",
++                                                    "postName": "Машинист буровой установки",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "a51a1396-8ca1-11eb-8100-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "77b66264-4c4f-11ec-8107-1831bfcfda3c",
++                                                    "postName": "Менеджер проектов",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "09b83f8d-4c51-11ec-8107-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "ad831a46-fd05-11ec-810a-1831bfcfda3c",
++                                                    "postName": "Начальник тендерного отдела",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "e078b486-010b-11ed-810a-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "",
++                                                    "postName": "",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "e078b485-010b-11ed-810a-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "",
++                                                    "postName": "",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "3a70184d-5f3b-11ec-8107-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "85db1cf5-9d6d-11e9-812f-00155d630402",
++                                                    "postName": "Генеральный директор",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "e0b05276-9d8e-11e9-812f-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "c68964c9-5f34-11ec-8107-1831bfcfda3c",
++                                                    "postName": "Начальник сметно-экономического отдела",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "3a70184e-5f3b-11ec-8107-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "77b66264-4c4f-11ec-8107-1831bfcfda3c",
++                                                    "postName": "Менеджер проектов",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "569db87d-619d-11ec-8107-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "32a3e7b1-e427-11e9-8132-00155d630402",
++                                                    "postName": "Инженер ПТО",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "569db87e-619d-11ec-8107-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "32a3e7b1-e427-11e9-8132-00155d630402",
++                                                    "postName": "Инженер ПТО",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "8cea71fe-856c-11eb-8100-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "ab42520f-f379-11eb-8104-1831bfcfda3c",
++                                                    "postName": "Экономист по материально-техническому снабжению",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "2cddd614-f37a-11eb-8104-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "5b08356e-20f2-11ec-8105-1831bfcfda3c",
++                                                    "postName": "Менеджер по персоналу",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "c8f9a9f3-20f2-11ec-8105-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "7e44eae7-2ff1-11ec-8107-1831bfcfda3c",
++                                                    "postName": "Директор по строительству",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "51a7b61f-2ff2-11ec-8107-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "d3dc5e5e-9e35-11e9-812f-00155d630402",
++                                                    "postName": "Главный бухгалтер",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "a6244a2b-a2e6-11e9-812f-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "73a97e6c-f364-11ea-80fe-1831bfcfda3c",
++                                                    "postName": "Главный инженер",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "079a9bb7-8621-11eb-8100-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "89bdad49-d283-11ec-810a-1831bfcfda3c",
++                                                    "postName": "Юрист",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "33b29b75-d28d-11ec-810a-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "e0b0526a-9d8e-11e9-812f-00155d630402",
++                                                    "postName": "Машинист крана (крановщик)",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "33b29b76-d28d-11ec-810a-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "e0b0526e-9d8e-11e9-812f-00155d630402",
++                                                    "postName": "Руководитель проектов",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "a04de03f-7689-11eb-8100-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "d3dc5e61-9e35-11e9-812f-00155d630402",
++                                                    "postName": "Геодезист",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "83850fb0-7692-11eb-8100-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "e0b0526b-9d8e-11e9-812f-00155d630402",
++                                                    "postName": "Электрогазосварщик",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "d3dc5e49-9e35-11e9-812f-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "e0b0526d-9d8e-11e9-812f-00155d630402",
++                                                    "postName": "Производитель работ",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "d16767a7-a151-11e9-812f-00155d630402"
++                                                    },
++                                                    {
++                                                    "postUID": "d3dc5e62-9e35-11e9-812f-00155d630402",
++                                                    "postName": "Стропальщик",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "83850faf-7692-11eb-8100-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "32a3e7b1-e427-11e9-8132-00155d630402",
++                                                    "postName": "Инженер ПТО",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "170e68c4-d12b-11ec-810a-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "ffb35dd2-d288-11ec-810a-1831bfcfda3c",
++                                                    "postName": "Машинист копра",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "33b29b77-d28d-11ec-810a-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "77b66264-4c4f-11ec-8107-1831bfcfda3c",
++                                                    "postName": "Менеджер проектов",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "170e68c3-d12b-11ec-810a-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "c68964c9-5f34-11ec-8107-1831bfcfda3c",
++                                                    "postName": "Начальник сметно-экономического отдела",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "170e68c2-d12b-11ec-810a-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "d42d8293-ebdf-11e9-8132-00155d630402",
++                                                    "postName": "Специалист по охране труда",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "2e9a2a99-d763-11ec-810a-1831bfcfda3c"
++                                                    },
++                                                    {
++                                                    "postUID": "a092b52a-8c9f-11eb-8100-1831bfcfda3c",
++                                                    "postName": "Помощник машиниста буровой установки",
++                                                    "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                                    "organizationINN": "7807115228",
++                                                    "staffListUID": "a51a1395-8ca1-11eb-8100-1831bfcfda3c"
++                                                    }
++                                                    ]}', false);
++
++        foreach ($posts->data as $post) {
++            $company = Company::where('company_1c_uid', $post->organizationUID)->get()->first();
++            if (isset($company)) {
++                Employees1cpost::updateOrCreate(
++                    [
++                        'post_1c_uid' => $post->postUID,
++                    ],
++                    [
++                        "name" => $post->postName,
++                        "company_id" => $company->id
++                    ]
++                );
++            }
++        }
++    }
++}
+Index: database/seeds/employeeSubdivisionsSeeder.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/database/seeds/employeeSubdivisionsSeeder.php b/database/seeds/employeeSubdivisionsSeeder.php
+new file mode 100644
+--- /dev/null	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
++++ b/database/seeds/employeeSubdivisionsSeeder.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -0,0 +1,92 @@
++<?php
++
++use App\Models\Company\Company;
++use App\Models\OneC\Employees1cSubdivision;
++use Illuminate\Database\Seeder;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Log;
++use SebastianBergmann\Environment\Console;
++
++class employeeSubdivisionsSeeder extends Seeder
++{
++    /**
++     * Run the database seeds.
++     *
++     * @return void
++     */
++    public function run()
++    {
++        $subdivisions = json_decode('{"data": [
++                    {
++                      "subdivisionUID": "e0b05268-9d8e-11e9-812f-00155d630402",
++                      "subdivisionParentUID": "",
++                      "subdivisionName": "Строительное подразделение",
++                      "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                      "organizationINN": "7807115228"
++                    },
++                    {
++                        "subdivisionUID": "e0b05267-9d8e-11e9-812f-00155d630402",
++                      "subdivisionParentUID": "",
++                      "subdivisionName": "Администрация",
++                      "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                      "organizationINN": "7807115228"
++                    },
++                    {
++                        "subdivisionUID": "67808a97-5f34-11ec-8107-1831bfcfda3c",
++                      "subdivisionParentUID": "",
++                      "subdivisionName": "Сметно-экономический отдел",
++                      "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                      "organizationINN": "7807115228"
++                    },
++                    {
++                        "subdivisionUID": "a6244a24-a2e6-11e9-812f-00155d630402",
++                      "subdivisionParentUID": "e0b05267-9d8e-11e9-812f-00155d630402",
++                      "subdivisionName": "Бухгалтерия",
++                      "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                      "organizationINN": "7807115228"
++                    },
++                    {
++                      "subdivisionUID": "e0b05269-9d8e-11e9-812f-00155d630402",
++                      "subdivisionParentUID": "e0b05268-9d8e-11e9-812f-00155d630402",
++                      "subdivisionName": "Свайное направление",
++                      "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                      "organizationINN": "7807115228"
++                    },
++                    {
++                      "subdivisionUID": "70cb9f8e-fd05-11ec-810a-1831bfcfda3c",
++                      "subdivisionParentUID": "e0b05267-9d8e-11e9-812f-00155d630402",
++                      "subdivisionName": "Тендерный отдел",
++                      "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                      "organizationINN": "7807115228"
++                    }
++                  ]}', false);
++
++        foreach ($subdivisions->data as $subdivision) {
++            $company = Company::where('company_1c_uid', $subdivision->organizationUID)->get()->first();
++
++            Log::channel('stderr')->info($subdivision->subdivisionParentUID);
++
++            $subdivisionParentId = null;
++
++            if (!empty($subdivision->subdivisionParentUID)) {
++                $subdivisionParentId = Employees1cSubdivision::where('subdivision_1c_uid', '=', $subdivision->subdivisionParentUID)->get()->first();
++                if (isset($subdivisionParentId)) {
++                    $subdivisionParentId = $subdivisionParentId->id;
++                }
++            }
++
++            if (isset($company)) {
++                Employees1cSubdivision::updateOrCreate(
++                    [
++                        'subdivision_1c_uid' => $subdivision->subdivisionUID,
++                    ],
++                    [
++                        "subdivision_parent_id" => $subdivisionParentId,
++                        "name" => $subdivision->subdivisionName,
++                        "company_id" => $company->id
++                    ]
++                );
++            }
++        }
++    }
++}
+Index: database/seeds/employeesSeeder.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/database/seeds/employeesSeeder.php b/database/seeds/employeesSeeder.php
+new file mode 100644
+--- /dev/null	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
++++ b/database/seeds/employeesSeeder.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -0,0 +1,140 @@
++<?php
++
++use App\Models\Company\Company;
++use App\Models\OneC\Employee;
++use App\Models\OneC\Employees1cpost;
++use App\Models\OneC\Employees1cSubdivision;
++use App\Models\User;
++use Carbon\Carbon;
++use Illuminate\Database\Seeder;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Log;
++use SebastianBergmann\Environment\Console;
++
++class employeesSeeder extends Seeder
++{
++    /**
++     * Run the database seeds.
++     *
++     * @return void
++     */
++    public function run()
++    {
++        $employees = json_decode('{"data": [
++                                            {
++                                            "employeeUID": "ea79384b-0769-11ed-810a-1831bfcfda3c",
++                                            "personnelNumber": "0000-00059",
++                                            "employeeName": "Харченко Александр Викторович",
++                                            "employeeLastName": "Харченко",
++                                            "employeeFirstName": "Александр",
++                                            "employeePatronymic": "Викторович",
++                                            "employeePhone": "8-921-416-87-43",
++                                            "employee1CPostUID": "e0b0526a-9d8e-11e9-812f-00155d630402",
++                                            "employee1CSubdivisionUID": "e0b05269-9d8e-11e9-812f-00155d630402",
++                                            "individual1CCode": "00-0000059",
++                                            "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                            "organizationINN": "7807115228",
++                                            "birthday": "1964-10-17",
++                                            "dateReceived": "2022-07-20",
++                                            "dismissalDate": ""
++                                            },
++                                            {
++                                            "employeeUID": "61b35adf-bf66-11e9-8130-00155d630402",
++                                            "personnelNumber": "0000-00009",
++                                            "employeeName": "Исмагилов Михаил Данилович",
++                                            "employeeLastName": "Исмагилов",
++                                            "employeeFirstName": "Михаил",
++                                            "employeePatronymic": "Данилович",
++                                            "employeePhone": "8-911-927-33-88",
++                                            "employee1CPostUID": "85db1cf5-9d6d-11e9-812f-00155d630402",
++                                            "employee1CSubdivisionUID": "e0b05267-9d8e-11e9-812f-00155d630402",
++                                            "individual1CCode": "00-0000001",
++                                            "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                            "organizationINN": "7807115228",
++                                            "birthday": "1980-04-09",
++                                            "dateReceived": "2019-08-16",
++                                            "dismissalDate": ""
++                                            },
++                                            {
++                                            "employeeUID": "0664bcee-fa3d-11e9-8136-00155d630402",
++                                            "personnelNumber": "0000-00020",
++                                            "employeeName": "Краев Илья Сергеевич",
++                                            "employeeLastName": "Краев",
++                                            "employeeFirstName": "Илья",
++                                            "employeePatronymic": "Сергеевич",
++                                            "employeePhone": "8 (900) 620-23-85",
++                                            "employee1CPostUID": "e0b0526a-9d8e-11e9-812f-00155d630402",
++                                            "employee1CSubdivisionUID": "e0b05269-9d8e-11e9-812f-00155d630402",
++                                            "individual1CCode": "00-0000019",
++                                            "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                            "organizationINN": "7807115228",
++                                            "birthday": "1990-07-11",
++                                            "dateReceived": "2019-11-01",
++                                            "dismissalDate": ""
++                                            },
++                                            {
++                                            "employeeUID": "aad1683f-09bf-11ea-8136-00155d630402",
++                                            "personnelNumber": "0000-00022",
++                                            "employeeName": "Ероменок Александр Николаевич",
++                                            "employeeLastName": "Ероменок",
++                                            "employeeFirstName": "Александр",
++                                            "employeePatronymic": "Николаевич",
++                                            "employeePhone": "8-911-819-29-98",
++                                            "employee1CPostUID": "e0b0526b-9d8e-11e9-812f-00155d630402",
++                                            "employee1CSubdivisionUID": "e0b05269-9d8e-11e9-812f-00155d630402",
++                                            "individual1CCode": "00-0000021",
++                                            "organizationUID": "a5f0bc19-9bf1-11e9-812f-00155d630402",
++                                            "organizationINN": "7807115228",
++                                            "birthday": "1975-10-28",
++                                            "dateReceived": "2019-11-18",
++                                            "dismissalDate": ""
++                                            }
++                                            ]}', false);
++
++        foreach ($employees->data as $employee) {
++            $company = Company::where('company_1c_uid', $employee->organizationUID)->get()->first();
++            $employeePost = Employees1cPost::where('post_1c_uid', '=', $employee->employee1CPostUID)->get()->first();
++            $employeeSubdivision = Employees1cSubdivision::where('subdivision_1c_uid', '=', $employee->employee1CSubdivisionUID)->get()->first();
++
++
++            $formattedBirthday = Carbon::parse($employee->birthday)->format('d.m.Y');
++            $formattedPhone = preg_replace("/[^0-9]/", '', $employee->employeePhone);
++            if (substr($formattedPhone, 0, 1) == 8) {
++                $formattedPhone = substr_replace($formattedPhone, '7', 0, 1);
++            }
++
++            Log::channel('stderr')->info($employee->employeeFirstName.'+'.$employee->employeeLastName.'+'.$employee->employeePatronymic);
++
++            if (isset($company)) {
++                $user = User::withoutGlobalScopes()->updateOrCreate(
++                    [
++                        'first_name' => trim($employee->employeeFirstName),
++                        'last_name' => trim($employee->employeeLastName),
++                        'patronymic' => trim($employee->employeePatronymic),
++                        'birthday' => trim($formattedBirthday)
++                    ],
++                    [
++                        'person_phone' => $formattedPhone
++                    ]
++                );
++
++                Employee::updateOrCreate(
++                    [
++                        'employee_1c_uid' => $employee->employeeUID,
++                    ],
++                    [
++                        'user_id' => $user->id,
++                        'employee_1c_name' => $employee->employeeName,
++                        'personnel_number' => $employee->personnelNumber,
++                        'employee_1c_post_id' => $employeePost->id,
++                        'employee_1c_subdivision_id' => $employeeSubdivision->id,
++                        'company_id' => $company->id,
++                        'employment_date' => $employee->dateReceived,
++                        'dismissal_date' => $employee->dismissalDate,
++                        'report_group_id' => null
++                    ]
++                );
++            }
++        }
++    }
++}
+Index: resources/views/labor-safety/labor-safety-orders-and-requests.blade.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php b/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php
+--- a/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
++++ b/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -69,6 +69,26 @@
+         .order-types-panel {
+             padding-top: 0 !important;
+         }
++
++        .employee-role {
++            font-size: smaller;
++            font-style: oblique;
++            color: #9b9797;
++        }
++
++        .tag-cell-editor {
++            padding-left: 11px !important;
++            padding-right: 11px !important;
++        }
++
++        .tag-cell-value {
++            display: flex !important;
++            flex-wrap: wrap !important;
++        }
++
++        .dx-tag-content-without-delete {
++            padding: 4px 11px 4px 8px !important;
++        }
+     </style>
+ @endsection
+ 
+@@ -106,7 +126,7 @@
+             load: function (loadOptions) {
+                 return $.getJSON("{{route('employees.list')}}",
+                     {data: JSON.stringify(loadOptions)});
+-            },
++            }
+         });
+ 
+         let statusesStore = new DevExpress.data.CustomStore({
+@@ -137,6 +157,27 @@
+                     {data: JSON.stringify(loadOptions)});
+             },
+         })
++
++        let orderTypesData = [];
++
++        let orderTypesStore = new DevExpress.data.CustomStore({
++            key: "id",
++            loadMode: "raw",
++            load: function (loadOptions) {
++                return $.getJSON("{{route('labor-safety.order-types.short-name-list')}}",
++                    {data: JSON.stringify(loadOptions)});
++            },
++            onLoaded: (data) => {
++                console.log("orderTypesStore loaded. Data:", data);
++                orderTypesData = data;
++            }
++        })
++
++        let orderTypesDataSource = new DevExpress.data.DataSource({
++            store: orderTypesStore
++        });
++        orderTypesDataSource.load();
++
+ 
+         let projectObjectsDataSource = new DevExpress.data.DataSource({
+             store: projectObjectsStore
+@@ -153,6 +194,8 @@
+             store: requestWorkersStore
+         })
+ 
++
++
+         $(function () {
+             $("div.content").children(".container-fluid.pd-0-360").removeClass();
+         });
+@@ -206,204 +249,117 @@
+                 })
+             });
+ 
+-            let requestEditForm = {
+-                colCount: 3,
+-                items: [
+-                    {
+-                        dataField: "order_date",
+-                        label: {
+-                            text: "Дата приказа"
+-                        },
+-                        editorType: "dxDateBox",
+-                        editorOptions: {
+-                            dateSerializationFormat: "yyyy-MM-ddTHH:mm:ss"
+-                        }
+-                    },
+-                    {
+-                        dataField: "company_id",
+-                        label: {
+-                            text: "Организация"
+-                        },
+-                        itemType: "simpleItem",
+-                        editorType: "dxSelectBox",
+-                        editorOptions: {
+-                            dataSource: {
+-                                store: companiesStore
+-                            },
+-                            displayExpr: "name",
+-                            valueExpr: "id",
+-                            searchEnabled: true,
+-                        }
+-                    },
+-                    {
+-                        dataField: "project_object_id",
+-                        label: {
+-                            text: "Адрес объекта"
+-                        },
+-                        itemType: "simpleItem",
+-                        editorType: "dxSelectBox",
+-                        editorOptions: {
+-                            dataSource: {
+-                                store: projectObjectsStore,
+-                                paginate: true,
+-                                pageSize: 25,
+-                            },
+-                            displayExpr: 'short_name',
+-                            valueExpr: 'id',
+-                            searchEnabled: true
+-                        }
+-                    },
+-                    {
+-                        dataField: "responsible_employee_id",
+-                        label: {
+-                            text: "Ответственный сотрудник",
+-                        },
+-                        editorType: "dxSelectBox",
+-                        editorOptions: {
+-                            dataSource: new DevExpress.data.DataSource({
+-                                store: new DevExpress.data.CustomStore({
+-                                    key: "id",
+-                                    loadMode: "raw",
+-                                    load: function (loadOptions) {
+-                                        return $.getJSON("{{route('employees.list')}}",
+-                                            {data: JSON.stringify(loadOptions)});
+-                                    },
+-                                })
+-                            }),
+-                            displayExpr: "employee_1c_name",
+-                            valueExpr: "id",
+-                            searchEnabled: true
+-                        }
+-                    },
+-                    {
+-                        dataField: "sub_responsible_employee_id",
+-                        label: {
+-                            text: "Замещающий ответственного",
+-                        },
+-                        editorType: "dxSelectBox",
+-                        editorOptions: {
+-                            dataSource: new DevExpress.data.DataSource({
+-                                store: new DevExpress.data.CustomStore({
+-                                    key: "id",
+-                                    loadMode: "raw",
+-                                    load: function (loadOptions) {
+-                                        return $.getJSON("{{route('employees.list')}}",
+-                                            {data: JSON.stringify(loadOptions)});
+-                                    },
+-                                })
+-                            }),
+-                            displayExpr: "employee_1c_name",
+-                            valueExpr: "id",
+-                            searchEnabled: true
+-                        }
+-                    },
+-                    {
+-                        itemType: "empty"
+-                    },
+-                    {
+-                        colSpan: 3,
+-                        itemType: "simpleItem",
+-                        dataField: "workers",
+-                        name: 'workers',
+-                        cssClass: 'request-workers-grid',
+-                        label: {
+-                            text: "Персонал",
+-                            visible: false
++            function getRequestEditForm(requestStatusId) {
++                return {
++                    colCount: 4,
++                    items: [
++                        {
++                            dataField: "order_date",
++                            label: {
++                                text: "Дата приказа"
++                            },
++                            editorType: "dxDateBox",
++                            editorOptions: {
++                                readOnly: isRowReadOnly(requestStatusId),
++                                dateSerializationFormat: "yyyy-MM-ddTHH:mm:ss"
++                            }
++                        },
++                        {
++                            dataField: "company_id",
++                            label: {
++                                text: "Организация"
++                            },
++                            itemType: "simpleItem",
++                            editorType: "dxSelectBox",
++                            editorOptions: {
++                                readOnly: isRowReadOnly(requestStatusId),
++                                dataSource: {
++                                    store: companiesStore
++                                },
++                                displayExpr: "name",
++                                valueExpr: "id",
++                                searchEnabled: true,
++                            }
++                        },
++                        {
++                            colSpan: 2,
++                            dataField: "project_object_id",
++                            label: {
++                                text: "Адрес объекта"
++                            },
++                            itemType: "simpleItem",
++                            editorType: "dxSelectBox",
++                            editorOptions: {
++                                readOnly: isRowReadOnly(requestStatusId),
++                                dataSource: {
++                                    store: projectObjectsStore,
++                                    paginate: true,
++                                    pageSize: 25,
++                                },
++                                displayExpr: 'short_name',
++                                valueExpr: 'id',
++                                searchEnabled: true
++                            }
++                        },
++                        {
++                            dataField: "responsible_employee_id",
++                            label: {
++                                text: "Ответственный сотрудник",
++                            },
++                            editorType: "dxSelectBox",
++                            visible: typeof(currentEditingRowKey) === 'undefined',
++                            editorOptions: {
++                                dataSource: new DevExpress.data.DataSource({
++                                    store: new DevExpress.data.CustomStore({
++                                        key: "id",
++                                        loadMode: "raw",
++                                        load: function (loadOptions) {
++                                            return $.getJSON("{{route('employees.list')}}",
++                                                {data: JSON.stringify(loadOptions)});
++                                        },
++                                    })
++                                }),
++                                displayExpr: "employee_1c_name",
++                                valueExpr: "id",
++                                searchEnabled: true
++                            }
++                        },
++                        {
++                            dataField: "sub_responsible_employee_id",
++                            label: {
++                                text: "Замещающий ответственного",
++                            },
++                            visible: typeof(currentEditingRowKey) === 'undefined',
++                            editorType: "dxSelectBox",
++                            editorOptions: {
++                                dataSource: new DevExpress.data.DataSource({
++                                    store: new DevExpress.data.CustomStore({
++                                        key: "id",
++                                        loadMode: "raw",
++                                        load: function (loadOptions) {
++                                            return $.getJSON("{{route('employees.list')}}",
++                                                {data: JSON.stringify(loadOptions)});
++                                        },
++                                    })
++                                }),
++                                displayExpr: "employee_1c_name",
++                                valueExpr: "id",
++                                searchEnabled: true
++                            }
++                        },
++                        {
++                            colSpan: 2,
++                            itemType: "empty",
++                            visible: typeof(currentEditingRowKey) === 'undefined',
+                         },
+-                        editorType: "dxDataGrid",
+-                        editorOptions: {
+-                            onInitialized: (e) => {
+-                                requestWorkersGrid = e.component;
+-                                requestWorkersGrid.getDataSource().store().createQuery().toArray().forEach((item) => {
+-                                    requestWorkersGrid.getDataSource().store().push([{type: "remove", key: item.id}]);
+-                                });
+-                            },
+-                            onDisposing: (e) => {
+-                                requestWorkersGrid = undefined;
+-                            },
+-                            editing: {
+-                                mode: 'popup',
+-                                allowUpdating: true,
+-                                allowAdding: false,
+-                                allowDeleting: true,
+-                                selectTextOnEditStart: true,
+-                                newRowPosition: "last",
+-                                popup: {
+-                                    title: "Сотрудник",
+-                                    showTitle: false,
+-                                    width: "800",
+-                                    height: "auto",
+-                                    position: {
+-                                        my: "center",
+-                                        at: "center",
+-                                        of: window
+-                                    }
+-                                },
+-                                form: {
+-                                    colCount: 1
+-                                }
+-                            },
+-                            height: "40vh",
+-                            dataSource: requestWorkersDataSource,
+-                            hoverStateEnabled: true,
+-                            columnAutoWidth: true,
+-                            showBorders: true,
+-                            showColumnLines: true,
+-                            filterRow: {
+-                                visible: false,
+-                                applyFilter: "auto"
+-                            },
+-                            toolbar: {
+-                                visible: false
+-                            },
+-                            grouping: {
+-                                autoExpandAll: true,
+-                            },
+-                            groupPanel: {
+-                                visible: false
+-                            },
+-                            paging: {
+-                                enabled: false
+-                            },
+-                            columns: [
+-                                {
+-                                    dataField: "worker_employee_id",
+-                                    caption: "Сотрудники",
+-                                    lookup: {
+-                                        dataSource: {
+-                                            store: employeesStore,
+-                                            paginate: true,
+-                                            pageSize: 25,
+-                                        },
+-                                        displayExpr: 'employee_extended_name',
+-                                        valueExpr: 'id'
+-                                    },
+-                                    validationRules: [{type: "required"}]
+-                                },
+-                                {
+-                                    type: 'buttons',
+-                                    width: 150,
+-                                    buttons: [
+-                                        'edit',
+-                                        'delete',
+-                                    ],
+-                                    headerCellTemplate: (container, options) => {
+-                                        $('<div>')
+-                                            .appendTo(container)
+-                                            .dxButton({
+-                                                text: "Добавить",
+-                                                icon: "fas fa-plus",
+-                                                onClick: (e) => {
+-                                                    options.component.addRow();
+-                                                }
+-                                            })
+-                                    }
+-                                }
+-                            ]
+-                        }
+-                    }
+-                ]
+-            };
++                        getWorkersSectionConfig(requestStatusId)
++                    ],
++                    onInitialized: (e) => {
++                        console.log("form onContentReady", e)
++                        //e.component.repaint();
++                    }
++                };
++            }
+ 
+             let requestsForm = $("#formContainer").dxForm({
+                 items: [
+@@ -443,91 +399,8 @@
+                                     allowAdding: false,
+                                     allowDeleting: false,
+                                     selectTextOnEditStart: true,
+-                                    popup: {
+-                                        title: "Заявка",
+-                                        showTitle: true,
+-                                        width: "60%",
+-                                        //height: "75vh",
+-                                        height: "auto",
+-                                        position: {
+-                                            my: "center",
+-                                            at: "center",
+-                                            of: window
+-                                        },
+-                                        toolbarItems:[
+-                                            {
+-                                                toolbar:'bottom',
+-                                                location: 'before',
+-                                                widget: "dxButton",
+-                                                //visible:
+-                                                options: {
+-                                                    text: "Отменить заявку",
+-                                                    type: 'danger',
+-                                                    stylingMode: 'contained',
+-                                                    onClick: function(e){
+-                                                        //getRequestsGrid().saveEditData();
+-                                                    }
+-                                                }
+-                                            },
+-                                            {
+-                                                toolbar:'bottom',
+-                                                location: 'before',
+-                                                widget: "dxButton",
+-                                                options: {
+-                                                    text: "Сформировать документы",
+-                                                    type: 'default',
+-                                                    stylingMode: 'contained',
+-                                                    onClick: function(e){
+-                                                        if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
+-                                                            getRequestsGrid().cellValue(
+-                                                                currentEditingRowIndex,
+-                                                                "perform_orders",
+-                                                                true
+-                                                            )
+-                                                        }
+-                                                        getRequestsGrid().saveEditData();
+-                                                    }
+-                                                }
+-                                            },
+-                                            {
+-                                                toolbar:'bottom',
+-                                                location: 'after',
+-                                                widget: "dxButton",
+-                                                options: {
+-                                                    text: "Сохранить",
+-                                                    type: 'normal',
+-                                                    stylingMode: 'contained',
+-                                                    onClick: function(e) {
+-                                                        if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
+-                                                            getRequestsGrid().cellValue(
+-                                                                currentEditingRowIndex,
+-                                                                "perform_orders",
+-                                                                false
+-                                                            )
+-                                                        }
+-
+-                                                        getRequestsGrid().saveEditData();
+-                                                    }
+-                                                }
+-                                            },
+-                                            {
+-                                                toolbar:'bottom',
+-                                                location: 'after',
+-                                                widget: "dxButton",
+-                                                options: {
+-                                                    text: "Отменить редактирование",
+-                                                    type: 'normal',
+-                                                    stylingMode: 'contained',
+-                                                    onClick: function(e){
+-                                                        console.log("e", e);
+-                                                        console.log("this", this);
+-                                                        getRequestsGrid().cancelEditData();
+-                                                    }
+-                                                }
+-                                            }
+-                                        ]
+-                                    },
+-                                    form: requestEditForm,
++                                    popup: getRequestEditingPopup(),
++                                    form: getRequestEditForm(),
+                                 },
+                                 columns: [
+                                     {
+@@ -632,10 +505,25 @@
+                                         type: 'buttons',
+                                         width: 110,
+                                         buttons: [
+-                                            'edit',
++                                            {
++                                                name: 'edit',
++                                                visible: (e) => {
++                                                    return !isRowReadOnly(e.row.data.request_status_id)
++                                                }
++                                            },
++                                            {
++                                                name: 'view',
++                                                icon: 'fas fa-list-alt',
++                                                visible: (e) => {
++                                                    return isRowReadOnly(e.row.data.request_status_id)
++                                                },
++                                                onClick: (e) => {
++                                                    getRequestsGrid().editRow(e.row.rowIndex);
++                                                }
++                                            },
+                                             {
+                                                 visible: (e) => {
+-                                                    return e.row.data.generated_html;
++                                                    return e.row.data.is_orders_generated && isUserCanGenerateOrders();
+                                                 },
+                                                 hint: 'Скачать',
+                                                 icon: 'download',
+@@ -653,6 +541,8 @@
+                                 onEditingStart: (e) => {
+                                     currentEditingRowKey = e.key;
+                                     currentEditingRowIndex = e.component.getRowIndexByKey(e.key);
++                                    e.component.option("editing.form", getRequestEditForm(e.data.request_status_id));
++                                    e.component.option("editing.popup", getRequestEditingPopup(e.data.request_status_id));
+ 
+                                     $.getJSON("{{route('labor-safety.request-workers.list')}}",
+                                         {requestId: currentEditingRowKey})
+@@ -688,11 +578,12 @@
+                     .dxButton({
+                         text: "Добавить",
+                         icon: "fas fa-plus",
+-                        onClick: (e) => {
+-                            getRequestsGrid().addRow();
++                        onClick: () => {
+                             currentEditingRowKey = undefined;
+                             currentEditingRowIndex = undefined;
+-                            //getRequestWorkersDataSource().reload();
++                            getRequestsGrid().addRow();
++                            getRequestsGrid().option("editing.popup", getRequestEditingPopup());
++                            getRequestsGrid().option("editing.form", getRequestEditForm());
+                         }
+                     })
+                     .addClass('dx-form-group-caption-button')
+@@ -701,9 +592,314 @@
+             createGridGroupHeaderButtons();
+             @endcan
+ 
++            function getWorkersSectionConfig(requestStatusId){
++                let canGenerateDocuments = false;
++                @can('labor_safety_generate_documents_access')
++                canGenerateDocuments = true;
++                @endcan
++
++                let config = getWorkersSectionConfigForWorkersEditing(requestStatusId);
++
++                if ((typeof(currentEditingRowKey) !== "undefined") && canGenerateDocuments) {
++                    config.editorOptions.columns = getWorkersColumnsForDocumentGeneration();
++                    config.editorOptions.editing.allowUpdating = true;
++                    config.editorOptions.editing.allowDeleting = false;
++                    config.editorOptions.editing.mode = 'cell';
++                } else {
++                    config.editorOptions.columns = getWorkersColumnsForEditing(requestStatusId);
++                    config.editorOptions.editing.allowUpdating = true;
++                    config.editorOptions.editing.allowDeleting = true;
++                    config.editorOptions.editing.mode = 'popup';
++                }
++
++                return config;
++            }
++
++            function getWorkersSectionConfigForWorkersEditing(requestStatusId) {
++                return {
++                    colSpan: 4,
++                        itemType: "simpleItem",
++                    dataField: "workers",
++                    name: 'workers',
++                    cssClass: 'request-workers-grid',
++                    label: {
++                        text: "Персонал",
++                            visible: false
++                    },
++                    editorType: "dxDataGrid",
++                    editorOptions: {
++                        onInitialized: (e) => {
++                            requestWorkersGrid = e.component;
++                            requestWorkersGrid.getDataSource().store().createQuery().toArray().forEach((item) => {
++                                requestWorkersGrid.getDataSource().store().push([{type: "remove", key: item.id}]);
++                            });
++                        },
++                            onDisposing: (e) => {
++                            requestWorkersGrid = undefined;
++                        },
++                        editing: {
++                            allowAdding: false,
++                            selectTextOnEditStart: true,
++                            newRowPosition: "last",
++                            popup: {
++                                title: "Сотрудник",
++                                    showTitle: false,
++                                    width: "800",
++                                    height: "auto",
++                                    position: {
++                                    my: "center",
++                                        at: "center",
++                                        of: window
++                                }
++                            },
++                            form: {
++                                colCount: 1
++                            }
++                        },
++                        height: "40vh",
++                        dataSource: requestWorkersDataSource,
++                        hoverStateEnabled: true,
++                        columnAutoWidth: true,
++                        showBorders: true,
++                        showColumnLines: true,
++                        filterRow: {
++                            visible: false,
++                                applyFilter: "auto"
++                        },
++                        toolbar: {
++                            visible: false
++                        },
++                        grouping: {
++                            autoExpandAll: true,
++                        },
++                        groupPanel: {
++                            visible: false
++                        },
++                        paging: {
++                            enabled: false
++                        }
++                    }
++                }
++            }
++
++            function getWorkersColumnsForDocumentGeneration() {
++                return [
++                    {
++                        dataField: "worker_employee_id",
++                        dataType: "string",
++                        caption: "Сотрудники",
++                        width: "40%",
++                        allowEditing: false,
++                        cellTemplate: (container, options) => {
++                            console.log(options);
++                            $(`<div class="employee-name">${options.data.employee_1c_name}</div>`)
++                                .appendTo(container);
++
++                            $(`<div class="employee-role">${options.data.post_name} (${options.data.company_name}) — ${options.data.employee_role}</div>`)
++                                .appendTo(container);
++
++                        },
++                        validationRules: [{type: "required"}]
++                    },
++                    {
++                        dataField: "orders",
++                        caption: "Документы",
++                        width: "60%",
++                        editCellTemplate: (cellElement, cellInfo) => {
++                            return $('<div class="tag-cell-editor">').dxTagBox({
++                                dataSource: orderTypesDataSource,
++                                value: cellInfo.value,
++                                valueExpr: 'id',
++                                displayExpr: 'short_name',
++                                showSelectionControls: true,
++                                showMultiTagOnly: false,
++                                applyValueMode: 'instantly',
++                                searchEnabled: true,
++                                onValueChanged(e) {
++                                    cellInfo.setValue(e.value);
++                                },
++                                onSelectionChanged() {
++                                    cellInfo.component.updateDimensions();
++                                },
++                            })
++                        },
++                        lookup: {
++                            dataSource: {
++                                store: orderTypesStore,
++                                paginate: true,
++                                pageSize: 25,
++                            },
++                            displayExpr: 'short_name',
++                            valueExpr: 'id'
++                        },
++                        cellTemplate(container, options) {
++                            let textValues = '';
++
++                            let valueArray = options.value;
++
++                            valueArray.sort((a, b) => {
++                                if (a > b) return 1;
++                                if (a === b) return 0;
++                                if (a < b) return -1;
++                            })
++
++                            valueArray.forEach((item) => {
++                                textValues += `<div class="dx-tag">
++                                                <div class="dx-tag-content-without-delete dx-tag-content">
++                                                    <span>
++                                                        ${options.column.lookup.calculateCellValue(item)}
++                                                    </span>
++                                                </div>
++                                               </div>`
++                            });
++
++                            container.append($(`<div class="tag-cell-value">${textValues}</div>`))
++                        }
++                    }
++                ]
++            }
++
++            function getWorkersColumnsForEditing (requestStatusId) {
++                return [
++                    {
++                        dataField: "worker_employee_id",
++                        caption: "Сотрудники",
++                        lookup: {
++                            dataSource: {
++                                store: employeesStore,
++                                paginate: true,
++                                pageSize: 25,
++                            },
++                            displayExpr: 'employee_extended_name',
++                            valueExpr: 'id'
++                        },
++                        validationRules: [{type: "required"}]
++                    },
++                    {
++                        type: 'buttons',
++                        width: 150,
++                        visible: !isRowReadOnly(requestStatusId),
++                        buttons: [
++                            {
++                                name: 'edit',
++                                visible: () => {
++                                    return !isRowReadOnly(requestStatusId)
++                                }
++                            },
++                            {
++                                name: 'delete',
++                                visible: () => {
++                                    return !isRowReadOnly(requestStatusId)
++                                }
++                            }
++                        ],
++                        headerCellTemplate: (container, options) => {
++                            if (!isRowReadOnly(requestStatusId)) {
++                                $('<div>')
++                                    .appendTo(container)
++                                    .dxButton({
++                                        text: "Добавить",
++                                        icon: "fas fa-plus",
++                                        onClick: (e) => {
++                                            options.component.addRow();
++                                        }
++                                    })
++                            }
++                        }
++                    }
++                ]
++            }
++
+             function getRequestsGrid() {
+                 return requestsForm.getEditor("requestsGrid");
+             }
++
++            function getRequestEditingPopup(requestStatus) {
++                return {
++                    title: "Заявка",
++                    showTitle: true,
++                    width: "60%",
++                    height: "auto",
++                    showCloseButton: true,
++                    position: {
++                    my: "center",
++                        at: "center",
++                        of: window
++                    },
++                    toolbarItems: getEditFormToolbarOptions(requestStatus)
++                }
++            }
++
++            function isUserCanGenerateOrders() {
++                let result = false;
++
++                @can('labor_safety_generate_documents_access')
++                    result = true;
++                @endcan
++
++                return result;
++            }
++
++            function isRowReadOnly(requestStatus) {
++                return requestStatus === 3 || requestStatus === 4 || (requestStatus === 2 && !isUserCanGenerateOrders());
++            }
++
++            function getEditFormToolbarOptions(requestStatus) {
++                const isInEditing = typeof(currentEditingRowIndex) !== "undefined";
++
++                return [
++                    {
++                        toolbar: 'bottom',
++                        location: 'before',
++                        widget: "dxButton",
++                        visible: isInEditing && !isRowReadOnly(requestStatus),
++                        options: {
++                            text: "Отменить заявку",
++                            type: 'danger',
++                            stylingMode: 'contained',
++                            onClick: function(e){
++                                //getRequestsGrid().saveEditData();
++                            }
++                        }
++                    },
++                    {
++                        toolbar:'bottom',
++                        location: 'after',
++                        widget: "dxButton",
++                        visible: !isRowReadOnly(requestStatus),
++                        options: {
++                            text: "Сохранить",
++                            type: 'normal',
++                            stylingMode: 'contained',
++                            onClick: function() {
++                                if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
++                                    getRequestsGrid().cellValue(
++                                        currentEditingRowIndex,
++                                        "perform_orders",
++                                        isUserCanGenerateOrders()
++                                    )
++                                }
++
++                                getRequestsGrid().saveEditData();
++                            }
++                        }
++                    },
++                    {
++                        toolbar:'bottom',
++                        location: 'after',
++                        widget: "dxButton",
++                        visible: !isRowReadOnly(requestStatus),
++                        options: {
++                            text: "Отменить редактирование",
++                            type: 'normal',
++                            stylingMode: 'contained',
++                            onClick: function(e){
++                                getRequestsGrid().cancelEditData();
++                            }
++                        }
++                    }
++                ]
++            }
+         });
+     </script>
+ @endsection
+Index: routes/modules/labor-safety/labor-safety.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/routes/modules/labor-safety/labor-safety.php b/routes/modules/labor-safety/labor-safety.php
+--- a/routes/modules/labor-safety/labor-safety.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
++++ b/routes/modules/labor-safety/labor-safety.php	(revision aeeb89b445fc33d5ebf7459f3e22a84597f7b1cd)
+@@ -8,6 +8,7 @@
+ 
+ Route::get('/labor-safety/templates', 'LaborSafety\LaborSafetyOrderTypeController@index')->name('labor-safety.order-types.index');
+ Route::get('/labor-safety/templates/list', 'LaborSafety\LaborSafetyOrderTypeController@list')->name('labor-safety.order-types.list');
++Route::get('/labor-safety/templates/short-names-list', 'LaborSafety\LaborSafetyOrderTypeController@shortNameList')->name('labor-safety.order-types.short-name-list');
+ Route::put('/labor-safety/templates', 'LaborSafety\LaborSafetyOrderTypeController@update')->name('labor-safety.order-types.update');
+ 
+ Route::get('/labor-safety/orders-and-requests', 'LaborSafety\LaborSafetyRequestController@index')->name('labor-safety.orders-and-requests.index');

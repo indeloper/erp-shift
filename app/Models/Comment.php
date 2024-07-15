@@ -12,11 +12,14 @@ use Illuminate\Support\Facades\Blade;
 
 class Comment extends Model
 {
+
     use Documentable;
     use HasFactory;
     use RussianShortDates;
 
     protected $guarded = ['id'];
+
+    // protected $fillable = ['commentable_id', 'commentable_type', 'comment', 'author_id', 'system', 'count'];
 
     protected $with = ['files', 'author'];
 
@@ -35,7 +38,7 @@ class Comment extends Model
 
     /**
      * This getter parse blade directive if comment
-     * have it, otherwise return styles comment
+     * have it, otherwise return old comment
      */
     public function getPrettyCommentAttribute(): string
     {
@@ -49,7 +52,7 @@ class Comment extends Model
     /**
      * Getter for created_at formatting
      */
-    public function getCreatedAtFormattedAttribute(): ?string
+    public function getCreatedAtFormattedAttribute()
     {
         return $this->created_at->format(self::DATE_FORMAT);
     }
@@ -63,4 +66,5 @@ class Comment extends Model
     {
         return $this->belongsTo(User::class, 'author_id');
     }
+
 }

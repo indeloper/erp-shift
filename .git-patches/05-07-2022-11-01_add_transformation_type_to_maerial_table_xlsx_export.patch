@@ -1,0 +1,38 @@
+Index: app/Services/q3wMaterialAccounting/Reports/MaterialTableXLSXReport.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Services/q3wMaterialAccounting/Reports/MaterialTableXLSXReport.php b/app/Services/q3wMaterialAccounting/Reports/MaterialTableXLSXReport.php
+--- a/app/Services/q3wMaterialAccounting/Reports/MaterialTableXLSXReport.php	(revision c254f3455e735d18d6634c0f662d123f1c2c42e5)
++++ b/app/Services/q3wMaterialAccounting/Reports/MaterialTableXLSXReport.php	(revision 05458ad68a84a577d67ad96597568680584d82ef)
+@@ -95,7 +95,8 @@
+                 'Уход',
+                 'Комментарий',
+                 '№ ТТН',
+-                '№ ТН'
++                '№ ТН',
++                'Индекс типа преобразования'
+             ]
+         ];
+     }
+@@ -121,7 +122,8 @@
+                 $material['outgoing_to_project_object'],
+                 $material['comment'],
+                 $material['item_transport_consignment_note_number'],
+-                $material['consignment_note_number']
++                $material['consignment_note_number'],
++                $material['transform_operation_stage_id'],
+             ]);
+ 
+             if ($prevOperationId == 0) {
+@@ -330,7 +332,8 @@
+             'G' => 16,
+             'E' => 16,
+             'L' => 11,
+-            'M' => 11
++            'M' => 11,
++            'N' => 0
+         ];
+     }
+ }

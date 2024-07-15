@@ -29,6 +29,7 @@ use Illuminate\View\View;
 
 class q3wMaterialTransferOperationController extends Controller
 {
+
     const EMPTY_COMMENT_TEXT = 'Комментарий не указан';
 
     /**
@@ -49,7 +50,7 @@ class q3wMaterialTransferOperationController extends Controller
         $transferOperationInitiator = 'none';
 
         if (isset($request->sourceProjectObjectId)) {
-            $sourceProjectObjectId = $request->sourceProjectObjectId;
+            $sourceProjectObjectId      = $request->sourceProjectObjectId;
             $transferOperationInitiator = 'source';
         } else {
             $sourceProjectObjectId = 0;
@@ -740,7 +741,8 @@ class q3wMaterialTransferOperationController extends Controller
             $inputMaterialQuantity = $inputMaterial['quantity'];
             $inputMaterialInitialCommentId = $inputMaterial['initial_comment_id'];
 
-            if (empty($inputMaterial['comment'])) {
+            // Если коммит пустой, или в нем нет ни одной буквы
+            if (!isset($inputMaterial['comment']) || empty(trim($inputMaterial['comment'])) || !preg_match('/[\p{L}\p{N}]/u', $inputMaterial['comment'])) {
                 $inputMaterialComment = null;
             } else {
                 $inputMaterialComment = $inputMaterial['comment'];
@@ -1431,6 +1433,7 @@ class q3wMaterialTransferOperationController extends Controller
             ->get(['q3w_material_operations.*',
                 'source_project_objects.short_name as source_project_object_name',
                 'destination_project_objects.short_name as destination_project_object_name',
+                'q3w_material_operation_reasons.name as material_operation_reason_name',
                 DB::Raw('CONCAT(`destination_users`.`last_name`, " ", UPPER(SUBSTRING(`destination_users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`destination_users`.`patronymic`, 1, 1)), ".") as destination_responsible_user_name'),
                 DB::Raw('CONCAT(`source_users`.`last_name`, " ", UPPER(SUBSTRING(`source_users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`source_users`.`patronymic`, 1, 1)), ".") as source_responsible_user_name'),
             ])

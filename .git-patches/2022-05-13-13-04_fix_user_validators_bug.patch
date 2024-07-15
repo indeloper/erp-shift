@@ -1,0 +1,29 @@
+Index: resources/views/materials/operations/transfer/new.blade.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/resources/views/materials/operations/transfer/new.blade.php b/resources/views/materials/operations/transfer/new.blade.php
+--- a/resources/views/materials/operations/transfer/new.blade.php	(revision 90a626ef2520810d21b917afc3b85a149423feb6)
++++ b/resources/views/materials/operations/transfer/new.blade.php	(revision 94517391415dc27477822e74ed3408a3e0c4f4bc)
+@@ -436,8 +436,8 @@
+                                             quantity = null;
+                                     }
+ 
+-                                    let validationUid = getValidationUid(material.standard_id, material.accounting_type, quantity, amount, material.initial_comment_id);
+-
++                                    let validationUid = getValidationUid(material.standard_id, material.accounting_type, quantity, amount, material.comment_id);
++                                    console.log(`added material`, material);
+                                     transferMaterialDataSource.store().insert({
+                                         id: "uid-" + new DevExpress.data.Guid().toString(),
+                                         standard_id: material.standard_id,
+@@ -1206,9 +1206,6 @@
+                         .toArray();
+                 }
+ 
+-
+-                console.log('validationData', validationData);
+-
+                 updateRowsValidationState(validationData, "inProcess", "none")
+ 
+                 let transferOperationData = {
