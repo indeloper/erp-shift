@@ -82,8 +82,7 @@ class ProjectWorkVolumeController extends Controller
             ->where('material_type', 'regular')
             ->where('complect_id', null)
             ->leftJoin('manual_materials', 'manual_materials.id', '=', 'manual_material_id')
-            ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=',
-                'manual_materials.category_id')
+            ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
             ->groupBy('manual_material_id')
             ->select('work_volume_materials.*', 'manual_material_categories.category_unit', 'manual_materials.name',
                 DB::raw('sum(count) as count'));
@@ -96,8 +95,7 @@ class ProjectWorkVolumeController extends Controller
 
         $sop = ProjectResponsibleUser::where('project_id', $project_id)->where('role', 2)->first();
 
-        $categories = ManualMaterialCategory::whereNotIn('id', [12, 14])->with('attributes')->select('id',
-            'name')->get();
+        $categories = ManualMaterialCategory::whereNotIn('id', [12, 14])->with('attributes')->select('id', 'name')->get();
 
         return view('projects.work_volume.new_card', [
             'service_name' => 'Шпунтовое направление',
@@ -134,14 +132,12 @@ class ProjectWorkVolumeController extends Controller
             ->select('work_volume_requests.*', 'users.last_name', 'users.first_name', 'users.patronymic')
             ->with('files');
 
-        $request_tasks = Task::where('project_id', $project_id)->whereBetween('status',
-            ['14', '15', '16', '17'])->where('is_solved', 0)->get();
+        $request_tasks = Task::where('project_id', $project_id)->whereBetween('status', ['14', '15', '16', '17'])->where('is_solved', 0)->get();
 
         $work_volume_materials = WorkVolumeMaterial::where('work_volume_id', $work_volume_id)
             ->where('work_volume_materials.is_tongue', 0)
             ->leftJoin('manual_materials', 'manual_materials.id', '=', 'manual_material_id')
-            ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=',
-                'manual_materials.category_id')
+            ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
             ->select('work_volume_materials.*', 'manual_material_categories.category_unit', 'manual_materials.name');
 
         $resp = ProjectResponsibleUser::where('project_id', $project_id)->where('role', 3)->first();
@@ -201,7 +197,7 @@ class ProjectWorkVolumeController extends Controller
 
     public function send_work_volume(Request $request, $work_volume_id)
     {
-        if (!WorkVolumeWork::where('work_volume_id', $work_volume_id)->first()) {
+        if (! WorkVolumeWork::where('work_volume_id', $work_volume_id)->first()) {
             return back()->with('wv', 'Заполните объём работ');
         }
 
@@ -214,8 +210,7 @@ class ProjectWorkVolumeController extends Controller
 
         if ($request->is_tongue == 1) {
             $work_volume->is_save_tongue = 1;
-            $task = Task::where('project_id', $project->id)->where('target_id', $work_volume_id)->where('status',
-                3)->where('is_solved', 0)->first();
+            $task = Task::where('project_id', $project->id)->where('target_id', $work_volume_id)->where('status', 3)->where('is_solved', 0)->first();
         } elseif ($request->is_tongue == 0) { //close task расчёт объемов (сваи)
             $work_volume->is_save_pile = 1;
             $task = Task::where('project_id', $project->id)->where('status', 4)->where('is_solved', 0)->first();
@@ -235,8 +230,7 @@ class ProjectWorkVolumeController extends Controller
         }
 
         // block for task 18 solve
-        $tasks_18 = Task::where('project_id', $project->id)->where('target_id', $work_volume_id)->where('status',
-            18)->where('is_solved', 0)->with('project.object')->get();
+        $tasks_18 = Task::where('project_id', $project->id)->where('target_id', $work_volume_id)->where('status', 18)->where('is_solved', 0)->with('project.object')->get();
         if ($request->has('from_task_18') or $tasks_18->isNotEmpty()) {
             if ($tasks_18->isNotEmpty()) {
                 foreach ($tasks_18 as $item) {
@@ -256,16 +250,11 @@ class ProjectWorkVolumeController extends Controller
             ->where('status', 0)
             ->update(['status' => 2]);
 
-        $offers_count = CommercialOffer::where('project_id',
-            $work_volume->project_id)->whereOption($work_volume->option)->where('is_tongue',
-            $request->is_tongue)->update(['status' => 3]);
+        $offers_count = CommercialOffer::where('project_id', $work_volume->project_id)->whereOption($work_volume->option)->where('is_tongue', $request->is_tongue)->update(['status' => 3]);
 
-        $offers_id = CommercialOffer::where('project_id',
-            $work_volume->project_id)->whereOption($work_volume->option)->where('is_tongue',
-            $request->is_tongue)->pluck('id')->toArray();
+        $offers_id = CommercialOffer::where('project_id', $work_volume->project_id)->whereOption($work_volume->option)->where('is_tongue', $request->is_tongue)->pluck('id')->toArray();
 
-        $tasks = Task::where('project_id', $work_volume->project_id)->whereIn('status',
-            [5, 6, 12, 15, 16])->whereIn('target_id', $offers_id)->where('is_solved', 0)->get();
+        $tasks = Task::where('project_id', $work_volume->project_id)->whereIn('status', [5, 6, 12, 15, 16])->whereIn('target_id', $offers_id)->where('is_solved', 0)->get();
 
         foreach ($tasks as $item) {     //close all tasks from last com_offer
             $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
@@ -281,8 +270,7 @@ class ProjectWorkVolumeController extends Controller
         }
 
         if ($request->has('noSOP')) {
-            $thisTask = Task::where('project_id', $work_volume->project_id)->where('status', 15)->where('is_solved',
-                0)->count();
+            $thisTask = Task::where('project_id', $work_volume->project_id)->where('status', 15)->where('is_solved', 0)->count();
 
             if ($thisTask == 0) {
                 $tongueTask = new Task();
@@ -310,9 +298,7 @@ class ProjectWorkVolumeController extends Controller
                 ];
             }
         } else {
-            $prev_com_offer = CommercialOffer::where('project_id',
-                $work_volume->project_id)->whereOption($work_volume->option)->where('is_tongue',
-                $request->is_tongue)->orderBy('version', 'desc')->first();
+            $prev_com_offer = CommercialOffer::where('project_id', $work_volume->project_id)->whereOption($work_volume->option)->where('is_tongue', $request->is_tongue)->orderBy('version', 'desc')->first();
 
             $commercial_offer = new CommercialOffer();
 
@@ -328,9 +314,7 @@ class ProjectWorkVolumeController extends Controller
 
             $commercial_offer->save();
 
-            $new_wv_mats = $work_volume->shown_materials()->groupBy([
-                'material_type', 'manual_material_id', 'unit'
-            ])->select('*', DB::raw('sum(count) as count'))->get();
+            $new_wv_mats = $work_volume->shown_materials()->groupBy(['material_type', 'manual_material_id', 'unit'])->select('*', DB::raw('sum(count) as count'))->get();
 
             if ($prev_com_offer) {
                 foreach ($work_volume->works as $work) {
@@ -363,13 +347,10 @@ class ProjectWorkVolumeController extends Controller
                 // });
 
                 //get splits from previous com_offer
-                $control_count = $prev_com_offer->mat_splits->groupBy([
-                    'material_type', 'man_mat_id', 'unit'
-                ]); //here are styles ones
+                $control_count = $prev_com_offer->mat_splits->groupBy(['material_type', 'man_mat_id', 'unit']); //here are old ones
                 //creating splits for new commercial_offer
                 foreach ($new_wv_mats as $material) {
-                    if ($material->count == (isset($control_count[$material->material_type][$material->manual_material_id]) ? $control_count[$material->material_type][$material->manual_material_id]->whereIn('type',
-                            [1, 3, 5])->sum('count') : -1)) { //if there was no changes amount of
+                    if ($material->count == (isset($control_count[$material->material_type][$material->manual_material_id]) ? $control_count[$material->material_type][$material->manual_material_id]->whereIn('type', [1, 3, 5])->sum('count') : -1)) { //if there was no changes amount of
                         foreach ($control_count[$material->material_type][$material->manual_material_id] as $old_split) {
                             $new_split = $old_split->replicate();
                             $new_split->man_mat_id = $old_split->man_mat_id; //do we really need this?
@@ -414,13 +395,11 @@ class ProjectWorkVolumeController extends Controller
                 }
             }
 
-            $WV_accept_task = Task::where('status', 18)->where('target_id', $work_volume->id)->orderBy('id',
-                'desc')->first();
+            $WV_accept_task = Task::where('status', 18)->where('target_id', $work_volume->id)->orderBy('id', 'desc')->first();
             $task_CO = new Task([
                 'project_id' => $work_volume->project_id,
                 'name' => 'Формирование КП'.($request->is_tongue ? ' (шпунтовое направление)' : ' (свайное направление)'),
-                'responsible_user_id' => ProjectResponsibleUser::where('project_id',
-                    $work_volume->project_id)->where('role', ($request->is_tongue ? 2 : 1))->first()->user_id,
+                'responsible_user_id' => ProjectResponsibleUser::where('project_id', $work_volume->project_id)->where('role', ($request->is_tongue ? 2 : 1))->first()->user_id,
                 'contractor_id' => $project->contractor_id,
                 'target_id' => $commercial_offer->id,
                 'expired_at' => $this->addHours(24),
@@ -470,8 +449,7 @@ class ProjectWorkVolumeController extends Controller
         $this->sendNotifications();
 
         if ($work_volume->type == 0) {
-            return redirect()->route('projects::work_volume::card_tongue',
-                [$work_volume->project_id, $work_volume->id]);
+            return redirect()->route('projects::work_volume::card_tongue', [$work_volume->project_id, $work_volume->id]);
         } elseif ($work_volume->type == 1) {
             return redirect()->route('projects::work_volume::card_pile', [$work_volume->project_id, $work_volume->id]);
         }
@@ -483,10 +461,8 @@ class ProjectWorkVolumeController extends Controller
 
         $work_volume = WorkVolume::findOrFail($request->wv_id);
 
-        $complect_ids = $work_volume->shown_materials->whereIn('id', $request->material_id)->where('material_type',
-            'complect');
-        $mat_ids = $work_volume->shown_materials->whereIn('id', $request->material_id)->where('material_type',
-            'regular');
+        $complect_ids = $work_volume->shown_materials->whereIn('id', $request->material_id)->where('material_type', 'complect');
+        $mat_ids = $work_volume->shown_materials->whereIn('id', $request->material_id)->where('material_type', 'regular');
 
         foreach ($complect_ids as $mat) {
             if ($mat->material_type == 'complect') {
@@ -500,9 +476,8 @@ class ProjectWorkVolumeController extends Controller
                 if ($request->material_id) {
                     foreach ($request->material_id as $key => $value) {
                         if (strlen($value) > 10) {
-                            !$mat_ids->contains($value) ?: $mat_ids->forget($key);
-                            $combine_piles = $combine_piles->merge(WorkVolumeMaterial::where('combine_id',
-                                $value)->get());
+                            ! $mat_ids->contains($value) ?: $mat_ids->forget($key);
+                            $combine_piles = $combine_piles->merge(WorkVolumeMaterial::where('combine_id', $value)->get());
                         }
                     }
                 }
@@ -563,17 +538,14 @@ class ProjectWorkVolumeController extends Controller
                 foreach ($mat_ids as $key => $value) {
                     if (strlen($value) > 10) {
                         unset($mat_ids[$key]);
-                        $combine_piles = array_merge(WorkVolumeMaterial::where('work_volume_id',
-                            $work_volume_id)->where('combine_id', $value)->pluck('id')->toArray(), $combine_piles);
+                        $combine_piles = array_merge(WorkVolumeMaterial::where('work_volume_id', $work_volume_id)->where('combine_id', $value)->pluck('id')->toArray(), $combine_piles);
                     }
                 }
                 $mat_ids = array_merge($combine_piles, $mat_ids);
             }
         } else {
-            $complect_material = $work_volume->shown_materials->whereIn('id', $mat_ids)->where('material_type',
-                'complect');
-            $mat_ids = $work_volume->shown_materials->whereIn('id', $mat_ids)->where('material_type',
-                'regular')->pluck('id')->toArray();
+            $complect_material = $work_volume->shown_materials->whereIn('id', $mat_ids)->where('material_type', 'complect');
+            $mat_ids = $work_volume->shown_materials->whereIn('id', $mat_ids)->where('material_type', 'regular')->pluck('id')->toArray();
 
             $mat_ids = array_merge($mat_ids, $complect_material->pluck('parts')->flatten()->pluck('id')->toArray());
         }
@@ -625,21 +597,19 @@ class ProjectWorkVolumeController extends Controller
         foreach ($mat_ids as $key => $value) {
             if (strlen($value) > 8) {
                 unset($mat_ids[$key]);
-                $combine_piles = array_merge(WorkVolumeMaterial::where('combine_id', $value)->pluck('id')->toArray(),
-                    $combine_piles);
+                $combine_piles = array_merge(WorkVolumeMaterial::where('combine_id', $value)->pluck('id')->toArray(), $combine_piles);
             }
         }
         $mat_ids = array_merge($combine_piles, $mat_ids);
 
-        $complect_parts = $work_volume->shown_materials->where('material_type', 'complect')->whereIn('id',
-            $mat_ids)->pluck('parts')->flatten();
+        $complect_parts = $work_volume->shown_materials->where('material_type', 'complect')->whereIn('id', $mat_ids)->pluck('parts')->flatten();
         $materials = $work_volume->shown_materials->where('material_type', 'regular')->whereIn('id', $mat_ids);
 
         $mat_ids = $materials->pluck('id')->toArray();
 
         $wv_works = ManualWork::query();
 
-        if (!empty($mat_ids)) {
+        if (! empty($mat_ids)) {
             $wv_mat_works = $materials->shift()->manual->category->related_works;
 
             foreach ($materials as $mat) {
@@ -658,8 +628,7 @@ class ProjectWorkVolumeController extends Controller
         if ($request->q) {
             $wv_works = $wv_works->where('name', 'like', '%'.trim($request->q).'%')
                 ->OrWhereHas('childs.child_work', function ($child_work) use ($request) {
-                    $child_work->whereIn('work_group_id',
-                        $request->is_tongue ? (new ManualWork())->tongue_groups : (new ManualWork())->pile_groups);
+                    $child_work->whereIn('work_group_id', $request->is_tongue ? (new ManualWork())->tongue_groups : (new ManualWork())->pile_groups);
                     $child_work->where('name', 'like', '%'.trim($request->q).'%');
                 });
         }
@@ -731,20 +700,19 @@ class ProjectWorkVolumeController extends Controller
             }
         }
 
-        if ($request->is_tongue and !$filter_count) {
+        if ($request->is_tongue and ! $filter_count) {
             $nodes = ManualNodes::query();
         }
 
         if ($request->q) {
             $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%'.trim($request->q).'%');
 
-            if ($request->is_tongue and !$filter_count) {
+            if ($request->is_tongue and ! $filter_count) {
                 $nodes = $nodes->where('name', 'like', '%'.trim($request->q).'%');
             }
         }
 
-        $wv_materials = $wv_materials->leftJoin('manual_material_categories', 'manual_material_categories.id', '=',
-            'manual_materials.category_id')
+        $wv_materials = $wv_materials->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
             ->select('manual_materials.*', 'manual_material_categories.category_unit');
 
         if ($request->is_tongue) {
@@ -757,11 +725,8 @@ class ProjectWorkVolumeController extends Controller
 
         $wv_materials = $wv_materials->take(50)->get();
 
-        if ($request->is_tongue and !$filter_count) {
-            $nodes = $nodes->with([
-                'node_category', 'node_materials', 'node_materials.materials', 'node_materials.materials.parameters',
-                'node_materials.materials.category'
-            ])->get();
+        if ($request->is_tongue and ! $filter_count) {
+            $nodes = $nodes->with(['node_category', 'node_materials', 'node_materials.materials', 'node_materials.materials.parameters', 'node_materials.materials.category'])->get();
         }
         $results = [];
         foreach ($wv_materials as $wv_material) {
@@ -772,7 +737,7 @@ class ProjectWorkVolumeController extends Controller
             ];
         }
 
-        if ($request->is_tongue and !$filter_count) {
+        if ($request->is_tongue and ! $filter_count) {
             foreach ($nodes as $node) {
                 $results[] = [
                     'id' => $node->id,
@@ -794,8 +759,7 @@ class ProjectWorkVolumeController extends Controller
         foreach ($mat_ids as $key => $value) {
             if (strlen($value) > 10) {
                 unset($mat_ids[$key]);
-                $combine_piles = array_merge(WorkVolumeMaterial::where('combine_id', $value)->pluck('id')->toArray(),
-                    $combine_piles);
+                $combine_piles = array_merge(WorkVolumeMaterial::where('combine_id', $value)->pluck('id')->toArray(), $combine_piles);
             }
         }
 
@@ -806,10 +770,9 @@ class ProjectWorkVolumeController extends Controller
         $wv_materials = $work_volume->materials()->where('material_type', 'regular');
         if ($request->q) {
             $search = $request->q;
-            $wv_materials = $wv_materials->whereHasMorph('manual', [ManualMaterial::class],
-                function ($manual) use ($search) {
-                    return $manual->where('name', 'like', '%'.trim($search).'%');
-                });
+            $wv_materials = $wv_materials->whereHasMorph('manual', [ManualMaterial::class], function ($manual) use ($search) {
+                return $manual->where('name', 'like', '%'.trim($search).'%');
+            });
         }
         if ($request->work_ids[0] != null) {
             $all_mat = ($wv_materials->pluck('manual_material_id'))->merge($complect_materials->pluck('parts')->flatten()->pluck('manual_material_id'))->unique();
@@ -829,38 +792,30 @@ class ProjectWorkVolumeController extends Controller
             })->first();
 
             if ($manual_work->normal_parent()->exists()) {
-                $manual_work->load([
-                    'normal_parent.related_categories' => function ($categories) use ($all_mat) {
-                        $categories->whereHas('materials', function ($materials) use ($all_mat) {
-                            $materials->whereIn('id', $all_mat)->withTrashed();
-                        });
-                    }
-                ]);
+                $manual_work->load(['normal_parent.related_categories' => function ($categories) use ($all_mat) {
+                    $categories->whereHas('materials', function ($materials) use ($all_mat) {
+                        $materials->whereIn('id', $all_mat)->withTrashed();
+                    });
+                }]);
                 $material_ids = $manual_work->normal_parent->related_categories()
                     ->whereHas('materials', function ($materials) use ($all_mat) {
                         $materials->whereIn('id', $all_mat)->withTrashed();
-                    })->with([
-                        'materials' => function ($mats) use ($all_mat) {
-                            $mats->whereIn('id', $all_mat)->withTrashed();
-                        }
-                    ])
+                    })->with(['materials' => function ($mats) use ($all_mat) {
+                        $mats->whereIn('id', $all_mat)->withTrashed();
+                    }])
                     ->get()->pluck('materials')->flatten()->pluck('id');
             } else {
-                $manual_work->load([
-                    'related_categories' => function ($categories) use ($all_mat) {
-                        $categories->whereHas('materials', function ($materials) use ($all_mat) {
-                            $materials->whereIn('id', $all_mat)->withTrashed();
-                        });
-                    }
-                ]);
+                $manual_work->load(['related_categories' => function ($categories) use ($all_mat) {
+                    $categories->whereHas('materials', function ($materials) use ($all_mat) {
+                        $materials->whereIn('id', $all_mat)->withTrashed();
+                    });
+                }]);
                 $material_ids = $manual_work->related_categories()
                     ->whereHas('materials', function ($materials) use ($all_mat) {
                         $materials->whereIn('id', $all_mat)->withTrashed();
-                    })->with([
-                        'materials' => function ($mats) use ($all_mat) {
-                            $mats->whereIn('id', $all_mat)->withTrashed();
-                        }
-                    ])
+                    })->with(['materials' => function ($mats) use ($all_mat) {
+                        $mats->whereIn('id', $all_mat)->withTrashed();
+                    }])
                     ->get()->pluck('materials')->flatten()->pluck('id');
             }
 
@@ -904,7 +859,7 @@ class ProjectWorkVolumeController extends Controller
             if ($material->complect_id) {
                 $material = $material->complect;
             }
-            if (!in_array($material->id, $mat_ids)) {
+            if (! in_array($material->id, $mat_ids)) {
                 $results[] = [
                     'id' => $material->combine_id ? $material->combine_id : $material->id,
                     'text' => $material->combine_id ? $material->combine_pile().'; '.$material->count.' '.$material->unit.';' : $material->name.'; '.$material->count.' '.$material->unit.';',
@@ -946,10 +901,8 @@ class ProjectWorkVolumeController extends Controller
     public function get_composite_pile(Request $request)
     {
         if ($request->material_ids[0]) {
-            $mat_value = ManualMaterialParameter::where('attr_id', 93)->where('mat_id',
-                $request->material_ids[0])->first()->value;
-            $mat_section = ManualMaterialParameter::where('attr_id', 95)->where('mat_id',
-                $request->material_ids[0])->first()->value;
+            $mat_value = ManualMaterialParameter::where('attr_id', 93)->where('mat_id', $request->material_ids[0])->first()->value;
+            $mat_section = ManualMaterialParameter::where('attr_id', 95)->where('mat_id', $request->material_ids[0])->first()->value;
             $mat = ManualMaterial::findOrFail($request->material_ids[0]);
         }
         // dd($mat->name, strpos($mat->name, '('), strpos($mat->name, ')'), substr($mat->name, strpos($mat->name, '('), strpos($mat->name, ')')));
@@ -958,8 +911,7 @@ class ProjectWorkVolumeController extends Controller
             ->where('manual_material_parameters.attr_id', 93);
 
         if ($request->material_ids[0]) {
-            $wv_materials = $wv_materials->where('manual_materials.name', 'like',
-                '%'.trim(substr($mat->name, strpos($mat->name, '('), strpos($mat->name, ')'))).'%');
+            $wv_materials = $wv_materials->where('manual_materials.name', 'like', '%'.trim(substr($mat->name, strpos($mat->name, '('), strpos($mat->name, ')'))).'%');
         }
 
         if ($request->q) {
@@ -968,29 +920,21 @@ class ProjectWorkVolumeController extends Controller
 
         if ($request->material_ids[0]) {
             $wv_materials = $wv_materials
-                ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=',
-                    'manual_materials.category_id')
-                ->select('manual_materials.*', 'manual_material_categories.category_unit',
-                    'manual_material_parameters.attr_id', 'manual_material_parameters.mat_id',
-                    'manual_material_parameters.value')
+                ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
+                ->select('manual_materials.*', 'manual_material_categories.category_unit', 'manual_material_parameters.attr_id', 'manual_material_parameters.mat_id', 'manual_material_parameters.value')
                 ->pluck('manual_materials.id')
                 ->unique();
         } else {
             $wv_materials = $wv_materials
-                ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=',
-                    'manual_materials.category_id')
-                ->select('manual_materials.*', 'manual_material_categories.category_unit',
-                    'manual_material_parameters.attr_id', 'manual_material_parameters.mat_id',
-                    'manual_material_parameters.value');
+                ->leftJoin('manual_material_categories', 'manual_material_categories.id', '=', 'manual_materials.category_id')
+                ->select('manual_materials.*', 'manual_material_categories.category_unit', 'manual_material_parameters.attr_id', 'manual_material_parameters.mat_id', 'manual_material_parameters.value');
         }
 
         if ($request->material_ids[0]) {
             $wv_materials = ManualMaterial::whereIn('manual_materials.id', $wv_materials)
-                ->leftJoin('manual_material_parameters', 'manual_material_parameters.mat_id', '=',
-                    'manual_materials.id')
+                ->leftJoin('manual_material_parameters', 'manual_material_parameters.mat_id', '=', 'manual_materials.id')
                 ->where('manual_material_parameters.attr_id', 95)
-                ->select('manual_materials.*', 'manual_material_parameters.attr_id',
-                    'manual_material_parameters.mat_id', 'manual_material_parameters.value');
+                ->select('manual_materials.*', 'manual_material_parameters.attr_id', 'manual_material_parameters.mat_id', 'manual_material_parameters.value');
 
             $wv_materials = $wv_materials->where('manual_material_parameters.value', $mat_section);
         }
@@ -1018,8 +962,7 @@ class ProjectWorkVolumeController extends Controller
         foreach ($mat_ids as $key => $value) {
             if (strlen($value) > 10) {
                 unset($mat_ids[$key]);
-                $combine_piles = array_merge(WorkVolumeMaterial::where('combine_id', $value)->pluck('id')->toArray(),
-                    $combine_piles);
+                $combine_piles = array_merge(WorkVolumeMaterial::where('combine_id', $value)->pluck('id')->toArray(), $combine_piles);
             }
         }
 
@@ -1053,11 +996,9 @@ class ProjectWorkVolumeController extends Controller
                             }
                         } else {
                             if ($material->unit != $material->category_unit) {
-                                $count_work_1[$work->id.' '.$work->name] += round($material->count / ($material->manual->convert_to($material->unit)->value ?? 1),
-                                    3);
+                                $count_work_1[$work->id.' '.$work->name] += round($material->count / ($material->manual->convert_to($material->unit)->value ?? 1), 3);
                             } else {
-                                $count_work_1[$work->id.' '.$work->name] += round($material->count * ($material->manual->convert_to($work->unit)->value ?? 1),
-                                    3);
+                                $count_work_1[$work->id.' '.$work->name] += round($material->count * ($material->manual->convert_to($work->unit)->value ?? 1), 3);
                             }
                         }
                     }
@@ -1113,7 +1054,7 @@ class ProjectWorkVolumeController extends Controller
         //     $request->count = $request['count'];
         // }
 
-        if (!$request->is_node) {
+        if (! $request->is_node) {
             $material = new WorkVolumeMaterial();
             $material->is_tongue = $request->is_tongue;
             $material->manual_material_id = $request->manual_material_id;
@@ -1128,9 +1069,7 @@ class ProjectWorkVolumeController extends Controller
 
             $material->save();
         } else {
-            $node = ManualNodes::where('id', $request->manual_material_id)->with([
-                'node_category', 'node_materials', 'node_materials.materials', 'node_materials.materials.category'
-            ])->first();
+            $node = ManualNodes::where('id', $request->manual_material_id)->with(['node_category', 'node_materials', 'node_materials.materials', 'node_materials.materials.category'])->first();
             $safety_factor = $node->node_category->safety_factor / 100;
 
             foreach ($node->node_materials as $node_material) {
@@ -1238,8 +1177,7 @@ class ProjectWorkVolumeController extends Controller
         }
 
         $project = Project::find($project_id);
-        $pileTasks = Task::where('project_id', $project_id)->where('target_id',
-            $request->work_volume_pile_id)->where('status', 4)->where('is_solved', 0)->count();
+        $pileTasks = Task::where('project_id', $project_id)->where('target_id', $request->work_volume_pile_id)->where('status', 4)->where('is_solved', 0)->count();
 
         if ($request->add_tongue) {
             $wv_tongue = new WorkVolume();
@@ -1276,14 +1214,12 @@ class ProjectWorkVolumeController extends Controller
             $wv_tongue->option = isset($wv_tongue_previos->option) ? $wv_tongue_previos->option : $request->option_tongue;
             $wv_tongue->save();
 
-            $wv_tongue->save_request($request->tongue_description, $wv_tongue_req_name, $request->tongue_documents,
-                $request->project_documents_tongue);
+            $wv_tongue->save_request($request->tongue_description, $wv_tongue_req_name, $request->tongue_documents, $request->project_documents_tongue);
             $wv_tongue = $wv_tongue->fresh();
             // $wv_tongue->load('requests');
 
             // block for task 18 decline
-            $tasks_18 = Task::where('project_id', $project_id)->where('target_id', $wv_tongue->id)->where('status',
-                18)->where('is_solved', 0)->with('project.object')->get();
+            $tasks_18 = Task::where('project_id', $project_id)->where('target_id', $wv_tongue->id)->where('status', 18)->where('is_solved', 0)->with('project.object')->get();
 
             if ($tasks_18->isNotEmpty()) {
                 foreach ($tasks_18 as $item) {
@@ -1302,8 +1238,7 @@ class ProjectWorkVolumeController extends Controller
 
                 $wv_requests = $wv_tongue->requests()->whereStatus(2)->get();
 
-                if (Task::whereStatus(17)->whereIn('target_id',
-                        $wv_requests->pluck('id'))->count() != $wv_requests->count()) {
+                if (Task::whereStatus(17)->whereIn('target_id', $wv_requests->pluck('id'))->count() != $wv_requests->count()) {
                     $task17 = new Task();
                     $task17->project_id = $wv_tongue->project_id;
                     $task17->name = 'Обработка заявки на ОР шпунтового направления'.' по проекту '.($project->name);
@@ -1312,9 +1247,7 @@ class ProjectWorkVolumeController extends Controller
                     $task17->final_note = $request->comment;
                     $task17->target_id = $wv_requests->last()->id; // request id
                     $task17->expired_at = Carbon::now()->addHours(10);
-                    $task17->prev_task_id = Task::where('target_id',
-                        $wv_requests->last()->work_volume_id)->where('status',
-                        ($wv_requests->last()->tongue_pile ? 4 : 3))->orderByDesc('id')->first()->id ?? null;
+                    $task17->prev_task_id = Task::where('target_id', $wv_requests->last()->work_volume_id)->where('status', ($wv_requests->last()->tongue_pile ? 4 : 3))->orderByDesc('id')->first()->id ?? null;
                     $task17->status = 17;
                     $task17->save();
 
@@ -1331,15 +1264,13 @@ class ProjectWorkVolumeController extends Controller
                 }
             }
 
-            $agreeTongueTask = Task::where('project_id', $project_id)->where('target_id',
-                $wv_tongue->id)->where('status', 18)->where('is_solved', 0)->count();
-            $exist_reps_user = Task::where('project_id', $project_id)->where('status', 14)->where('is_solved',
-                0)->count();
-            if (!$agreeTongueTask and !$exist_reps_user) {
+            $agreeTongueTask = Task::where('project_id', $project_id)->where('target_id', $wv_tongue->id)->where('status', 18)->where('is_solved', 0)->count();
+            $exist_reps_user = Task::where('project_id', $project_id)->where('status', 14)->where('is_solved', 0)->count();
+            if (! $agreeTongueTask and ! $exist_reps_user) {
                 $tongueResp = ProjectResponsibleUser::where('project_id', $project_id)->where('role', 4)->first();
 
                 $tongueTask = new Task();
-                if (!$tongueResp) {
+                if (! $tongueResp) {
                     $tongueTask->name = 'Назначение ответственного за ОР (шпунт)';
                     $tongueTask->status = 14;
                     $tongueTask->responsible_user_id = Group::find(50)->getUsers()->first()->id; // [hardcoded]
@@ -1427,17 +1358,14 @@ class ProjectWorkVolumeController extends Controller
             $wv_pile->save();
 
             ProjectResponsibleUser::firstOrCreate(
-                ['role' => 3, 'project_id' => $project_id],
-                ['user_id' => Group::find(54/*35*/)->getUsers()->first()->id]
+                ['role' => 3, 'project_id' => $project_id], ['user_id' => Group::find(54/*35*/)->getUsers()->first()->id]
             );
 
             ProjectResponsibleUser::firstOrCreate(
-                ['role' => 1, 'project_id' => $project_id],
-                ['user_id' => Group::find(54/*35*/)->getUsers()->first()->id]
+                ['role' => 1, 'project_id' => $project_id], ['user_id' => Group::find(54/*35*/)->getUsers()->first()->id]
             );
 
-            $wv_pile->save_request($request->pile_description, $wv_pile_req_name, $request->pile_documents,
-                $request->project_documents_pile);
+            $wv_pile->save_request($request->pile_description, $wv_pile_req_name, $request->pile_documents, $request->project_documents_pile);
             $wv_pile = $wv_pile->fresh();
 
             if ($pileTasks == 0) {
@@ -1466,8 +1394,7 @@ class ProjectWorkVolumeController extends Controller
                     'object_id' => $pileTask->project_id ? Project::find($pileTask->project_id)->object_id : null,
                 ];
             } else {
-                $lastTask = Task::where('project_id', $project_id)->where('target_id', $wv_pile->id)->where('is_solved',
-                    0)->get()->last();
+                $lastTask = Task::where('project_id', $project_id)->where('target_id', $wv_pile->id)->where('is_solved', 0)->get()->last();
                 if ($lastTask) {
                     $this->prepareNotifications[\App\Notifications\Claim\WorkRequestProcessingTaskCreationNotice::class] = [
                         'user_ids' => $lastTask->responsible_user_id,
@@ -1485,8 +1412,7 @@ class ProjectWorkVolumeController extends Controller
         if ($request->add_tongue) {
             if ($request->work_volume_tongue_id != 'new' && $is_new_tongue) {
                 $wv_tongue_previos->load('shown_materials.parts');
-                $last_commercial_offer = CommercialOffer::where('project_id', $project_id)->where('work_volume_id',
-                    $wv_tongue_previos->id)->get()->last();
+                $last_commercial_offer = CommercialOffer::where('project_id', $project_id)->where('work_volume_id', $wv_tongue_previos->id)->get()->last();
                 $works = WorkVolumeWork::where('work_volume_id', $wv_tongue_previos->id)->get();
                 $works_materials = WorkVolumeWorkMaterial::whereIn('wv_work_id', $works->pluck('id'))->get();
                 $materials = $wv_tongue_previos->shown_materials;
@@ -1541,8 +1467,7 @@ class ProjectWorkVolumeController extends Controller
 
                     if ($last_commercial_offer) {
                         if ($last_commercial_offer->commercial_offer_works()->count() > 0) {
-                            $com_offer_work = $last_commercial_offer->works()->where('work_volume_work_id',
-                                $work->id)->first();
+                            $com_offer_work = $last_commercial_offer->works()->where('work_volume_work_id', $work->id)->first();
 
                             $new_work->count = $com_offer_work ? $com_offer_work->count : $work->count;
                             $new_work->term = $com_offer_work ? $com_offer_work->term : $work->term;
@@ -1570,16 +1495,13 @@ class ProjectWorkVolumeController extends Controller
                 }
             }
 
-            $offers_count = CommercialOffer::where('project_id', $project_id)->where('work_volume_id',
-                $wv_tongue_previos->id ?? 0)->where('status', '!=', 3)->update(['status' => 3]);
+            $offers_count = CommercialOffer::where('project_id', $project_id)->where('work_volume_id', $wv_tongue_previos->id ?? 0)->where('status', '!=', 3)->update(['status' => 3]);
 
             // $com_offer_double = CommercialOffer::where('project_id', $project_id)->where('is_tongue', 2)->get()->last();
 
-            $offers_id = CommercialOffer::where('project_id', $project_id)->where('work_volume_id',
-                $wv_tongue_previos->id ?? 0)->pluck('id')->toArray();
+            $offers_id = CommercialOffer::where('project_id', $project_id)->where('work_volume_id', $wv_tongue_previos->id ?? 0)->pluck('id')->toArray();
 
-            $tasks = Task::where('project_id', $project_id)->whereIn('status', [5, 6, 12, 15, 16])->whereIn('target_id',
-                $offers_id)->get();
+            $tasks = Task::where('project_id', $project_id)->whereIn('status', [5, 6, 12, 15, 16])->whereIn('target_id', $offers_id)->get();
 
             foreach ($tasks as $item) {
                 if ($item->responsible_user_id != 6) {
@@ -1589,14 +1511,12 @@ class ProjectWorkVolumeController extends Controller
                 $item->solve();
             }
 
-            $commercial_offer_requests = CommercialOfferRequest::where('project_id',
-                $project_id)->whereIn('commercial_offer_id', $offers_id)->where('status', 0)->update(['status' => 2]);
+            $commercial_offer_requests = CommercialOfferRequest::where('project_id', $project_id)->whereIn('commercial_offer_id', $offers_id)->where('status', 0)->update(['status' => 2]);
         }
         if ($request->add_pile) {
             if ($request->work_volume_pile_id != 'new' && $is_new_pile) {
                 $works = WorkVolumeWork::where('work_volume_id', $wv_pile_previos->id)->get();
-                $last_commercial_offer = CommercialOffer::where('project_id', $project_id)->where('work_volume_id',
-                    $wv_pile_previos->id)->get()->last();
+                $last_commercial_offer = CommercialOffer::where('project_id', $project_id)->where('work_volume_id', $wv_pile_previos->id)->get()->last();
                 $works_materials = WorkVolumeWorkMaterial::whereIn('wv_work_id', $works->pluck('id'))->get();
                 $materials = WorkVolumeMaterial::where('work_volume_id', $wv_pile_previos->id)->get();
 
@@ -1627,8 +1547,7 @@ class ProjectWorkVolumeController extends Controller
 
                     if ($last_commercial_offer) {
                         if ($last_commercial_offer->commercial_offer_works()->count() > 0) {
-                            $com_offer_work = $last_commercial_offer->works()->where('work_volume_work_id',
-                                $work->id)->first();
+                            $com_offer_work = $last_commercial_offer->works()->where('work_volume_work_id', $work->id)->first();
 
                             $new_work->count = $com_offer_work ? $com_offer_work->count : $work->count;
                             $new_work->term = $com_offer_work ? $com_offer_work->term : $work->term;
@@ -1660,16 +1579,13 @@ class ProjectWorkVolumeController extends Controller
                 ->where('project_id', $project_id)
                 ->update(['work_volume_id' => $wv_pile->id]);
 
-            $offers_count = CommercialOffer::where('project_id', $project_id)->where('is_tongue',
-                0)->update(['status' => 3]);
+            $offers_count = CommercialOffer::where('project_id', $project_id)->where('is_tongue', 0)->update(['status' => 3]);
 
             $com_offer_double = CommercialOffer::where('project_id', $project_id)->where('is_tongue', 2)->get()->last();
 
-            $offers_id = CommercialOffer::where('project_id', $project_id)->where('is_tongue',
-                0)->pluck('id')->toArray();
+            $offers_id = CommercialOffer::where('project_id', $project_id)->where('is_tongue', 0)->pluck('id')->toArray();
 
-            $tasks = Task::where('project_id', $project_id)->whereIn('status', [5, 6, 12, 15, 16])->whereIn('target_id',
-                $offers_id)->where('is_solved', 0)->get();
+            $tasks = Task::where('project_id', $project_id)->whereIn('status', [5, 6, 12, 15, 16])->whereIn('target_id', $offers_id)->where('is_solved', 0)->get();
 
             foreach ($tasks as $item) {
                 $this->prepareNotifications[\App\Notifications\Task\TaskClosureNotice::class] = [
@@ -1684,8 +1600,7 @@ class ProjectWorkVolumeController extends Controller
                 $item->solve();
             }
 
-            $commercial_offer_requests = CommercialOfferRequest::where('project_id',
-                $project_id)->whereIn('commercial_offer_id', $offers_id)->where('status', 0)->update(['status' => 2]);
+            $commercial_offer_requests = CommercialOfferRequest::where('project_id', $project_id)->whereIn('commercial_offer_id', $offers_id)->where('status', 0)->update(['status' => 2]);
         }
 
         // block for new KP statuses logic (like in ProjectCommercialOfferController)
@@ -1720,7 +1635,7 @@ class ProjectWorkVolumeController extends Controller
         $wv_request = WorkVolumeRequest::findOrFail($request->wv_request_id);
         $work_volume = WorkVolume::find($wv_request->work_volume_id);
 
-        if (!isset($request->comment)) {
+        if (! isset($request->comment)) {
             session(['edited_wv_id' => $work_volume->id]);
             session(['edited_wv_request_id' => $request->wv_request_id]);
             session(['edit_start' => Carbon::now()]);
@@ -1737,10 +1652,10 @@ class ProjectWorkVolumeController extends Controller
             $this->prepareNotifications[\App\Notifications\Claim\WorkVolumeClaimProcessingNotice::class] = [
                 'user_ids' => $wv_request->user_id,
                 'name' => ('Пользователь '.$user.' '.
-                    ($request->status == 'confirm' ? 'подтвердил(а) ' : 'отклонил(а) ').
-                    'заявку на редактирование ОР '.($wv_request->tongue_pile ? 'свайного' : 'шпунтового')
-                    .' направления версии '.$work_volume->version.
-                    ' по проекту '.Project::find($wv_request->project_id)->name),
+                            ($request->status == 'confirm' ? 'подтвердил(а) ' : 'отклонил(а) ').
+                            'заявку на редактирование ОР '.($wv_request->tongue_pile ? 'свайного' : 'шпунтового')
+                            .' направления версии '.$work_volume->version.
+                            ' по проекту '.Project::find($wv_request->project_id)->name),
                 'contractor_id' => Project::find($wv_request->project_id)->contractor_id,
                 'project_id' => $wv_request->project_id,
                 'object_id' => Project::find($wv_request->project_id)->object_id,
@@ -1796,20 +1711,16 @@ class ProjectWorkVolumeController extends Controller
             // block for WV decline after decline all wv_requests
             if ($request->status == 'reject') {
                 $project = Project::find($work_volume->project_id);
-                $declined_requests = WorkVolumeRequest::where('work_volume_id', $work_volume->id)->where('status',
-                    2)->count();
-                if (!$work_volume_requests->where('status', 0)->count()) {
+                $declined_requests = WorkVolumeRequest::where('work_volume_id', $work_volume->id)->where('status', 2)->count();
+                if (! $work_volume_requests->where('status', 0)->count()) {
                     if ($work_volume->type == 1) {
                         $work_volume->decline();
                     } else {
-                        $task = Task::where('responsible_user_id', Auth::id())->where('target_id',
-                            $work_volume->id)->where('status', $work_volume->type ? 4 : 3)->where('project_id',
-                            $project->id)->where('is_solved', 0)->get()->first();
-                        !isset($task) ?: $task->solve();
+                        $task = Task::where('responsible_user_id', Auth::id())->where('target_id', $work_volume->id)->where('status', $work_volume->type ? 4 : 3)->where('project_id', $project->id)->where('is_solved', 0)->get()->first();
+                        ! isset($task) ?: $task->solve();
 
                         // make new task for Директор по развитию
-                        if (!Task::where('project_id', $work_volume->project_id)->where('target_id',
-                            $work_volume->id)->where('status', 18)->where('is_solved', 0)->count()) {
+                        if (! Task::where('project_id', $work_volume->project_id)->where('target_id', $work_volume->id)->where('status', 18)->where('is_solved', 0)->count()) {
                             $task18 = new Task();
                             $task18->project_id = $work_volume->project_id;
                             $task18->name = 'Контроль выполнения ОР шпунтового направления по проекту '.($project->name);
@@ -1818,8 +1729,7 @@ class ProjectWorkVolumeController extends Controller
                             $task18->target_id = $work_volume->id; // WV id
                             $task18->expired_at = $this->addHours(24);
                             $task18->final_note = $request->comment;
-                            $task18->prev_task_id = Task::where('target_id', $work_volume->id)->where('status',
-                                ($work_volume->type ? 4 : 3))->orderByDesc('id')->first()->id ?? null;
+                            $task18->prev_task_id = Task::where('target_id', $work_volume->id)->where('status', ($work_volume->type ? 4 : 3))->orderByDesc('id')->first()->id ?? null;
                             $task18->status = 18;
                             $task18->save();
 
@@ -1846,8 +1756,7 @@ class ProjectWorkVolumeController extends Controller
                     $task17->final_note = $request->comment;
                     $task17->target_id = $wv_request->id; // request id
                     $task17->expired_at = $this->addHours(10);
-                    $task17->prev_task_id = Task::where('target_id', $wv_request->work_volume_id)->where('status',
-                        ($wv_request->tongue_pile ? 4 : 3))->where('is_solved', 0)->first()->id ?? null;
+                    $task17->prev_task_id = Task::where('target_id', $wv_request->work_volume_id)->where('status', ($wv_request->tongue_pile ? 4 : 3))->where('is_solved', 0)->first()->id ?? null;
                     $task17->status = 17;
                     $task17->save();
 
@@ -1874,7 +1783,7 @@ class ProjectWorkVolumeController extends Controller
 
     public function request_wv_update(Request $request)
     {
-        if (!WorkVolumeWork::where('work_volume_id', session()->get('edited_wv_id'))->first()) {
+        if (! WorkVolumeWork::where('work_volume_id', session()->get('edited_wv_id'))->first()) {
             return back()->with('wv', 'Заполните объём работ');
         }
 
@@ -1907,9 +1816,8 @@ class ProjectWorkVolumeController extends Controller
 
         // block for Начальник ПТО in request accept
         $work_volume_requests = WorkVolumeRequest::where('work_volume_id', $work_volume->id)->get();
-        if (!$work_volume_requests->where('status', 0)->count() and $wv_request->wv->type == 0) {
-            if (!Task::where('project_id', $work_volume->project_id)->where('target_id',
-                $work_volume->id)->where('status', 18)->where('is_solved', 0)->count()) {
+        if (! $work_volume_requests->where('status', 0)->count() and $wv_request->wv->type == 0) {
+            if (! Task::where('project_id', $work_volume->project_id)->where('target_id', $work_volume->id)->where('status', 18)->where('is_solved', 0)->count()) {
                 $prev_task = $work_volume->tasks()->whereStatus(3)->whereResponsibleUserId(Auth::id())->orderByDesc('id')->first();
                 if ($prev_task) {
                     $prev_task->final_note = $wv_request->result_comment;
@@ -1984,8 +1892,7 @@ class ProjectWorkVolumeController extends Controller
 
             $wv_mat = WorkVolumeMaterial::where('work_volume_id', $wv_id)->where('created_at', '>', $time);
             $wv_works = WorkVolumeWork::where('work_volume_id', $wv_id)->where('created_at', '>', $time);
-            $wv_mat_works = WorkVolumeWorkMaterial::whereIn('wv_work_id', $wv_works->pluck('id'))->where('created_at',
-                '>', $time);
+            $wv_mat_works = WorkVolumeWorkMaterial::whereIn('wv_work_id', $wv_works->pluck('id'))->where('created_at', '>', $time);
 
             $wv_mat->delete();
             $wv_works->delete();
@@ -2039,7 +1946,7 @@ class ProjectWorkVolumeController extends Controller
 
     public function complect_materials(Request $request, $work_volume_id)
     {
-        if (!$request->has('complect_ids')) {
+        if (! $request->has('complect_ids')) {
             return back();
         }
 
@@ -2050,8 +1957,7 @@ class ProjectWorkVolumeController extends Controller
         if ($complect_parts->pluck('unit')->unique()->count() == 1 && $complect_parts->pluck('unit')->unique()->first() == 'шт') {
             foreach ($complect_parts as $material) {
                 if ($material->manual->convertation_parameters()->where('unit', 'т')->first()) {
-                    $sum_weight += $material->manual->convertation_parameters()->where('unit',
-                            'т')->first()->value * $material->count;
+                    $sum_weight += $material->manual->convertation_parameters()->where('unit', 'т')->first()->value * $material->count;
                 } else {
                     return back();
                 }
