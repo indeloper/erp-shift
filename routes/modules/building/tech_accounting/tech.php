@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Building\TechAccounting\Fuel\Old\FuelTankController;
-use App\Http\Controllers\Building\TechAccounting\Fuel\Old\FuelTankOperationController;
+use App\Http\Controllers\Building\TechAccounting\Fuel\old\FuelTankController;
+use App\Http\Controllers\Building\TechAccounting\Fuel\old\FuelTankOperationController;
 use App\Http\Controllers\Building\TechAccounting\Technic;
 use Illuminate\Support\Facades\Route;
 
@@ -69,7 +69,7 @@ Route::post('fuel_tank/{fuel_tank}/change_fuel_level', [FuelTankController::clas
 Route::get('fuel_tank_trashed', [FuelTankController::class, 'display_trashed'])->name('fuel_tank.display_trashed');
 Route::get('trashed_fuel_tank/{fuel_tank}', [FuelTankController::class, 'show_trashed'])->name('fuel_tank.show_trashed');
 
-Route::resource('fuel_tank', 'App\Http\Controllers\Building\TechAccounting\Fuel\Old\FuelTankController')->except([
+Route::resource('fuel_tank', 'App\Http\Controllers\Building\TechAccounting\Fuel\old\FuelTankController')->except([
     'create',
     'edit',
 ]);

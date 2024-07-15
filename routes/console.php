@@ -27,7 +27,7 @@ Schedule::command('mat_acc:transfer_base')->dailyAt('03:15');
 //q3w material accounting
 Schedule::command('materialOperation:checkOverdue')->everyThirtyMinutes();
 
-(new ProjectObjectDocumentsNotifications)->handle();
+//(new ProjectObjectDocumentsNotifications)->handle();
 
 Schedule::command('fuelTank:notifyAboutMovingConfirmationDelay')->dailyAt('09:09');
 
