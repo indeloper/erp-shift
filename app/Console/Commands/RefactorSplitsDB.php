@@ -20,7 +20,7 @@ class RefactorSplitsDB extends Command
      *
      * @var string
      */
-    protected $description = 'refactor old splits structure';
+    protected $description = 'refactor styles splits structure';
 
     /**
      * Create a new command instance.
@@ -52,7 +52,7 @@ class RefactorSplitsDB extends Command
                 $type_groups = $manual_group->groupBy('type');
                 $type_groups = $type_groups->map(function ($type) {
                     return $type->reduce(function ($carry, $duplicate) {
-                        if (! $carry) {
+                        if (!$carry) {
                             return $duplicate;
                         } else {
                             $carry->count += $duplicate->count;
@@ -86,7 +86,7 @@ class RefactorSplitsDB extends Command
 
         $diff = $start_count - CommercialOfferMaterialSplit::count();
         $answer = $this->ask("Будет удалено {$diff} сплитов. Это пустые и дубликаты, которые были объединены.\n".
-        " Если команда запущена после обновления логики сплитов, то могут быть удалены не дубликаты, а просто разделённые материалы.\n Вы уверены? (1/0)");
+            " Если команда запущена после обновления логики сплитов, то могут быть удалены не дубликаты, а просто разделённые материалы.\n Вы уверены? (1/0)");
         if ($answer != 1) {
             DB::rollBack();
             $this->info('Операция отменена. Успехов!');
