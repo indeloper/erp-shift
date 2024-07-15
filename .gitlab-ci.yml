@@ -1,41 +1,5 @@
 stages:
-  - build
   - deploy
-
-composer:
-  stage: build
-  script:
-    - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
-  artifacts:
-    expire_in: 1 month
-    paths:
-      - vendor/
-      - .env
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-composer
-    paths:
-      - vendor/
-
-npm:
-  stage: build
-  script:
-    - npm install
-    - npm run production
-
-  artifacts:
-    expire_in: 1 month
-    paths:
-      - node_modules/
-      - public/css/
-      - public/js/
-      - public/fonts/
-      - public/img/
-      - public/mix-manifest.json
-
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-npm
-    paths:
-      - node_modules/
 
 dev:
   stage: deploy
