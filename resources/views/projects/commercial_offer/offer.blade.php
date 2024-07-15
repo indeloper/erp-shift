@@ -202,7 +202,7 @@
 
                         @foreach($work_groups as $id => $name)
                             @if($materials->where('work_group_id', $id)->first())
-                                @if($splits->where('man_mat_id', $materials->where('work_group_id', $id)->first()->manual_material_id)->whereIn('type', [1, 3])->count())
+                                @if($splits->whereIn('man_mat_id', $materials->where('work_group_id', $id)->pluck('manual_material_id'))->whereIn('type', [1, 3])->count())
                                 @php $work_group_count++; @endphp
                                 <tr>
                                     <td colspan="6" class="td-head">{{ $work_group_count }}.  {{ ['Материалы для устройства шпунтового ограждения:',

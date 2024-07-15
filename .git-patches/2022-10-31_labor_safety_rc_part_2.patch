@@ -1,0 +1,710 @@
+Index: app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php b/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php
+--- a/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php	(revision e3eba92d89c6a6e4369511c73fe7e3191fcfbf05)
++++ b/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
+@@ -4,12 +4,21 @@
+ 
+ use App\Models\LaborSafety\LaborSafetyOrderType;
+ use App\Models\LaborSafety\LaborSafetyRequest;
++use App\Models\LaborSafety\LaborSafetyRequestOrder;
++use App\Models\LaborSafety\LaborSafetyRequestStatus;
++use App\Models\OneC\Employee;
++use Carbon\Carbon;
+ use Illuminate\Http\Request;
+ use App\Http\Controllers\Controller;
++use Illuminate\Support\Facades\Auth;
+ use Illuminate\Support\Facades\DB;
++use PhpOffice\PhpWord\PhpWord;
++use PhpOffice\PhpWord\Shared\Html;
+ 
+ class LaborSafetyRequestController extends Controller
+ {
++    const PAGE_BREAK_DELIMITER = '';
++
+     /**
+      * Display a view of the resource.
+      *
+@@ -45,23 +54,46 @@
+     {
+         $data = json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY);
+ 
++        $orders = $data["ordersData"];
++        unset($data["ordersData"]);
++
++        DB::beginTransaction();
+         $laborSafetyRequestRow = new LaborSafetyRequest([
+-                "order_date" => strtotime($data->order_date),
+-                "company_id" => $data->company_id,
+-                "project_object_id" => $data->project_object_id,
+-                "author_user_id" => $data->author_user_id,
+-                "request_status_id" => 1,
+-            ]
+-        );
++            'order_date' => Carbon::parse($data['order_date']),
++            'company_id' => $data['company_id'],
++            'project_object_id' => $data['project_object_id'],
++            'author_user_id' => Auth::id(),
++            'request_status_id' => 1,
++        ]);
+ 
+         $laborSafetyRequestRow->save();
+ 
++        $this->insertOrUpdateOrdersData($orders, $laborSafetyRequestRow->id);
++
++        DB::commit();
+         return response()->json([
+             'result' => 'ok',
+             'key' => $laborSafetyRequestRow->id
+         ], 200);
+     }
+ 
++    public function insertOrUpdateOrdersData($orders, $requestId)
++    {
++        foreach ($orders as $order) {
++
++            $orderTypeId = $order[0];
++
++            if (empty($orderTypeId)) {
++                continue;
++            }
++
++            $order[1]['request_id'] = (int)$requestId;
++            $order[1]['order_type_id'] = $orderTypeId;
++
++            LaborSafetyRequestOrder::updateOrCreate(['request_id' => $requestId, 'order_type_id' => $orderTypeId], $order[1]);
++        }
++    }
++
+     /**
+      * Update the specified resource in storage.
+      *
+@@ -71,14 +103,104 @@
+     public function update(Request $request)
+     {
+         $id = $request->all()["key"];
++
+         $modifiedData = json_decode($request->all()["modifiedData"], JSON_OBJECT_AS_ARRAY);
++        $orders = $modifiedData["ordersData"];
++
++        $generateOrders = $modifiedData["perform_orders"];
+ 
+-        $materialSupplyPlanningRow = LaborSafetyOrderType::findOrFail($id);
++        unset($modifiedData["ordersData"]);
++        unset($modifiedData["perform_orders"]);
+ 
+-        $materialSupplyPlanningRow->update($modifiedData);
++        $requestRow = LaborSafetyRequest::findOrFail($id);
+ 
++        DB::beginTransaction();
++
++        $this->insertOrUpdateOrdersData($orders, $id);
++
++        if ($generateOrders) {
++            $modifiedData["generated_html"] = $this->generateRequestHtmlData($requestRow);
++        }
++
++        $requestRow->update($modifiedData);
++
++        DB::commit();
+         return response()->json([
+             'result' => 'ok'
+         ], 200);
+     }
++
++    public function statusesList(Request $request)
++    {
++        $options = json_decode($request['data']);
++
++        return (new LaborSafetyRequestStatus())
++            ->dxLoadOptions($options)
++            ->orderBy('id')
++            ->get(['id', 'name'])
++            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
++    }
++
++    public function generateRequestHtmlData($request)
++    {
++        $orders = LaborSafetyRequestOrder::join('labor_safety_order_types', 'labor_safety_request_orders.order_type_id', '=', 'labor_safety_order_types.id')
++            ->where('labor_safety_request_orders.request_id', '=', $request->id)
++            ->get();
++
++        $resultHtml = '';
++
++        foreach ($orders as $order) {
++            $orderTemplate = $this->fillTemplateData($request, $order, $order->template);
++
++            $resultHtml .= $orderTemplate . self::PAGE_BREAK_DELIMITER;
++        }
++
++        return $resultHtml;
++    }
++
++    function fillTemplateData($request, $order, $orderTemplate){
++        $variables = $this->getArrayOfTemplateVariables($orderTemplate);
++        foreach($variables as $variable) {
++            switch ($variable) {
++                case "{request_id}":
++                    $orderTemplate = str_replace($variable, $request->id, $orderTemplate);
++                    break;
++                case "{template_short_name}":
++                    $orderTemplate = str_replace($variable, $order->short_name, $orderTemplate);
++                    break;
++                case "{order_date}":
++                    $orderTemplate = str_replace($variable, Carbon::parse($request->order_date)->format('d.m.Y'), $orderTemplate);
++                    break;
++                case "{responsible_employee_full_name}":
++                    $employeeName = Employee::find($order->responsible_employee_id)->employee_1c_name;
++                    $orderTemplate = str_replace($variable, $employeeName, $orderTemplate);
++                    break;
++            }
++        }
++
++        return $orderTemplate;
++    }
++
++    function getArrayOfTemplateVariables($orderTemplate) {
++        $variables = [];
++
++        preg_match_all('/\{(.)+?\}/', $orderTemplate, $variables);
++        return array_unique($variables[0]);
++    }
++
++    function download(Request $request) {
++        $requestId = json_decode($request->input('requestId'));
++        $html = LaborSafetyRequest::findOrFail($requestId)->generated_html;
++        $html = str_replace('<br>','<br/>', $html);
++        $html = str_replace('<hr>','<hr/>', $html);
++
++        $phpWord = new PhpWord();
++
++        $section = $phpWord->addSection();
++
++        Html::addHtml($section, $html, false, false);
++
++        $phpWord->save('File.docx', 'Word2007', true);
++        exit;
++    }
+ }
+Index: app/Models/LaborSafety/LaborSafetyRequest.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/LaborSafety/LaborSafetyRequest.php b/app/Models/LaborSafety/LaborSafetyRequest.php
+--- a/app/Models/LaborSafety/LaborSafetyRequest.php	(revision e3eba92d89c6a6e4369511c73fe7e3191fcfbf05)
++++ b/app/Models/LaborSafety/LaborSafetyRequest.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
+@@ -11,4 +11,10 @@
+     use SoftDeletes, DevExtremeDataSourceLoadable;
+ 
+     protected $guarded = array('id');
++
++    protected $appends = ['orders_data'];
++
++    public function getOrdersDataAttribute () {
++        return LaborSafetyRequestOrder::where('request_id', '=', $this->id)->get();
++    }
+ }
+Index: app/Models/LaborSafety/LaborSafetyRequestOrder.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/LaborSafety/LaborSafetyRequestOrder.php b/app/Models/LaborSafety/LaborSafetyRequestOrder.php
+new file mode 100644
+--- /dev/null	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
++++ b/app/Models/LaborSafety/LaborSafetyRequestOrder.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
+@@ -0,0 +1,14 @@
++<?php
++/**  * @mixin ..\Eloquent  */
++namespace App\Models\LaborSafety;
++
++use App\Traits\DevExtremeDataSourceLoadable;
++use Illuminate\Database\Eloquent\Model;
++use Illuminate\Database\Eloquent\SoftDeletes;
++
++class LaborSafetyRequestOrder extends Model
++{
++    use SoftDeletes, DevExtremeDataSourceLoadable;
++
++    protected $guarded = array('id');
++}
+Index: resources/views/labor-safety/labor-safety-orders-and-requests.blade.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php b/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php
+--- a/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php	(revision e3eba92d89c6a6e4369511c73fe7e3191fcfbf05)
++++ b/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
+@@ -54,6 +54,10 @@
+ @section('content')
+     <div id="formContainer"></div>
+     <div id="gridContainer"></div>
++    <form id="downloadRequest" target="_blank" method="post" action="{{route('labor-safety.orders-and-requests.download')}}">
++        @csrf
++        <input id="requestId" type="hidden" name="requestId">
++    </form>
+ @endsection
+ 
+ @section('js_footer')
+@@ -61,6 +65,59 @@
+         let dataSourceLoadOptions = {};
+         let currentSelectedOrder = {};
+         let ordersData = new Map();
++        let currentEditingRowIndex;
++        let currentEditingRowKey;
++
++        let usersStore = new DevExpress.data.CustomStore({
++            key: "id",
++            loadMode: "raw",
++            load: function (loadOptions) {
++                return $.getJSON("{{route('users.list')}}",
++                    {data: JSON.stringify(loadOptions)});
++            },
++        });
++
++        let employeesStore = new DevExpress.data.CustomStore({
++            key: "id",
++            loadMode: "raw",
++            load: function (loadOptions) {
++                return $.getJSON("{{route('users.list')}}",
++                    {data: JSON.stringify(loadOptions)});
++            },
++        });
++
++        let statusesStore = new DevExpress.data.CustomStore({
++            key: "id",
++            loadMode: "raw",
++            load: function (loadOptions) {
++                return $.getJSON("{{route('labor-safety.statuses.list')}}",
++                    {data: JSON.stringify(loadOptions)});
++            },
++        });
++
++        let companiesStore = new DevExpress.data.CustomStore({
++            key: "id",
++            loadMode: "raw",
++            load: function (loadOptions) {
++                return $.getJSON("{{route('companies.list')}}",
++                    {
++                        loadOptions: JSON.stringify(loadOptions),
++                    });
++            },
++        });
++
++        let projectObjectsStore = new DevExpress.data.CustomStore({
++            key: "id",
++            loadMode: "raw",
++            load: function (loadOptions) {
++                return $.getJSON("{{route('project-objects.list')}}",
++                    {data: JSON.stringify(loadOptions)});
++            },
++        })
++
++        let projectObjectsDataSource = new DevExpress.data.DataSource({
++            store: projectObjectsStore
++        });
+ 
+         $(function () {
+             $("div.content").children(".container-fluid.pd-0-360").removeClass();
+@@ -70,10 +127,8 @@
+             console.log(currentSelectedOrder);
+             let formItems;
+             let orderAttributes = {};
+-            if (ordersData.has(currentSelectedOrder.order_type_category_id)) {
+-                orderAttributes = ordersData.get(currentSelectedOrder.order_type_category_id);
+-            } else {
+-                orderAttributes = {};
++            if (ordersData.has(currentSelectedOrder.id)) {
++                orderAttributes = ordersData.get(currentSelectedOrder.id);
+             }
+ 
+             switch(currentSelectedOrder.order_type_category_id) {
+@@ -146,13 +201,18 @@
+                     break;
+             }
+ 
+-            let attributesFormDiv = $(`<div>`).dxForm({
++
++
++            let attributesFormDiv = $(`<div>`);
++            let attributesForm = attributesFormDiv.dxForm({
+                 colCount: 2,
+-                fromData: ordersData,
++                formData: orderAttributes,
+                 items: formItems
+-            })
++            }).dxForm("instance");
+ 
+-            //console.log(attributesFormDiv.dxForm("instance").options("fromData"));
++            ordersData.set(currentSelectedOrder.id, attributesForm.option("formData"));
++
++            console.log("ordersData", ordersData)
+ 
+             return(attributesFormDiv)
+         }
+@@ -181,7 +241,7 @@
+                             });
+                     },
+                     insert: function (values) {
+-                        console.log(values);
++                        values.ordersData = Array.from(ordersData.entries());
+                         return $.ajax({
+                             url: "{{route('labor-safety.orders-and-requests.store')}}",
+                             method: "POST",
+@@ -202,6 +262,7 @@
+                         })
+                     },
+                     update: function (key, values) {
++                        values.ordersData = Array.from(ordersData.entries());
+                         return $.ajax({
+                             url: "{{route('labor-safety.orders-and-requests.update')}}",
+                             method: "PUT",
+@@ -228,7 +289,10 @@
+                         label: {
+                             text: "Дата приказа"
+                         },
+-                        editorType: "dxDateBox"
++                        editorType: "dxDateBox",
++                        editorOptions: {
++                            dateSerializationFormat: "yyyy-MM-ddTHH:mm:ss"
++                        }
+                     },
+                     {
+                         dataField: "company_id",
+@@ -237,6 +301,14 @@
+                         },
+                         itemType: "simpleItem",
+                         editorType: "dxSelectBox",
++                        editorOptions: {
++                            dataSource: {
++                                store: companiesStore
++                            },
++                            displayExpr: "name",
++                            valueExpr: "id",
++                            searchEnabled: true,
++                        }
+                     },
+                     {
+                         dataField: "project_object_id",
+@@ -244,7 +316,17 @@
+                             text: "Адрес объекта"
+                         },
+                         itemType: "simpleItem",
+-                        editorType: "dxTextBox",
++                        editorType: "dxSelectBox",
++                        editorOptions: {
++                            dataSource: {
++                                store: projectObjectsStore,
++                                paginate: true,
++                                pageSize: 25,
++                            },
++                            displayExpr: 'short_name',
++                            valueExpr: 'id',
++                            searchEnabled: true
++                        }
+                     },
+                     {
+                         label: {
+@@ -258,6 +340,17 @@
+                             height: "60vh",
+                             focusedRowEnabled: true,
+                             dataSource: orderTypesDataSource,
++                            showColumnHeaders: false,
++                            selection: {
++                                allowSelectAll: false,
++                                deferred: false,
++                                mode: "multiple",
++                                selectAllMode: "allPages",
++                                showCheckBoxesMode: "always"
++                            },
++                            paging: {
++                                enabled: false
++                            },
+                             columns: [
+                                 {
+                                     dataField: "short_name",
+@@ -268,9 +361,40 @@
+                                     }
+                                 }
+                             ],
++                            onSelectionChanged: (e) => {
++                                if (e.currentSelectedRowKeys.length > 0) {
++                                    e.currentSelectedRowKeys.forEach((key) => {
++                                        e.component.byKey(key).done((data) => {
++                                            if (!ordersData.has(data.id)) {
++                                                ordersData.set(data.id, {});
++                                            } else {
++                                                ordersData.get(data.id).include_in_formation = true;
++                                            }
++                                        })
++                                    })
++                                }
++
++                                if (e.currentDeselectedRowKeys.length > 0) {
++                                    e.currentDeselectedRowKeys.forEach((key) => {
++                                        e.component.byKey(key).done((data) => {
++                                            if (!ordersData.has(data.id)) {
++                                                ordersData.set(data.id, {});
++                                            } else {
++                                                ordersData.get(data.id).include_in_formation = true;
++                                            }
++                                        })
++                                    })
++                                }
++
++                                $(".dx-tabpanel").dxTabPanel("instance").repaint();
++                            },
+                             onFocusedRowChanged: (e) => {
++                                console.log("onFocusedRowChanged", e);
+                                 currentSelectedOrder = e.row.data;
+                                 $(".dx-tabpanel").dxTabPanel("instance").repaint();
++                            },
++                            onSaving: (e) => {
++                                console.log("saving", e);
+                             }
+                         }
+                     },
+@@ -381,7 +505,79 @@
+                                             my: "center",
+                                             at: "center",
+                                             of: window
+-                                        }
++                                        },
++                                        toolbarItems:[
++                                            {
++                                                toolbar:'bottom',
++                                                location: 'before',
++                                                widget: "dxButton",
++                                                //visible:
++                                                options: {
++                                                    text: "Отменить заявку",
++                                                    type: 'danger',
++                                                    stylingMode: 'contained',
++                                                    onClick: function(e){
++                                                        //requestsForm.getEditor("requestsGrid").saveEditData();
++                                                    }
++                                                }
++                                            },
++                                            {
++                                                toolbar:'bottom',
++                                                location: 'before',
++                                                widget: "dxButton",
++                                                options: {
++                                                    text: "Сформировать документы",
++                                                    type: 'default',
++                                                    stylingMode: 'contained',
++                                                    onClick: function(e){
++                                                        if (!requestsForm.getEditor("requestsGrid").hasEditData() && currentEditingRowKey) {
++                                                            requestsForm.getEditor("requestsGrid").cellValue(
++                                                                currentEditingRowIndex,
++                                                                "perform_orders",
++                                                                true
++                                                            )
++                                                        }
++                                                        requestsForm.getEditor("requestsGrid").saveEditData();
++                                                    }
++                                                }
++                                            },
++                                            {
++                                                toolbar:'bottom',
++                                                location: 'after',
++                                                widget: "dxButton",
++                                                options: {
++                                                    text: "Сохранить",
++                                                    type: 'normal',
++                                                    stylingMode: 'contained',
++                                                    onClick: function(e){
++                                                        console.log("currentEditingRowIndex", currentEditingRowIndex)
++                                                        if (!requestsForm.getEditor("requestsGrid").hasEditData() && currentEditingRowKey) {
++                                                            requestsForm.getEditor("requestsGrid").cellValue(
++                                                                currentEditingRowIndex,
++                                                                "perform_orders",
++                                                                false
++                                                            )
++                                                        }
++                                                        requestsForm.getEditor("requestsGrid").saveEditData();
++                                                    }
++                                                }
++                                            },
++                                            {
++                                                toolbar:'bottom',
++                                                location: 'after',
++                                                widget: "dxButton",
++                                                options: {
++                                                    text: "Отменить редактирование",
++                                                    type: 'normal',
++                                                    stylingMode: 'contained',
++                                                    onClick: function(e){
++                                                        console.log("e", e);
++                                                        console.log("this", this);
++                                                        requestsForm.getEditor("requestsGrid").cancelEditData();
++                                                    }
++                                                }
++                                            }
++                                        ]
+                                     },
+                                     form: editForm,
+                                 },
+@@ -394,35 +590,110 @@
+                                     {
+                                         dataField: "order_date",
+                                         caption: "Дата приказа",
+-                                        width: 120
++                                        dataType: "date",
++                                        width: 120,
++                                        validationRules: [{type: "required"}]
+                                     },
+                                     {
+                                         dataField: "project_object_id",
+-                                        caption: "Объект"
++                                        caption: "Объект",
++                                        lookup: {
++                                            dataSource: {
++                                                store: projectObjectsStore,
++                                                paginate: true,
++                                                pageSize: 25,
++                                            },
++                                            displayExpr: 'short_name',
++                                            valueExpr: 'id'
++                                        },
++                                        validationRules: [{type: "required"}]
+                                     },
+                                     {
+                                         dataField: "company_id",
+                                         caption: "Организация",
+-                                        width: 200
++                                        width: 200,
++                                        lookup: {
++                                            dataSource: {
++                                                store: companiesStore,
++                                                paginate: true,
++                                                pageSize: 25,
++                                            },
++                                            displayExpr: 'name',
++                                            valueExpr: 'id'
++                                        },
++                                        validationRules: [{type: "required"}]
+                                     },
+                                     {
+                                         dataField: "author_user_id",
+-                                        caption: "Автор"
++                                        caption: "Автор",
++                                        lookup: {
++                                            dataSource: {
++                                                store: usersStore,
++                                                paginate: true,
++                                                pageSize: 25,
++                                            },
++                                            displayExpr: 'full_name',
++                                            valueExpr: 'id'
++                                        },
+                                     },
+                                     {
+                                         dataField: "implementer_user_id",
+-                                        caption: "Ответственный"
++                                        caption: "Ответственный",
++                                        lookup: {
++                                            dataSource: {
++                                                store: usersStore,
++                                                paginate: true,
++                                                pageSize: 25,
++                                            },
++                                            displayExpr: 'full_name',
++                                            valueExpr: 'id'
++                                        },
+                                     },
+                                     {
+                                         dataField: "request_status_id",
+-                                        caption: "Статус"
++                                        caption: "Статус",
++                                        lookup: {
++                                            dataSource: {
++                                                store: statusesStore,
++                                                paginate: true,
++                                                pageSize: 25,
++                                            },
++                                            displayExpr: 'name',
++                                            valueExpr: 'id'
++                                        },
++                                    },
++                                    {
++                                        dataField: "perform_orders",
++                                        dataType: "boolean",
++                                        visible: false
++                                    },
++                                    {
++                                        type: 'buttons',
++                                        width: 110,
++                                        buttons: [
++                                            'edit',
++                                            {
++                                                hint: 'Скачать',
++                                                icon: 'download',
++                                                onClick: (e) => {
++                                                    $('#requestId').val(JSON.stringify(e.row.key));
++                                                    $('#downloadRequest').get(0).submit();
++                                                }
++                                            }
++                                        ]
+                                     }
+                                 ],
+                                 onRowDblClick: function (e) {
+-                                    e.component.editRow(e.RowIndex);
++                                    e.component.editRow(e.rowIndex);
+                                 },
+-                                onSaving(e) {
+-                                    console.log("saving", e)
++                                onEditingStart: (e) => {
++                                    console.log("onEditingStart", e);
++                                    ordersData = new Map();
++                                    e.data.orders_data.forEach((dataItem) => {
++                                        ordersData.set(dataItem.order_type_id, dataItem);
++                                    })
++                                    currentEditingRowKey = e.key;
++                                    currentEditingRowIndex = e.component.getRowIndexByKey(e.key);
+                                 }
+                             }
+                         }]
+@@ -430,10 +701,6 @@
+                 ]
+             }).dxForm('instance')
+ 
+-            function getSelectedEditFormTabIndex(){
+-
+-            }
+-
+             function createGridGroupHeaderButtons() {
+                 let groupCaption = $('.requests-grid').find('.dx-form-group-with-caption');
+                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
+Index: routes/modules/labor-safety/labor-safety.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/routes/modules/labor-safety/labor-safety.php b/routes/modules/labor-safety/labor-safety.php
+--- a/routes/modules/labor-safety/labor-safety.php	(revision e3eba92d89c6a6e4369511c73fe7e3191fcfbf05)
++++ b/routes/modules/labor-safety/labor-safety.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
+@@ -4,6 +4,8 @@
+     Route::get('/card/{id}', 'ContractorController@card')->name('card');
+ });*/
+ 
++Route::get('/labor-safety/statuses-list', 'LaborSafety\LaborSafetyRequestController@statusesList')->name('labor-safety.statuses.list');
++
+ Route::get('/labor-safety/templates', 'LaborSafety\LaborSafetyOrderTypeController@index')->name('labor-safety.order-types.index');
+ Route::get('/labor-safety/templates/list', 'LaborSafety\LaborSafetyOrderTypeController@list')->name('labor-safety.order-types.list');
+ Route::put('/labor-safety/templates', 'LaborSafety\LaborSafetyOrderTypeController@update')->name('labor-safety.order-types.update');
+@@ -13,3 +15,5 @@
+ Route::post('/labor-safety/orders-and-requests', 'LaborSafety\LaborSafetyRequestController@store')->name('labor-safety.orders-and-requests.store');
+ Route::put('/labor-safety/orders-and-requests', 'LaborSafety\LaborSafetyRequestController@update')->name('labor-safety.orders-and-requests.update');
+ Route::delete('/labor-safety/orders-and-requests', 'LaborSafety\LaborSafetyRequestController@update')->name('labor-safety.orders-and-requests.delete');
++
++Route::post('/labor-safety/orders-and-requests/download', 'LaborSafety\LaborSafetyRequestController@download')->name('labor-safety.orders-and-requests.download');
+
+diff --git a/routes/modules/employyes/employees.php b/routes/modules/employees/employees.php
+rename from routes/modules/employyes/employees.php
+rename to routes/modules/employees/employees.php

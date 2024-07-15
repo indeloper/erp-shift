@@ -1,0 +1,19 @@
+Index: app/Http/Controllers/q3wMaterial/q3wMaterialController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/q3wMaterial/q3wMaterialController.php b/app/Http/Controllers/q3wMaterial/q3wMaterialController.php
+--- a/app/Http/Controllers/q3wMaterial/q3wMaterialController.php	(revision 9438778a02fef3e940917bd7c11ae484955ec4ed)
++++ b/app/Http/Controllers/q3wMaterial/q3wMaterialController.php	(revision 229f20fa41c53c67a87e041d3e95aad60006d6cd)
+@@ -329,7 +329,8 @@
+                         }
+                         break;
+                     default:
+-                        if ($operationMaterial->standard_id == $material->standard_id) {
++                        if (($operationMaterial->standard_id == $material->standard_id)
++                            and ($operationMaterial->initial_comment_id == $material->comment_id)) {
+                             if ($operationMaterial->amount_modifier < 0) {
+                                 $material->quantity += $operationMaterial->quantity * $operationMaterial->amount * $operationMaterial->amount_modifier;
+                             }
+

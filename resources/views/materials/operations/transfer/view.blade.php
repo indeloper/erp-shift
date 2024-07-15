@@ -220,6 +220,20 @@
                 },
             });
 
+            let materialOperationReasonStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('material-operation-reason')}}",
+                        {operationId: operationData.material_operation_reason_id});
+                },
+            });
+
+            let materialOperationReasonSource = new DevExpress.data.DataSource({
+                reshapeOnPush: true,
+                store: materialOperationReasonStore
+            });
+
             let operationHistoryStore = new DevExpress.data.CustomStore({
                 key: "id",
                 loadMode: "raw",
@@ -1409,10 +1423,10 @@
                 colCount: 2,
                 items: [{
                     itemType: "group",
-                    colCount: 3,
+                    colCount: 4,
                     caption: "Отправление",
                     items: [{
-                        colSpan: 3,
+                        colSpan: 4,
                         dataField: "source_project_object_id",
                         label: {
                             text: "Объект отправления"
@@ -1439,6 +1453,22 @@
                             editorType: "dxDateBox",
                             editorOptions: {
                                 readOnly: true,
+                            }
+                        },
+                        {
+                            name: "materialOperationReasonSelectBox",
+                            colSpan: 2,
+                            dataField: "material_operation_reason_id",
+                            label: {
+                                text: "Причина движения"
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: materialOperationReasonSource,
+                                displayExpr: "name",
+                                valueExpr: "id",
+                                searchEnabled: true,
+                                disabled: true,
                             }
                         },
                         {

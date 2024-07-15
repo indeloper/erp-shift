@@ -1,0 +1,138 @@
+Index: app/Http/Controllers/Common/UserController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/Common/UserController.php b/app/Http/Controllers/Common/UserController.php
+--- a/app/Http/Controllers/Common/UserController.php	(revision 9cc2466f7af5661b89b1b0956a8479c91cf72704)
++++ b/app/Http/Controllers/Common/UserController.php	(revision e0f7a08ea54a2305eca8fa5efdacb69c2697f317)
+@@ -163,20 +163,28 @@
+         $vacation = VacationsHistory::with('support_user')->where('vacation_user_id', $id)->where('is_actual', 1)->first();
+ 
+         $group = Group::whereId($user->group_id)->with('users', 'group_permissions')->first();
+-        $department = Department::findOrFail($group->department_id);
+-        $department->load('groups');
++        if (isset($group)) {
++            $department = Department::find($group->department_id);
++            $department->load('groups');
++        }
+         $permissions = Permission::all();
+-
++        if (isset($department)) {
++            $departmentPermissions = $permissions->whereIn('id', $department->permission_ids($department->groups))->values();
++            $groupPermissions = $group->permissions()->whereNotIn('permission_id', $department->permission_ids($department->groups))->values();
++        } else {
++            $departmentPermissions = [];
++            $groupPermissions = [];
++        }
+ 
+         return view('users.card', [
+             'user' => $user,
+-            'group' => Group::findOrFail($user->group_id),
+-            'department' => Department::findOrFail($user->department_id),
++            'group' => Group::find($user->group_id),
++            'department' => Department::find($user->department_id),
+             'projects' => $projects->concat(Project::getAllProjects()->where('projects.user_id', $id)->get())->unique(),
+             'vacation' => $vacation,
+             'permissions' => Permission::all(),
+-            'department_perms' => $permissions->whereIn('id', $department->permission_ids($department->groups))->values(),
+-            'group_permissions' => $group->permissions()->whereNotIn('permission_id', $department->permission_ids($department->groups))->values(),
++            'department_perms' => $departmentPermissions,
++            'group_permissions' => $groupPermissions,
+             'companies' => User::$companies,
+         ]);
+     }
+Index: app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php b/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php
+--- a/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php	(revision 9cc2466f7af5661b89b1b0956a8479c91cf72704)
++++ b/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php	(revision e0f7a08ea54a2305eca8fa5efdacb69c2697f317)
+@@ -387,6 +387,8 @@
+             ' ' .
+             Carbon::parse($request->order_date)->format('Y г.');
+ 
++        $orderTemplate = str_replace('<p>{sign_list}</p>', '{sign_list}', $orderTemplate);
++
+         foreach ($variables as $variable) {
+             switch ($variable) {
+                 case "{request_id}":
+@@ -456,7 +458,11 @@
+                     $orderTemplate = str_replace($variable, $projectObject->address, $orderTemplate);
+                     break;
+                 case "{project_object_cadastral_number}":
+-                    $orderTemplate = str_replace($variable, $projectObject->cadastral_number, $orderTemplate);
++                    if (!empty($projectObject->cadastral_number)){
++                       $orderTemplate = str_replace($variable, ', на земельном участке с кадастровым номером ' . $projectObject->cadastral_number, $orderTemplate);
++                    } else {
++                       $orderTemplate = str_replace($variable, '', $orderTemplate);
++                    }
+                     break;
+                 case "{object_responsible_users}":
+                     $objectResponsibleEmployees = $this->getObjectResponsibleEmployees($request);
+@@ -577,11 +583,11 @@
+             }
+         }
+ 
+-        if (!isset($subResponsibleEmployee) and ($this->isEmployeeParticipatesInOrder($subResponsibleEmployee->id, $order->order_type_id))) {
++        if (isset($subResponsibleEmployee) and ($this->isEmployeeParticipatesInOrder($request->id, $subResponsibleEmployee->id, $order->order_type_id))) {
++            $orderTemplate = str_replace(['[optional-section-start|subresponsible_employee]', '[optional-section-end|subresponsible_employee]'], '', $orderTemplate);
++        } else {
+             $pattern = '/\[optional-section-start\|subresponsible_employee].*?\[optional-section-end\|subresponsible_employee]/s';
+             $orderTemplate = preg_replace($pattern, '', $orderTemplate);
+-        } else {
+-            $orderTemplate = str_replace(['[optional-section-start|subresponsible_employee]', '[optional-section-end|subresponsible_employee]'], '', $orderTemplate);
+         }
+ 
+         return $orderTemplate;
+@@ -697,9 +703,13 @@
+         return $ordersListHtml;
+     }
+ 
+-    function isEmployeeParticipatesInOrder($employeeId, $orderTypeId)
++    function isEmployeeParticipatesInOrder($requestId, $employeeId, $orderTypeId)
+     {
+-
++        return LaborSafetyOrderWorker::where('worker_employee_id', '=', $employeeId)
++            ->where('labor_safety_order_workers.order_type_id', '=', $orderTypeId)
++            ->where('labor_safety_order_workers.request_id', '=', $requestId)
++            ->leftJoin('labor_safety_request_workers', 'requests_worker_id', '=', 'labor_safety_request_workers.id')
++            ->exists();
+     }
+ 
+     function getCompanyHeaderTemplateWithData($request)
+@@ -838,7 +848,6 @@
+ 
+         $html = str_replace('<br>', '<br/>', $html);
+         $html = str_replace('<hr>', '<hr/>', $html);
+-        $html = str_replace('<p>{sign_list}</p>', '{sign_list}', $html);
+ 
+         $phpWord = new PhpWord();
+ 
+Index: resources/views/users/card.blade.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/resources/views/users/card.blade.php b/resources/views/users/card.blade.php
+--- a/resources/views/users/card.blade.php	(revision 9cc2466f7af5661b89b1b0956a8479c91cf72704)
++++ b/resources/views/users/card.blade.php	(revision e0f7a08ea54a2305eca8fa5efdacb69c2697f317)
+@@ -127,13 +127,13 @@
+                     <div class="row info-string line-bottom">
+                         <label class="col-sm-3 col-form-label label-info-card">Должность</label>
+                         <div class="col-sm-9">
+-                            <p class="p-info-card"> {{ $group->name }} </p>
++                            <p class="p-info-card"> {{ $group ? $group->name : 'Не указан'}} </p>
+                         </div>
+                     </div>
+                     <div class="row info-string line-bottom">
+                         <label class="col-sm-3 col-form-label label-info-card">Подразделение</label>
+                         <div class="col-sm-9">
+-                            <p class="p-info-card"> {{ $department->name }} </p>
++                            <p class="p-info-card"> {{ $department ? $department->name : 'Не указано'}} </p>
+                         </div>
+                     </div>
+                     <div class="row info-string line-bottom">
+

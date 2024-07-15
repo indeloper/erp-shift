@@ -348,7 +348,7 @@ class FuelTankController extends StandardEntityResourceController
         $this->additionalResources->
         fuelTanksResponsibles =
             User::query()->active()
-                ->whereIn('group_id', Group::FOREMEN)
+                ->whereIn('group_id', array_merge(Group::FOREMEN, Group::MECHANICS))
                 ->orWhere('group_id', 43)
                 ->select(['id', 'user_full_name'])
                 ->get();
@@ -377,7 +377,7 @@ class FuelTankController extends StandardEntityResourceController
         $this->additionalResources->
             fuelResponsibles =
                 User::query()->active()
-                    ->orWhereIn('group_id', Group::FOREMEN)
+                    ->orWhereIn('group_id', array_merge(Group::FOREMEN, Group::MECHANICS))
                     ->get();
 
         $this->additionalResources->

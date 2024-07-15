@@ -1,0 +1,2008 @@
+Index: app/Http/Controllers/Employees/EmployeesController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/Employees/EmployeesController.php b/app/Http/Controllers/Employees/EmployeesController.php
+--- a/app/Http/Controllers/Employees/EmployeesController.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
++++ b/app/Http/Controllers/Employees/EmployeesController.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
+@@ -6,6 +6,7 @@
+ use App\Models\OneC\Employee;
+ use Illuminate\Http\Request;
+ use App\Http\Controllers\Controller;
++use Illuminate\Support\Facades\DB;
+ 
+ class EmployeesController extends Controller
+ {
+@@ -30,7 +31,18 @@
+ 
+         return (new Employee())
+             ->dxLoadOptions($loadOptions)
+-            ->get()
++            ->leftJoin('companies', 'employees.company_id', '=', 'companies.id')
++            ->leftJoin('employees_1c_posts', 'employees.employee_1c_post_id', '=', 'employees_1c_posts.id')
++            ->orderBy('employee_1c_name')
++            ->get(
++                [
++                    'employees.id',
++                    'employee_1c_name',
++                    'companies.name as company_name',
++                    'employees_1c_posts.name as post_name',
++                    DB::Raw("CONCAT(`employee_1c_name`, ' (', `companies`.`name`, ' | ', `employees_1c_posts`.`name`, ')') as `employee_extended_name`")
++                ]
++            )
+             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+     }
+ 
+Index: app/Http/Controllers/LaborSafety/LaborSafetyOrderTypeController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/LaborSafety/LaborSafetyOrderTypeController.php b/app/Http/Controllers/LaborSafety/LaborSafetyOrderTypeController.php
+--- a/app/Http/Controllers/LaborSafety/LaborSafetyOrderTypeController.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
++++ b/app/Http/Controllers/LaborSafety/LaborSafetyOrderTypeController.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
+@@ -27,10 +27,19 @@
+     public function list(Request $request)
+     {
+         $loadOptions = json_decode($request['loadOptions']);
++        $requestId = json_decode($request['requestId']);
++
++        $query = (new LaborSafetyOrderType())
++            ->dxLoadOptions($loadOptions);
+ 
+-        return (new LaborSafetyOrderType())
+-            ->dxLoadOptions($loadOptions)
+-            ->get()
++        if (!empty($requestId)) {
++            $query->addSelect([
++                'labor_safety_order_types.*',
++                DB::Raw('(SELECT `order_type_id` from `labor_safety_request_orders` where `include_in_formation` = 1 and `request_id` = ' . $requestId . ' and  `order_type_id` = `labor_safety_order_types`.`id`) as selected_order_type')
++            ]);
++        }
++
++        return $query->get()
+             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+     }
+ 
+Index: app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php b/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php
+--- a/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
++++ b/app/Http/Controllers/LaborSafety/LaborSafetyRequestController.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
+@@ -2,22 +2,32 @@
+ 
+ namespace App\Http\Controllers\LaborSafety;
+ 
++use App\Models\Company\Company;
++use App\Models\Company\CompanyReportTemplate;
+ use App\Models\LaborSafety\LaborSafetyOrderType;
++use App\Models\LaborSafety\LaborSafetyOrderWorker;
+ use App\Models\LaborSafety\LaborSafetyRequest;
+ use App\Models\LaborSafety\LaborSafetyRequestOrder;
+ use App\Models\LaborSafety\LaborSafetyRequestStatus;
++use App\Models\LaborSafety\LaborSafetyRequestWorker;
+ use App\Models\OneC\Employee;
++use App\Models\OneC\Employees1cPost;
++use App\Models\ProjectObject;
+ use Carbon\Carbon;
+ use Illuminate\Http\Request;
+ use App\Http\Controllers\Controller;
+ use Illuminate\Support\Facades\Auth;
+ use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Str;
+ use PhpOffice\PhpWord\PhpWord;
+ use PhpOffice\PhpWord\Shared\Html;
+ 
+ class LaborSafetyRequestController extends Controller
+ {
+-    const PAGE_BREAK_DELIMITER = '';
++    //const PAGE_BREAK_DELIMITER = '<br style="page-break-after: always"/>';
++    //const PAGE_BREAK_DELIMITER = '&#12';
++    const PAGE_BREAK_DELIMITER = '<pagebreak></pagebreak>'; // Needs to modify vendor component https://github.com/PHPOffice/PHPWord/issues/1601
++
+ 
+     /**
+      * Display a view of the resource.
+@@ -38,8 +48,14 @@
+     {
+         $loadOptions = json_decode($request['loadOptions']);
+ 
+-        return (new LaborSafetyRequest())
+-            ->dxLoadOptions($loadOptions)
++        $query = (new LaborSafetyRequest())
++            ->dxLoadOptions($loadOptions);
++
++        if (!Auth::user()->can('labor_safety_order_list_access') || !Auth::user()->is_su) {
++            $query->where('author_user_id', '=', Auth::id());
++        }
++
++        return $query
+             ->get()
+             ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+     }
+@@ -54,21 +70,31 @@
+     {
+         $data = json_decode($request->all()["data"], JSON_OBJECT_AS_ARRAY);
+ 
+-        $orders = $data["ordersData"];
+-        unset($data["ordersData"]);
++        $data["author_user_id"] = Auth::id();
++        $data["request_status_id"] = 1;
++
++        if (isset($data["workers"])) {
++            $workers = $data["workers"];
++            unset($data["workers"]);
++        }
+ 
+         DB::beginTransaction();
+-        $laborSafetyRequestRow = new LaborSafetyRequest([
+-            'order_date' => Carbon::parse($data['order_date']),
+-            'company_id' => $data['company_id'],
+-            'project_object_id' => $data['project_object_id'],
+-            'author_user_id' => Auth::id(),
+-            'request_status_id' => 1,
+-        ]);
++
++        $laborSafetyRequestRow = new LaborSafetyRequest($data);
+ 
+         $laborSafetyRequestRow->save();
+ 
+-        $this->insertOrUpdateOrdersData($orders, $laborSafetyRequestRow->id);
++        if (isset($workers)) {
++            foreach ($workers as $worker) {
++                $newWorker = new LaborSafetyRequestWorker(
++                    [
++                        'request_id' => $laborSafetyRequestRow->id,
++                        'worker_employee_id' => $worker["worker_employee_id"]
++                    ]
++                );
++                $newWorker->save();
++            }
++        }
+ 
+         DB::commit();
+         return response()->json([
+@@ -77,23 +103,6 @@
+         ], 200);
+     }
+ 
+-    public function insertOrUpdateOrdersData($orders, $requestId)
+-    {
+-        foreach ($orders as $order) {
+-
+-            $orderTypeId = $order[0];
+-
+-            if (empty($orderTypeId)) {
+-                continue;
+-            }
+-
+-            $order[1]['request_id'] = (int)$requestId;
+-            $order[1]['order_type_id'] = $orderTypeId;
+-
+-            LaborSafetyRequestOrder::updateOrCreate(['request_id' => $requestId, 'order_type_id' => $orderTypeId], $order[1]);
+-        }
+-    }
+-
+     /**
+      * Update the specified resource in storage.
+      *
+@@ -120,6 +129,8 @@
+ 
+         if ($generateOrders) {
+             $modifiedData["generated_html"] = $this->generateRequestHtmlData($requestRow);
++            $modifiedData["request_status_id"] = 2;
++            $modifiedData["implementer_user_id"] = Auth::id();
+         }
+ 
+         $requestRow->update($modifiedData);
+@@ -130,37 +141,52 @@
+         ], 200);
+     }
+ 
+-    public function statusesList(Request $request)
+-    {
+-        $options = json_decode($request['data']);
+-
+-        return (new LaborSafetyRequestStatus())
+-            ->dxLoadOptions($options)
+-            ->orderBy('id')
+-            ->get(['id', 'name'])
+-            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+-    }
+-
+     public function generateRequestHtmlData($request)
+     {
+         $orders = LaborSafetyRequestOrder::join('labor_safety_order_types', 'labor_safety_request_orders.order_type_id', '=', 'labor_safety_order_types.id')
+             ->where('labor_safety_request_orders.request_id', '=', $request->id)
+-            ->get();
++            ->where('labor_safety_request_orders.include_in_formation', '=', 1)
++            ->get([
++                'labor_safety_request_orders.id',
++                'labor_safety_request_orders.request_id',
++                'labor_safety_request_orders.order_type_id',
++                'labor_safety_request_orders.responsible_employee_id',
++                'labor_safety_request_orders.sub_responsible_employee_id',
++                'labor_safety_request_orders.include_in_formation',
++                'labor_safety_order_types.order_type_category_id',
++                'labor_safety_order_types.name',
++                'labor_safety_order_types.short_name',
++                'labor_safety_order_types.full_name',
++                'labor_safety_order_types.template'
++            ]);
+ 
+         $resultHtml = '';
+ 
+         foreach ($orders as $order) {
++
+             $orderTemplate = $this->fillTemplateData($request, $order, $order->template);
+ 
+-            $resultHtml .= $orderTemplate . self::PAGE_BREAK_DELIMITER;
++            $resultHtml .= $this->getCompanyHeaderTemplateWithData($request) . $orderTemplate . self::PAGE_BREAK_DELIMITER;
+         }
+ 
+         return $resultHtml;
+     }
+ 
+-    function fillTemplateData($request, $order, $orderTemplate){
++    function fillTemplateData($request, $order, $orderTemplate)
++    {
+         $variables = $this->getArrayOfTemplateVariables($orderTemplate);
+-        foreach($variables as $variable) {
++        $projectObject = ProjectObject::find($request->project_object_id);
++        $responsibleEmployee = Employee::find($order->responsible_employee_id);
++        $subResponsibleEmployee = Employee::find($order->sub_responsible_employee_id);
++        $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
++
++        $prettyOrderDate = Carbon::parse($request->order_date)->format('«d»') .
++            ' ' .
++            $months[Carbon::parse($request->order_date)->format('n') - 1] .
++            ' ' .
++            Carbon::parse($request->order_date)->format('Y г.');
++
++        foreach ($variables as $variable) {
+             switch ($variable) {
+                 case "{request_id}":
+                     $orderTemplate = str_replace($variable, $request->id, $orderTemplate);
+@@ -171,28 +197,210 @@
+                 case "{order_date}":
+                     $orderTemplate = str_replace($variable, Carbon::parse($request->order_date)->format('d.m.Y'), $orderTemplate);
+                     break;
++                case "{pretty_order_date}":
++                    $orderTemplate = str_replace($variable, $prettyOrderDate, $orderTemplate);
++                    break;
++                case "{responsible_employee_name_initials_before}":
++                case "{responsible_employee_name_initials_after}":
+                 case "{responsible_employee_full_name}":
+-                    $employeeName = Employee::find($order->responsible_employee_id)->employee_1c_name;
+-                    $orderTemplate = str_replace($variable, $employeeName, $orderTemplate);
++                    if (isset($responsibleEmployee)) {
++                        $orderTemplate = str_replace($variable, $responsibleEmployee->employee_1c_name, $orderTemplate);
++                    }
++                    break;
++                case "{responsible_employee_post}":
++                    if (isset($responsibleEmployee)) {
++                        $employeePostName = Employees1cPost::find($responsibleEmployee->employee_1c_post_id)->name;
++                        $orderTemplate = str_replace($variable, $employeePostName, $orderTemplate);
++                    }
++                    break;
++                case "{subresponsible_employee_name_initials_after}":
++                case "{subresponsible_employee_name_initials_before}":
++                case "{subresponsible_employee_full_name}":
++                    if (isset($subResponsibleEmployee)) {
++                        $orderTemplate = str_replace($variable, $subResponsibleEmployee->employee_1c_name, $orderTemplate);
++                    }
++                    break;
++                case "{subresponsible_employee_post}":
++                    if (isset($subResponsibleEmployee)) {
++                        $employeePostName = Employees1cPost::find($subResponsibleEmployee->employee_1c_post_id)->name;
++                        $orderTemplate = str_replace($variable, $employeePostName, $orderTemplate);
++                    }
++                    break;
++                case "{project_object_name}":
++                    $orderTemplate = str_replace($variable, $projectObject->name, $orderTemplate);
++                    break;
++                case "{project_object_full_address}":
++                    $orderTemplate = str_replace($variable, $projectObject->address, $orderTemplate);
++                    break;
++                case "{project_object_cadastral_number}":
++                    $orderTemplate = str_replace($variable, $projectObject->cadastral_number, $orderTemplate);
++                    break;
++                case "{workers_list}":
++                    $orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($order), $orderTemplate);
++                    break;
++                case "{sign_list}":
++                    $this->getSignList($order);
+                     break;
+             }
+         }
+ 
++        if (!isset($responsibleEmployee)) {
++            $pattern = '/\[optional-section-start\|subresponsible_employee].+\[optional-section-end\|subresponsible_employee]/';
++            $orderTemplate = preg_replace($pattern, '', $orderTemplate);
++        } else {
++            $orderTemplate = str_replace(['[optional-section-start|subresponsible_employee]', '[optional-section-end|subresponsible_employee]'], '', $orderTemplate);
++        }
++
+         return $orderTemplate;
+     }
+ 
+-    function getArrayOfTemplateVariables($orderTemplate) {
++    function getArrayOfTemplateVariables($template): array
++    {
+         $variables = [];
+ 
+-        preg_match_all('/\{(.)+?\}/', $orderTemplate, $variables);
++        preg_match_all('/\{(.)+?\}/', $template, $variables);
+         return array_unique($variables[0]);
+     }
+ 
+-    function download(Request $request) {
++    function getWorkersListForTemplate($order)
++    {
++        $workersList = '<ol style="list-style-type: disc;">';
++
++        $workers = LaborSafetyOrderWorker::where('request_order_id', '=', $order->id)->get();
++
++        foreach ($workers as $worker) {
++            $employeeId = $worker->worker_employee_id;
++            $employee = Employee::find($employeeId);
++            $postName = Employees1cPost::find($employee->employee_1c_post_id)->name;
++
++            $workersList .= '<li>' . $postName . ' – ' . $employee->employee_1c_name . '</li>';
++        }
++
++        $workersList .= '</ol>';
++        return $workersList;
++    }
++
++    function getSignList($order)
++    {
++        $signList = '<table style="width: 100%; height: 28px;"><tbody>';
++
++        if (isset($order->responsible_employee_id)) {
++            $employeeName = Employee::find($order->responsible_employee_id)->employee_1c_name;
++            $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
++        }
++
++        if (isset($order->sub_responsible_employee_id)) {
++            $employeeName = Employee::find($order->sub_responsible_employee_id)->employee_1c_name;
++            $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
++        }
++
++        $workers = LaborSafetyOrderWorker::where('request_order_id', '=', $order->id)->get();
++
++        foreach ($workers as $worker) {
++            $employeeName = Employee::find($worker->worker_employee_id)->employee_1c_name;
++            $signList .= '<tr style="height: 76px;"><td style="width: 33%; height: 10px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 10px; vertical-align: top;">&nbsp;</td><td style="height: 10px; width: 33%;"><p style="text-align: right;">' . $employeeName . '</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr>';
++        }
++
++        $signList .= '</tbody></table>';
++
++        return $signList;
++    }
++
++    function getCompanyHeaderTemplateWithData($request)
++    {
++        $companyTemplate = CompanyReportTemplate::where('company_id', '=', $request->company_id)
++            ->where('template_type', '=', 1)
++            ->first()
++            ->template;
++
++        $company = Company::find($request->company_id);
++
++        $variables = $this->getArrayOfTemplateVariables($companyTemplate);
++
++        foreach ($variables as $variable) {
++            switch ($variable) {
++                case "{company_legal_address}":
++                    $companyTemplate = str_replace($variable, $company->legal_address, $companyTemplate);
++                    break;
++                case "{company_phone}":
++                    $companyTemplate = str_replace($variable, $company->phone, $companyTemplate);
++                    break;
++                case "{company_web_site}":
++                    $companyTemplate = str_replace($variable, $company->web_site, $companyTemplate);
++                    break;
++                case "{company_email}":
++                    $companyTemplate = str_replace($variable, $company->email, $companyTemplate);
++                    break;
++            }
++        }
++
++        return $companyTemplate;
++    }
++
++    public function getRequestWorkers(Request $request)
++    {
++        $requestId = json_decode($request['requestId']);
++
++        $request = LaborSafetyRequest::find($requestId);
++        $responsibleEmployees = [];
++
++        if (Auth::user()->can('labor_safety_generate_documents_access')) {
++            $responsibleEmployees[] = [
++                'id' => (string)Str::uuid(),
++                'worker_employee_id' => $request->responsible_employee_id,
++                'employee_role' => 'Ответственный'
++            ];
++
++            if (isset($request->sub_responsible_employee_id)) {
++                $responsibleEmployees[] = [
++                    'id' => (string)Str::uuid(),
++                    'worker_employee_id' => $request->responsible_employee_id,
++                    'employee_role' => 'Замещающий ответственного'
++                ];
++            }
++        }
++
++        $workers = LaborSafetyRequestWorker::where('request_id', '=', $requestId)
++            ->leftJoin('labor_safety_order_workers', 'labor_safety_request_workers.id', '=', 'labor_safety_order_workers.requests_worker_id')
++            ->get(
++                [
++                    'labor_safety_request_workers.id',
++                    'labor_safety_request_workers.worker_employee_id',
++                    DB::Raw("'Сотрудник' as `employee_role`")
++                ]
++            )
++            ->toArray();
++
++        $workers = array_merge($responsibleEmployees, $workers);
++
++        $orderTypesList = LaborSafetyOrderType::all();
++
++        foreach ($workers as $worker) {
++            forEach($orderTypesList as $orderType) {
++
++            }
++        }
++
++        return json_encode($workers);
++    }
++
++    public function statusesList(Request $request)
++    {
++        $options = json_decode($request['data']);
++
++        return (new LaborSafetyRequestStatus())
++            ->dxLoadOptions($options)
++            ->orderBy('id')
++            ->get(['id', 'name'])
++            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
++    }
++
++    function download(Request $request)
++    {
+         $requestId = json_decode($request->input('requestId'));
+         $html = LaborSafetyRequest::findOrFail($requestId)->generated_html;
+-        $html = str_replace('<br>','<br/>', $html);
+-        $html = str_replace('<hr>','<hr/>', $html);
++        $html = str_replace('<br>', '<br/>', $html);
++        $html = str_replace('<hr>', '<hr/>', $html);
+ 
+         $phpWord = new PhpWord();
+ 
+Index: app/Http/Controllers/LaborSafety/LaborSafetyRequestWorkerController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/LaborSafety/LaborSafetyRequestWorkerController.php b/app/Http/Controllers/LaborSafety/LaborSafetyRequestWorkerController.php
+new file mode 100644
+--- /dev/null	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
++++ b/app/Http/Controllers/LaborSafety/LaborSafetyRequestWorkerController.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
+@@ -0,0 +1,42 @@
++<?php
++
++namespace App\Http\Controllers\LaborSafety;
++
++use App\Models\Company\Company;
++use App\Models\Company\CompanyReportTemplate;
++use App\Models\LaborSafety\LaborSafetyOrderType;
++use App\Models\LaborSafety\LaborSafetyOrderWorker;
++use App\Models\LaborSafety\LaborSafetyRequest;
++use App\Models\LaborSafety\LaborSafetyRequestOrder;
++use App\Models\LaborSafety\LaborSafetyRequestStatus;
++use App\Models\LaborSafety\LaborSafetyRequestWorker;
++use App\Models\OneC\Employee;
++use App\Models\OneC\Employees1cPost;
++use App\Models\ProjectObject;
++use Carbon\Carbon;
++use Illuminate\Http\Request;
++use App\Http\Controllers\Controller;
++use Illuminate\Support\Facades\Auth;
++use Illuminate\Support\Facades\DB;
++use PhpOffice\PhpWord\PhpWord;
++use PhpOffice\PhpWord\Shared\Html;
++
++class LaborSafetyRequestWorkerController extends Controller
++{
++    /**
++     * Returns the JSON of data.
++     *
++     * @return string
++     */
++    public function list(Request $request)
++    {
++        $loadOptions = json_decode($request['loadOptions']);
++
++        $query = (new LaborSafetyRequestWorker())
++            ->dxLoadOptions($loadOptions);
++
++        return $query
++            ->get()
++            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
++    }
++}
+Index: app/Models/LaborSafety/LaborSafetyRequest.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/LaborSafety/LaborSafetyRequest.php b/app/Models/LaborSafety/LaborSafetyRequest.php
+--- a/app/Models/LaborSafety/LaborSafetyRequest.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
++++ b/app/Models/LaborSafety/LaborSafetyRequest.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
+@@ -5,16 +5,11 @@
+ use App\Traits\DevExtremeDataSourceLoadable;
+ use Illuminate\Database\Eloquent\Model;
+ use Illuminate\Database\Eloquent\SoftDeletes;
++use Illuminate\Support\Facades\DB;
+ 
+ class LaborSafetyRequest extends Model
+ {
+     use SoftDeletes, DevExtremeDataSourceLoadable;
+ 
+     protected $guarded = array('id');
+-
+-    protected $appends = ['orders_data'];
+-
+-    public function getOrdersDataAttribute () {
+-        return LaborSafetyRequestOrder::where('request_id', '=', $this->id)->get();
+-    }
+ }
+Index: app/Models/LaborSafety/LaborSafetyRequestWorker.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/LaborSafety/LaborSafetyRequestWorker.php b/app/Models/LaborSafety/LaborSafetyRequestWorker.php
+new file mode 100644
+--- /dev/null	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
++++ b/app/Models/LaborSafety/LaborSafetyRequestWorker.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
+@@ -0,0 +1,14 @@
++<?php
++/**  * @mixin ..\Eloquent  */
++namespace App\Models\LaborSafety;
++
++use App\Traits\DevExtremeDataSourceLoadable;
++use Illuminate\Database\Eloquent\Model;
++use Illuminate\Database\Eloquent\SoftDeletes;
++
++class LaborSafetyRequestWorker extends Model
++{
++    use SoftDeletes, DevExtremeDataSourceLoadable;
++
++    protected $guarded = array('id');
++}
+Index: database/migrations/2022_08_22_110550_add_tables_for_labor_safety_mode.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/database/migrations/2022_08_22_110550_add_tables_for_labor_safety_mode.php b/database/migrations/2022_08_22_110550_add_tables_for_labor_safety_mode.php
+--- a/database/migrations/2022_08_22_110550_add_tables_for_labor_safety_mode.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
++++ b/database/migrations/2022_08_22_110550_add_tables_for_labor_safety_mode.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
+@@ -21,189 +21,217 @@
+      */
+     public function up()
+     {
+-        Schema::table('users', function (Blueprint $table) {
+-           $table->string('individual_1c_uid')->nullable()->comment('Уникальный идентификатор физического лица в 1С');
+-        });
+-
+-        DB::statement("ALTER TABLE users COMMENT 'Список пользователей системы'");
++        /*if (!Schema::hasColumn('employees_report_groups', 'individual_1c_uid')) {
++            Schema::table('users', function (Blueprint $table) {
++                $table->string('individual_1c_uid')->nullable()->comment('Уникальный идентификатор физического лица в 1С');
++            });
++            DB::statement("ALTER TABLE users COMMENT 'Список пользователей системы'");
++        }*/
+ 
+-        Schema::create('employees_report_groups', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->string('name')->comment('Наименование отчетной группы');
++        if (!Schema::hasTable('employees_report_groups')) {
++            Schema::create('employees_report_groups', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->string('name')->comment('Наименование отчетной группы');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE employees_report_groups COMMENT 'Отчетные группы сотрудников. Используются в модуле «Учет рабочего времени» для формирования отчета в excel'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE employees_report_groups COMMENT 'Отчетные группы сотрудников. Используются в модуле «Учет рабочего времени» для формирования отчета в excel'");
+ 
+-        $reportGroupArray = ['Прорабы', 'Руководители', 'База', 'Механики', 'Сотрудники шпунт', 'Крановщики', 'Офис', 'Геодезическая служба', 'Производственный участок - сваи', 'УМиТ'];
+-        foreach ($reportGroupArray as $reportGroupElement) {
+-          $reportGroup = new EmployeesReportGroup([
+-            'name' => $reportGroupElement
+-          ]);
+-          $reportGroup->save();
++            $reportGroupArray = ['Прорабы', 'Руководители', 'База', 'Механики', 'Сотрудники шпунт', 'Крановщики', 'Офис', 'Геодезическая служба', 'Производственный участок - сваи', 'УМиТ'];
++            foreach ($reportGroupArray as $reportGroupElement) {
++                $reportGroup = new EmployeesReportGroup([
++                    'name' => $reportGroupElement
++                ]);
++                $reportGroup->save();
++            }
+         }
+ 
+-        Schema::create('companies', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->string('company_1c_uid')->comment('Уникальный идентификатор в 1С');
+-            $table->string('name')->comment('Наименование организации');
+-            $table->string('full_name')->comment('Полное наименование организации');
+-            $table->string('legal_address')->comment('Юридический адрес');
+-            $table->string('actual_address')->nullable()->comment('Фактический адрес');
+-            $table->string('phone')->nullable()->comment('Телефон');
+-            $table->string('ogrn')->nullable()->comment('ОГРН');
+-            $table->string('inn')->nullable()->comment('ИНН');
+-            $table->string('web_site')->nullable()->comment('Адрес сайта');
+-            $table->string('email')->comment('Email');
++        if (!Schema::hasTable('companies')) {
++            Schema::create('companies', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->string('company_1c_uid')->comment('Уникальный идентификатор в 1С');
++                $table->string('name')->comment('Наименование организации');
++                $table->string('full_name')->comment('Полное наименование организации');
++                $table->string('legal_address')->comment('Юридический адрес');
++                $table->string('actual_address')->nullable()->comment('Фактический адрес');
++                $table->string('phone')->nullable()->comment('Телефон');
++                $table->string('ogrn')->nullable()->comment('ОГРН');
++                $table->string('inn')->nullable()->comment('ИНН');
++                $table->string('web_site')->nullable()->comment('Адрес сайта');
++                $table->string('email')->comment('Email');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE companies COMMENT 'Список организаций'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE companies COMMENT 'Список организаций'");
+ 
+-        $company = new Company([
+-            'company_1c_uid' => 'empty',
+-            'name' => 'ООО «СК ГОРОД»',
+-            'full_name' => 'Общество с ограниченной ответственностью «СК ГОРОД»',
+-            'legal_address' => '',
+-            'actual_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, каб. 406',
+-            'phone' => '+7 (812) 335-90-90',
+-            'ogrn' => '1107847027045',
+-            'inn' => '7807348494',
+-            'web_site' => 'www.sk-gorod.com',
+-            'email' => 'info@sk-gorod.com'
+-        ]);
+-        $company->save();
++            $company = new Company([
++                'company_1c_uid' => 'empty',
++                'name' => 'ООО «СК ГОРОД»',
++                'full_name' => 'Общество с ограниченной ответственностью «СК ГОРОД»',
++                'legal_address' => '',
++                'actual_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, каб. 406',
++                'phone' => '+7 (812) 335-90-90',
++                'ogrn' => '1107847027045',
++                'inn' => '7807348494',
++                'web_site' => 'www.sk-gorod.com',
++                'email' => 'info@sk-gorod.com',
++            ]);
++            $company->save();
+ 
+-        $company = new Company([
+-            'company_1c_uid' => 'empty',
+-            'name' => 'ООО «ГОРОД»',
+-            'full_name' => 'Общество с ограниченной ответственностью «ГОРОД»',
+-            'legal_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, помещ. 56-н, каб. 406',
+-            'actual_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, каб. 406',
+-            'phone' => '+7 (812) 335-90-90',
+-            'ogrn' => '1167847146917',
+-            'inn' => '7807115228',
+-            'web_site' => 'www.sk-gorod.com',
+-            'email' => 'info@sk-gorod.com'
+-        ]);
+-        $company->save();
++            $company = new Company([
++                'company_1c_uid' => 'empty',
++                'name' => 'ООО «ГОРОД»',
++                'full_name' => 'Общество с ограниченной ответственностью «ГОРОД»',
++                'legal_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, помещ. 56-н, каб. 406',
++                'actual_address' => '196128, г. Санкт-Петербург, Варшавская ул., д. 9, корп. 1, лит. А, каб. 406',
++                'phone' => '+7 (812) 335-90-90',
++                'ogrn' => '1167847146917',
++                'inn' => '7807115228',
++                'web_site' => 'www.sk-gorod.com',
++                'email' => 'info@sk-gorod.com'
++            ]);
++            $company->save();
+ 
+-        $company = new Company([
+-            'company_1c_uid' => 'empty',
+-            'name' => 'ООО «РЕНТМАСТЕР»',
+-            'full_name' => 'Общество с ограниченной ответственностью «РЕНТМАСТЕР»',
+-            'legal_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
+-            'actual_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
+-            'phone' => '',
+-            'ogrn' => '1197847099229',
+-            'inn' => '7807227475',
+-            'web_site' => '',
+-            'email' => 'rentmaster10@yandex.ru'
+-        ]);
+-        $company->save();
++            $company = new Company([
++                'company_1c_uid' => 'empty',
++                'name' => 'ООО «РЕНТМАСТЕР»',
++                'full_name' => 'Общество с ограниченной ответственностью «РЕНТМАСТЕР»',
++                'legal_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
++                'actual_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№15), офис. 409',
++                'phone' => '',
++                'ogrn' => '1197847099229',
++                'inn' => '7807227475',
++                'web_site' => '',
++                'email' => 'rentmaster10@yandex.ru'
++            ]);
++            $company->save();
+ 
+-        $company = new Company([
+-            'company_1c_uid' => 'empty',
+-            'name' => 'ООО «СТРОЙМАСТЕР»',
+-            'full_name' => 'Общество с ограниченной ответственностью «СТРОЙМАСТЕР»',
+-            'legal_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№18)',
+-            'actual_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№18)',
+-            'phone' => '+7 (812) 303-90-53',
+-            'ogrn' => '1147847349165',
+-            'inn' => '7842528806',
+-            'web_site' => '',
+-            'email' => 'stroymaster9@yandex.ru'
+-        ]);
+-        $company->save();
++            $company = new Company([
++                'company_1c_uid' => 'empty',
++                'name' => 'ООО «СТРОЙМАСТЕР»',
++                'full_name' => 'Общество с ограниченной ответственностью «СТРОЙМАСТЕР»',
++                'legal_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№18)',
++                'actual_address' => '196128, г. Санкт-Петербург, Кузнецовская ул., д. 19, лит. А, помещ. 12Н (№18)',
++                'phone' => '+7 (812) 303-90-53',
++                'ogrn' => '1147847349165',
++                'inn' => '7842528806',
++                'web_site' => '',
++                'email' => 'stroymaster9@yandex.ru'
++            ]);
++            $company->save();
++        }
+ 
+-        Schema::create('company_report_template_types', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->integer('name')->unsigned()->comment('Значение');
++        if (!Schema::hasTable('company_report_template_types')) {
++            Schema::create('company_report_template_types', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->integer('name')->unsigned()->comment('Значение');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE company_report_template_types COMMENT 'Типы шаблонов для бланков компаний'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE company_report_template_types COMMENT 'Типы шаблонов для бланков компаний'");
+ 
+-        $reportTemplateTypeArray = ['header', 'footer'];
+-        foreach ($reportTemplateTypeArray as $reportTemplateTypeElement) {
+-            $reportTemplateType = new EmployeesReportGroup([
+-                'name' => $reportTemplateTypeElement
+-            ]);
+-            $reportTemplateType->save();
++            $reportTemplateTypeArray = ['header', 'footer'];
++            foreach ($reportTemplateTypeArray as $reportTemplateTypeElement) {
++                $reportTemplateType = new EmployeesReportGroup([
++                    'name' => $reportTemplateTypeElement
++                ]);
++                $reportTemplateType->save();
++            }
+         }
+ 
+-        Schema::create('company_report_templates', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->integer('company_id')->unsigned()->comment('ID организации');
+-            $table->integer('template_type')->unsigned()->comment('Тип шаблона');
+-            $table->string('template')->comment('Шаблон');
++        if (!Schema::hasTable('company_report_templates')) {
++            Schema::create('company_report_templates', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->integer('company_id')->unsigned()->comment('ID организации');
++                $table->integer('template_type')->unsigned()->comment('Тип шаблона');
++                $table->text('template')->comment('Шаблон');
+ 
+-            $table->foreign('company_id')->references('id')->on('companies');
+-            $table->foreign('template_type')->references('id')->on('company_report_template_types');
++                $table->foreign('company_id')->references('id')->on('companies');
++                $table->foreign('template_type')->references('id')->on('company_report_template_types');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE company_report_templates COMMENT 'Шаблоны для отчетов по компаниям'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE company_report_templates COMMENT 'Шаблоны для отчетов по компаниям'");
+ 
+-        Schema::create('employees_1c_subdivisions', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->integer('subdivision_parent_id')->unsigned()->comment('Уникальный идентификатор');
+-            $table->string('name')->comment('Наименование должности');
+-            $table->string('subdivisions_1c_uid')->comment('Уникальный идентификатор 1С');
+-            $table->integer('company_id')->unsigned()->comment('ID организации');
++            $companiesReportTemplateArray = ['1|1|<table style="height: 142px; width: 100%; border-collapse: collapse;" border="1"><tbody><tr style="height: 142px;"><td style="width: 50%;"><img src="https://erp.sk-gorod.com/img/sk-gorod-logo.png" /></td><td style="width: 50%;"><p style="text-align: right;">{company_requisites}</p></td></tr></tbody></table>',
++            ];
++
++            foreach ($companiesReportTemplateArray as $companiesReportTemplateElement) {
++                $laborSafetyOrderType = new LaborSafetyOrderType([
++                    'company_id' => explode('|', $companiesReportTemplateElement)[0],
++                    'template_type' => explode('|', $companiesReportTemplateElement)[1],
++                    'template' => explode('|', $companiesReportTemplateElement)[2],
++
++                ]);
++                $laborSafetyOrderType->save();
++            }
++        }
++
++        if (!Schema::hasTable('employees_1c_subdivisions')) {
++            Schema::create('employees_1c_subdivisions', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->integer('subdivision_parent_id')->unsigned()->comment('Уникальный идентификатор');
++                $table->string('name')->comment('Наименование должности');
++                $table->string('subdivisions_1c_uid')->comment('Уникальный идентификатор 1С');
++                $table->integer('company_id')->unsigned()->comment('ID организации');
+ 
+-            $table->foreign('company_id')->references('id')->on('companies');
++                $table->foreign('company_id')->references('id')->on('companies');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE employees_1c_subdivisions COMMENT 'Список подразделений, синхронизировано с 1С'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE employees_1c_subdivisions COMMENT 'Список подразделений, синхронизировано с 1С'");
++        }
+ 
+-        Schema::create('employees_1c_posts', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->string('name')->comment('Наименование должности');
+-            $table->string('post_1c_uid')->comment('Наименование отчетной группы');
+-            $table->integer('subdivision_id')->unsigned()->comment('ID подразделения');
+-            $table->integer('company_id')->unsigned()->comment('ID организации');
++        if (!Schema::hasTable('employees_1c_posts')) {
++            Schema::create('employees_1c_posts', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->string('name')->comment('Наименование должности');
++                $table->string('post_1c_uid')->comment('Наименование отчетной группы');
++                $table->integer('subdivision_id')->unsigned()->comment('ID подразделения');
++                $table->integer('company_id')->unsigned()->comment('ID организации');
+ 
+-            $table->foreign('subdivision_id')->references('id')->on('employees_1c_subdivisions');
+-            $table->foreign('company_id')->references('id')->on('companies');
++                $table->foreign('subdivision_id')->references('id')->on('employees_1c_subdivisions');
++                $table->foreign('company_id')->references('id')->on('companies');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE employees_1c_posts COMMENT 'Должности сотрудников, синхронизированные c 1С'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE employees_1c_posts COMMENT 'Должности сотрудников, синхронизированные c 1С'");
++        }
+ 
+-        Schema::create('employees', function (Blueprint $table) {
+-            $table->bigIncrements('id')->comment('Уникальный идентификатор');
+-            $table->integer('user_id')->unsigned()->comment('Пользователь');
++        if (!Schema::hasTable('employees')) {
++            Schema::create('employees', function (Blueprint $table) {
++                $table->bigIncrements('id')->comment('Уникальный идентификатор');
++                $table->integer('user_id')->unsigned()->comment('Пользователь');
+ 
+-            $table->string('employee_1c_name')->comment('Имя сотрудника в 1С');
++                $table->string('employee_1c_name')->comment('Имя сотрудника в 1С');
+ 
+-            $table->string('personnel_number')->comment('Табельный номер сотрудника');
+-            $table->string('employee_1c_uid')->comment('Уникальный идентификатор сотрудника в 1С');
+-            $table->integer('employee_1c_post_id')->unsigned()->comment('Уникальный идентификатор должности сотрудника в 1С');
+-            $table->integer('employee_1c_subdivision_id')->unsigned()->comment('Уникальный идентификатор подразделения сотрудника в 1С');
+-            $table->integer('company_id')->unsigned()->comment('Уникальный идентификатор организации, в которой работает сотрудник, в 1С');
++                $table->string('personnel_number')->comment('Табельный номер сотрудника');
++                $table->string('employee_1c_uid')->comment('Уникальный идентификатор сотрудника в 1С');
++                $table->integer('employee_1c_post_id')->unsigned()->comment('Уникальный идентификатор должности сотрудника в 1С');
++                $table->integer('employee_1c_subdivision_id')->unsigned()->comment('Уникальный идентификатор подразделения сотрудника в 1С');
++                $table->integer('company_id')->unsigned()->comment('Уникальный идентификатор организации, в которой работает сотрудник, в 1С');
+ 
+-            $table->date('employment_date')->comment('Дата приема на работу');
+-            $table->date('dismissal_date')->comment('Дата увольнения');
++                $table->date('employment_date')->comment('Дата приема на работу');
++                $table->date('dismissal_date')->comment('Дата увольнения');
+ 
+-            $table->integer('report_group_id')->unsigned()->comment('Наименование отчетной группы');
++                $table->integer('report_group_id')->unsigned()->comment('Наименование отчетной группы');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
++                $table->timestamps();
++                $table->softDeletes();
+ 
+-            $table->foreign('user_id')->references('id')->on('users');
+-            $table->foreign('report_group_id')->references('id')->on('employees_report_groups');
+-            $table->foreign('company_id')->references('id')->on('companies');
+-            $table->foreign('employee_1c_subdivision_id')->references('id')->on('employees_1c_subdivisions');
+-        });
+-        DB::statement("ALTER TABLE employees COMMENT 'Список сотрудников организаций, синхронизированный с 1С.'");
++                $table->foreign('user_id')->references('id')->on('users');
++                $table->foreign('report_group_id')->references('id')->on('employees_report_groups');
++                $table->foreign('company_id')->references('id')->on('companies');
++                $table->foreign('employee_1c_subdivision_id')->references('id')->on('employees_1c_subdivisions');
++            });
++            DB::statement("ALTER TABLE employees COMMENT 'Список сотрудников организаций, синхронизированный с 1С.'");
++        }
+ 
+         $permission = new Permission();
+         $permission->name = 'Охрана труда: Создание заявки на формирование приказов';
+@@ -223,159 +251,188 @@
+         $permission->category = 19; // Категории описаны в модели "Permission"
+         $permission->save();
+ 
+-        Schema::create('labor_safety_order_type_categories', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->string('name')->unique()->comment('Значение');
++
++        if (!Schema::hasTable('labor_safety_order_type_categories')) {
++            Schema::create('labor_safety_order_type_categories', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->string('name')->unique()->comment('Значение');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE labor_safety_order_type_categories COMMENT 'Виды типов приказов в модуле «Охрана труда»'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE labor_safety_order_type_categories COMMENT 'Виды типов приказов в модуле «Охрана труда»'");
+ 
+-        $laborSafetyOrderTypeCategoryArray = ['Приказ о назначении ответственных с замещением',
+-            'Приказ о назначении списка сотрудников',
+-            'Приказ о назначении ответственных за производство работ повышенной опасности',
+-            'Приказ о назначении ответственных с замещением и назначением сотрудников',
+-            'Приказ о назначении ответственного за производство геодезических работ',
+-            'Приказ о назначении ответственного за СРО',
+-            'Приказ о назначении ответственного за охрану труда',
+-            'Приказ о назначении ответственных лиц за охрану окружающей среды',
+-            'Приказ о направлении работников на строительный объект в выходные и праздничные дни',
+-            'Приказ о назначении ответственного за приемку и контроль качества электрогазосварочных работ',
+-            'Доверенность',
+-            'Сопроводительное письмо'
+-        ];
+-        foreach ($laborSafetyOrderTypeCategoryArray as $laborSafetyOrderTypeCategoryElement) {
+-            $laborSafetyOrderTypeCategory = new LaborSafetyOrderTypeCategory([
+-                'name' => $laborSafetyOrderTypeCategoryElement
+-            ]);
+-            $laborSafetyOrderTypeCategory->save();
++            $laborSafetyOrderTypeCategoryArray = ['Приказ о назначении ответственных с замещением',
++                'Приказ о назначении списка сотрудников',
++                'Приказ о назначении ответственных за производство работ повышенной опасности',
++                'Приказ о назначении ответственных с замещением и назначением сотрудников',
++                'Приказ о назначении ответственного за производство геодезических работ',
++                'Приказ о назначении ответственного за СРО',
++                'Приказ о назначении ответственного за охрану труда',
++                'Приказ о назначении ответственных лиц за охрану окружающей среды',
++                'Приказ о направлении работников на строительный объект в выходные и праздничные дни',
++                'Приказ о назначении ответственного за приемку и контроль качества электрогазосварочных работ',
++                'Доверенность',
++                'Сопроводительное письмо'
++            ];
++            foreach ($laborSafetyOrderTypeCategoryArray as $laborSafetyOrderTypeCategoryElement) {
++                $laborSafetyOrderTypeCategory = new LaborSafetyOrderTypeCategory([
++                    'name' => $laborSafetyOrderTypeCategoryElement
++                ]);
++                $laborSafetyOrderTypeCategory->save();
++            }
+         }
+ 
+-        Schema::create('labor_safety_order_types', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->integer('order_type_category_id')->unsigned()->comment('Вид типа приказа');
+-            $table->string('name')->unique()->comment('Наименование');
+-            $table->string('short_name')->unique()->comment('Краткое наименование');
+-            $table->string('full_name')->unique()->comment('Краткое наименование');
+-            $table->text('template')->comment('Шаблон');
++        if (!Schema::hasTable('labor_safety_order_types')) {
++            Schema::create('labor_safety_order_types', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->integer('order_type_category_id')->unsigned()->comment('Вид типа приказа');
++                $table->string('name')->unique()->comment('Наименование');
++                $table->string('short_name')->unique()->comment('Краткое наименование');
++                $table->string('full_name')->unique()->comment('Краткое наименование');
++                $table->text('template')->comment('Шаблон');
+ 
+-            $table->foreign('order_type_category_id')->references('id')->on('labor_safety_order_type_categories');
++                $table->foreign('order_type_category_id')->references('id')->on('labor_safety_order_type_categories');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE labor_safety_order_types COMMENT 'Типы приказов для формирования в модуле «Охрана труда»'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE labor_safety_order_types COMMENT 'Типы приказов для формирования в модуле «Охрана труда»'");
+ 
+-        $laborSafetyOrderTypesArray = ['Ответственный за производство работ:ОПР:О назначении ответственного производителя работ на строительном объекте:1',
+-            'Направление на объект:Н:О направлении работников на строительный объект:2',
+-            'Обеспечение требований охраны труда:ОТ:О назначении ответственного за обеспечение требований охраны труда на строительном объекте:1',
+-            'Пожарная безопасность:ПБ:О назначении ответственного за пожарную безопасность и обеспечение противопожарных мероприятий на строительном объекте:1',
+-            'Организация работ повышенной опасности:НД:Об организации работ повышенной опасности:3',
+-            'Состояние и применение ограждений:ОГ:О назначении ответственных за исправное состояние и правильное применение ограждений:1',
+-            'Производство погрузочно-разгрузочных работ:ПР:О назначении ответственного за производство погрузочно-разгрузочных работ:1',
+-            'Сохранность и исправность электроинструмента:ЭИ:О назначении ответственного за сохранность и исправность электроинструмента:1',
+-            'Электрохозяйство на строительном объекте:ЭХ:О назначении ответственного за электрохозяйство на строительном объекте:1',
+-            'Производство сварочных работ:СВ:О назначении лица, ответственного за безопасное производство сварочных работ и допуске электрогазосварщиков к работе на строительном объекте:4',
+-            'Эксплуатация баллонов с газами:Б-ОТ:О безопасной эксплуатации баллонов со сжатыми и сжиженными газами:4',
+-            'Производство работ с применением подъемных сооружений:ПС:Об организации безопасного производства работ с применением подъемных сооружений:4',
+-            'Осмотр съемных грузозахватных приспособлений:СГП:О назначении ответственного за осмотр съемных грузозахватных приспособлений во время эксплуатации, установки и демонтажа:1',
+-            'Производство геодезических работ:Г:О назначении ответственного за производство геодезических работ:5',
+-            'Введение режима повышенной готовности:РПГ:О введении режима повышенной готовности:1',
+-            'Приемка законченных работ:СРО:О назначении ответственного за приемку законченных видов и отдельных этапов работ:6',
+-            'Контроль по охране труда:ОТК:О назначении специалиста по охране труда:7',
+-            'Допуск персонала:ДП:О допуске персонала, обслуживающего подъемные сооружения на строительном объекте:2',
+-            'Допуск электрогазосварщиков:ДСВ:О допуске электрогазосварщиков к работе:2',
+-            'Подготовка, оформление и подписание исполнительной документации:ИС:О назначении ответственных лиц за подготовку, оформление и подписание исполнительной документации:4',
+-            'Разработка проектной документации:П:О назначении ответственного специалиста за разработку проектной документации:2',
+-            'Охрана окружающей среды:ЭК:О назначении ответственных лиц за охрану окружающей среды, обеспечение экологической безопасности, обращение с отходами:8',
+-            'Направление работников и назначение ответственных в выходные дни:Н-ВЫХ:О направлении работников на строительный объект и назначении ответственного за производство работ в выходные дни:9',
+-            'Приемка электрогазосварочных работ:СК:Об организации приемки и контроля качества электрогазосварочных сварочных работ:10',
+-            'Доверенность:Доверенность:Доверенность:11',
+-            'Сопроводительное письмо:Сопроводительное письмо:Сопроводительное письмо:12'];
++            $laborSafetyOrderTypesArray = ['Ответственный за производство работ:ОПР:О назначении ответственного производителя работ на строительном объекте:1', // <p style="text-align: center;"><strong>ПРИКАЗ №{request_id}-{template_short_name}</strong></p><table><tbody><tr><td style="width: 50%;"><p>г. Санкт-Петербург</p></td><td><p style="text-align: right;">{pretty_order_date}</p></td></tr><tr><td><p style="text-align: justify;">&laquo;О назначении ответственного производителя работ при выполнении полного комплекса строительных работ по устройству шпунтового ограждения котлована на строительном объекте: &laquo;{project_object_name}&raquo;, расположенном по адресу: {project_object_full_address}, на земельном участке с кадастровым номером {project_object_cadastral_number}&raquo;</p></td><td>&nbsp;</td></tr></tbody></table><p style="text-align: left;">В связи с производственной необходимостью,</p><p><strong>ПРИКАЗЫВАЮ:</strong></p><ol><li>Назначить {responsible_employee_post} {responsible_employee_full_name} <span style="font-size: 10pt; font-family: Tahoma, sans-serif;">ответственным, за организацию и безопасное производство строительно-монтажных работ (СМР) с правом получения от Заказчика проектной документации и иной документации необходимой для производства работ в рамках &laquo;Договора строительного субподряда&raquo;, согласования производства работ.</span><span style="font-size: 10pt; font-family: 'Lucida Console';">[optional-section-start|subresponsible_employee]</span></li><li>На время отсутствия: болезни, отпуска и. т. д. {responsible_employee_post} {responsible_employee_name_initials_after} обязанности по исполнению п.1 данного приказа возложить на {subresponsible_employee_post} {subresponsible_employee_full_name}<span style="font-family: 'Lucida Console'; font-size: 10pt;">[optional-section-end|subresponsible_employee]</span></li><li>Возложить на {responsible_employee_post} {responsible_employee_name_initials_after}:<ol><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">полную материальную ответственность с правом подписи на документах по приему товарно-материальных ценностей в пределах порученного участка работ;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">право подписи на исполнительной документации;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">право получения актов, предписаний;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанность своевременного заказов строительной техники и материалов на строительную площадку (заранее, за 1-2 дня);</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанность по оценке достаточности ТМЦ на строительном объекте для бесперебойного производство работ; </span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">руководство строительной техникой и персоналом в зоне ответственности СМР;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанность посещать производственные совещания Заказчика;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица за допуск исправного оборудования к производству работ;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанность за проведение работ в соответствии с &laquo;графиком &ndash; работ&raquo;;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности по ведению и своевременному предоставлению отчётности в пределах вверенного объекта строительства;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица на объекте за обеспечение безопасного производства работ, соблюдение требований охраны труда, промышленной и пожарной безопасности, а также производственной санитарии в пределах порученного участка работ;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного руководителя работ по &laquo;Наряду-допуску&raquo; на производство работ повышенной опасности;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица, за организацию погрузочно-разгрузочных работ;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица, за сохранность и исправность электроинструмента;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица по проверке и браковке инструмента;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного руководителя работ на высоте;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица на объекте, за выдачу и контроль применения сертифицированных СИЗ;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица, за соблюдение трудовой дисциплины;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица по составлению плана мероприятий при аварийной ситуации и при проведении спасательных работ;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица, за безопасное проведение электрогазосварочных работ;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица, за обеспечение безопасного производства работ при мобилизации/демобилизации/перемещении технологического оборудования (буровые установки, подъёмные сооружения, вибропогружатели, копры и иное оборудование) на месте производства работ;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица, за обеспечение безопасного производства при монтаже/демонтаже технологического оборудования (буровые установки, подъёмные сооружения, вибропогружатели, копры и иное оборудование) на месте производства работ в соответствии с техническим описанием, инструкцией по эксплуатации завода изготовителя, ППР и технологическими картами;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица, за контроль безопасного производством работ Подрядных организаций (компаний) выполняющих работы по Договору подряду/субподряду и работниками по Гражданско-правовому договору в зоне ответственности выполняемых работ по основному договору;</span></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">обязанности ответственного лица за укомплектованностью бытовых и технических помещений, сварочных постов, техники средствами пожаротушения и аптечками.</span></li></ol></li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">Контроль, за исполнением настоящего приказа оставляю за собой.</span></li></ol><table style="width: 100%;"><tbody><tr><td style="width: 50%;"><p style="text-align: left;">Генеральный директор</p></td><td><p style="text-align: right;">М.Д. Исмагилов</p></td></tr></tbody></table><p>&nbsp;</p><table style="width: 100%; height: 111px;"><tbody><tr style="height: 76px;"><td style="width: 33%; height: 76px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 76px; vertical-align: top;">&nbsp;</td><td style="height: 76px; width: 33%;"><p style="text-align: right;">{responsible_employee_name_initials_before}</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr></tbody></table><p><span style="font-family: 'Lucida Console'; font-size: 8pt;">[optional-section-start|subresponsible_employee]</span></p><table style="width: 100%; height: 111px;"><tbody><tr style="height: 76px;"><td style="width: 33%; height: 76px;"><p>С&nbsp;приказом&nbsp;ознакомлен:</p></td><td style="width: 33%; border-bottom: 1px solid black; height: 76px; vertical-align: top;">&nbsp;</td><td style="height: 76px; width: 33%;"><p style="text-align: right;">{subresponsible_employee_name_initials_before}</p></td></tr><tr style="height: 18px;"><td style="height: 18px; width: 33%;">&nbsp;</td><td style="height: 18px; width: 33%; text-align: center; vertical-align: top;"><span style="font-size: 8pt;">(личная подпись)</span></td><td style="height: 18px; width: 33%;">&nbsp;</td></tr></tbody></table><p><span style="font-size: 8pt; font-family: 'Lucida Console';">[optional-section-end|subresponsible_employee]</span></p>
++                'Направление на объект:Н:О направлении работников на строительный объект:2', //<p style="text-align: center;"><strong>ПРИКАЗ №{request_id}-{template_short_name}</strong></p><table><tbody><tr><td style="width: 50%;"><p>г. Санкт-Петербург</p></td><td><p style="text-align: right;">{pretty_order_date}</p></td></tr><tr><td><p style="text-align: justify;">&laquo;О направлении работников на строительный объект при устройстве работ по погружению и извлечению шпунтового ограждения на строительном объекте: &laquo;{project_object_name}&raquo;, расположенном по адресу: {project_object_full_address}, на земельном участке с кадастровым номером {project_object_cadastral_number}&raquo;</p></td><td>&nbsp;</td></tr></tbody></table><p style="text-align: left;">В связи с производственной необходимостью,</p><p><strong>ПРИКАЗЫВАЮ:</strong></p><ol><li>С 21.07.2022 г. направить на строительный объект следующих работников: {workers_list}</li><li style="text-align: left;"><span style="font-size: 10pt; font-family: Tahoma, sans-serif;">Контроль, за исполнением настоящего приказа оставляю за собой.</span></li></ol><table style="width: 100%;"><tbody><tr><td style="width: 50%;"><p style="text-align: left;">Генеральный директор</p></td><td><p style="text-align: right;">М.Д. Исмагилов</p></td></tr></tbody></table><p>&nbsp;</p><p>{sign_list}</p><p>&nbsp;</p>
++                'Обеспечение требований охраны труда:ОТ:О назначении ответственного за обеспечение требований охраны труда на строительном объекте:1',
++                'Пожарная безопасность:ПБ:О назначении ответственного за пожарную безопасность и обеспечение противопожарных мероприятий на строительном объекте:1',
++                'Организация работ повышенной опасности:НД:Об организации работ повышенной опасности:3',
++                'Состояние и применение ограждений:ОГ:О назначении ответственных за исправное состояние и правильное применение ограждений:1',
++                'Производство погрузочно-разгрузочных работ:ПР:О назначении ответственного за производство погрузочно-разгрузочных работ:1',
++                'Сохранность и исправность электроинструмента:ЭИ:О назначении ответственного за сохранность и исправность электроинструмента:1',
++                'Электрохозяйство на строительном объекте:ЭХ:О назначении ответственного за электрохозяйство на строительном объекте:1',
++                'Производство сварочных работ:СВ:О назначении лица, ответственного за безопасное производство сварочных работ и допуске электрогазосварщиков к работе на строительном объекте:4',
++                'Эксплуатация баллонов с газами:Б-ОТ:О безопасной эксплуатации баллонов со сжатыми и сжиженными газами:4',
++                'Производство работ с применением подъемных сооружений:ПС:Об организации безопасного производства работ с применением подъемных сооружений:4',
++                'Осмотр съемных грузозахватных приспособлений:СГП:О назначении ответственного за осмотр съемных грузозахватных приспособлений во время эксплуатации, установки и демонтажа:1',
++                'Производство геодезических работ:Г:О назначении ответственного за производство геодезических работ:5',
++                'Введение режима повышенной готовности:РПГ:О введении режима повышенной готовности:1',
++                'Приемка законченных работ:СРО:О назначении ответственного за приемку законченных видов и отдельных этапов работ:6',
++                'Контроль по охране труда:ОТК:О назначении специалиста по охране труда:7',
++                'Допуск персонала:ДП:О допуске персонала, обслуживающего подъемные сооружения на строительном объекте:2',
++                'Допуск электрогазосварщиков:ДСВ:О допуске электрогазосварщиков к работе:2',
++                'Подготовка, оформление и подписание исполнительной документации:ИС:О назначении ответственных лиц за подготовку, оформление и подписание исполнительной документации:4',
++                'Разработка проектной документации:П:О назначении ответственного специалиста за разработку проектной документации:2',
++                'Охрана окружающей среды:ЭК:О назначении ответственных лиц за охрану окружающей среды, обеспечение экологической безопасности, обращение с отходами:8',
++                'Направление работников и назначение ответственных в выходные дни:Н-ВЫХ:О направлении работников на строительный объект и назначении ответственного за производство работ в выходные дни:9',
++                'Приемка электрогазосварочных работ:СК:Об организации приемки и контроля качества электрогазосварочных сварочных работ:10',
++                'Доверенность:Доверенность:Доверенность:11',
++                'Сопроводительное письмо:Сопроводительное письмо:Сопроводительное письмо:12'];
+ 
+-        foreach ($laborSafetyOrderTypesArray as $laborSafetyOrderTypeElement) {
+-            $laborSafetyOrderType = new LaborSafetyOrderType([
+-                'name' => explode(':', $laborSafetyOrderTypeElement)[0],
+-                'short_name' => explode(':', $laborSafetyOrderTypeElement)[1],
+-                'full_name' => explode(':', $laborSafetyOrderTypeElement)[2],
+-                'order_type_category_id' => explode(':', $laborSafetyOrderTypeElement)[3],
++            foreach ($laborSafetyOrderTypesArray as $laborSafetyOrderTypeElement) {
++                $laborSafetyOrderType = new LaborSafetyOrderType([
++                    'name' => explode(':', $laborSafetyOrderTypeElement)[0],
++                    'short_name' => explode(':', $laborSafetyOrderTypeElement)[1],
++                    'full_name' => explode(':', $laborSafetyOrderTypeElement)[2],
++                    'order_type_category_id' => explode(':', $laborSafetyOrderTypeElement)[3],
+ 
+-            ]);
+-            $laborSafetyOrderType->save();
++                ]);
++                $laborSafetyOrderType->save();
++            }
+         }
+ 
+-        Schema::create('labor_safety_request_statuses', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->string('name')->comment('Значение');
++        if (!Schema::hasTable('labor_safety_request_statuses')) {
++            Schema::create('labor_safety_request_statuses', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->string('name')->comment('Значение');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE labor_safety_request_statuses COMMENT 'Состояние заявок на формирование приказов в модуле «Охрана труда»'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE labor_safety_request_statuses COMMENT 'Состояние заявок на формирование приказов в модуле «Охрана труда»'");
+ 
+-        $laborSafetyRequestStatusArray = ['Новая',
+-            'Подписание документов',
+-            'Отменена',
+-            'Завершена'
+-        ];
++            $laborSafetyRequestStatusArray = ['Новая',
++                'Подписание документов',
++                'Отменена',
++                'Завершена'
++            ];
+ 
+-        foreach ($laborSafetyRequestStatusArray as $laborSafetyRequestStatusElement) {
+-            $laborSafetyRequestStatus = new LaborSafetyRequestStatus([
+-                'name' => $laborSafetyRequestStatusElement
+-            ]);
+-            $laborSafetyRequestStatus->save();
+-        }
++            foreach ($laborSafetyRequestStatusArray as $laborSafetyRequestStatusElement) {
++                $laborSafetyRequestStatus = new LaborSafetyRequestStatus([
++                    'name' => $laborSafetyRequestStatusElement
++                ]);
++                $laborSafetyRequestStatus->save();
++            }
+ 
+-        Schema::create('labor_safety_requests', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
++        }
++        if (!Schema::hasTable('labor_safety_requests')) {
++            Schema::create('labor_safety_requests', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
+ 
+-            $table->date('order_date')->index()->comment('Дата приказа');
+-            $table->integer('company_id')->unsigned()->comment('ID компании');
+-            $table->integer('project_object_id')->unsigned()->comment('ID объекта');
+-            $table->integer('author_user_id')->unsigned()->comment('ID автора');
+-            $table->integer('implementer_user_id')->unsigned()->comment('ID исполнителя');
+-            $table->integer('request_status_id')->unsigned()->comment('ID статуса заявки');
+-            $table->text('comment')->comment('Комментарий');
++                $table->date('order_date')->index()->comment('Дата приказа');
++                $table->integer('company_id')->unsigned()->comment('ID компании');
++                $table->integer('project_object_id')->unsigned()->comment('ID объекта');
++                $table->integer('author_user_id')->unsigned()->comment('ID автора');
++                $table->integer('implementer_user_id')->unsigned()->nullable()->comment('ID исполнителя');
++                $table->bigInteger('responsible_employee_id')->unsigned()->comment('ID ответственного сотрудника');
++                $table->bigInteger('sub_responsible_employee_id')->unsigned()->nullable()->comment('ID замещающего ответственного сотрудника');
++                $table->integer('request_status_id')->unsigned()->comment('ID статуса заявки');
++                $table->text('comment')->comment('Комментарий');
+ 
+-            $table->foreign('company_id')->references('id')->on('companies');
+-            $table->foreign('project_object_id')->references('id')->on('project_objects');
+-            $table->foreign('author_user_id')->references('id')->on('users');
+-            $table->foreign('implementer_user_id')->references('id')->on('users');
++                $table->foreign('company_id')->references('id')->on('companies');
++                $table->foreign('project_object_id')->references('id')->on('project_objects');
++                $table->foreign('author_user_id')->references('id')->on('users');
++                $table->foreign('implementer_user_id', 'l_s_r_implementer_user_id_foreign')->references('id')->on('users');
++                $table->foreign('responsible_employee_id', 'l_s_r_resp_employee_id_foreign')->references('id')->on('employees');
++                $table->foreign('sub_responsible_employee_id', 'l_s_r_sub_resp_employee_id_foreign')->references('id')->on('employees');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE labor_safety_requests COMMENT 'Заявки на формирование приказов в модуле «Охрана труда»'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE labor_safety_requests COMMENT 'Заявки на формирование приказов в модуле «Охрана труда»'");
++        }
+ 
+-        Schema::create('labor_safety_request_orders', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->integer('order_type_id')->unsigned()->comment('ID типа приказа');
+-            $table->integer('responsible_employee_id')->unsigned()->nullable()->comment('ID ответственного сотрудника');
+-            $table->integer('sub_responsible_employee_id')->unsigned()->nullable()->comment('ID замещающего ответственного сотрудника');
+-            $table->text('generated_html')->comment('Сгенерированный приказ в html');
++        if (!Schema::hasTable('labor_safety_request_orders')) {
++            Schema::create('labor_safety_request_orders', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->integer('order_type_id')->unsigned()->comment('ID типа приказа');
++
++                $table->text('generated_html')->comment('Сгенерированный приказ в html');
+ 
+-            $table->foreign('order_type_id')->references('id')->on('labor_safety_order_types');
+-            $table->foreign('responsible_employee_id')->references('id')->on('users');
+-            $table->foreign('sub_responsible_employee_id')->references('id')->on('users');
++                $table->foreign('order_type_id')->references('id')->on('labor_safety_order_types');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE labor_safety_request_orders COMMENT 'Приказы для заявок на формирование приказов в модуле «Охрана труда»'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE labor_safety_request_orders COMMENT 'Приказы для заявок на формирование приказов в модуле «Охрана труда»'");
++        }
++
++        if (!Schema::hasTable('labor_safety_request_workers')) {
++            Schema::create('labor_safety_request_workers', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->integer('request_id')->unsigned()->comment('ID Заявки');
++                $table->bigInteger('worker_employee_id')->unsigned()->comment('ID сотрудника');
+ 
+-        Schema::create('labor_safety_order_workers', function (Blueprint $table) {
+-            $table->increments('id')->comment('Уникальный идентификатор');
+-            $table->integer('request_order_id')->unsigned()->comment('ID приказа');
+-            $table->integer('worker_employee_id')->unsigned()->comment('ID приказа');
++                $table->foreign('request_id')->references('id')->on('labor_safety_requests');
++                $table->foreign('worker_employee_id', 'l_s_r_worker_employee_id_foreign')->references('id')->on('employees');
++
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE labor_safety_request_workers COMMENT 'Список сотрудников (рабочих), для которых необходимо сформировать приказы в модуле «Охрана труда»'");
++        }
++
++        if (!Schema::hasTable('labor_safety_order_workers')) {
++            Schema::create('labor_safety_order_workers', function (Blueprint $table) {
++                $table->increments('id')->comment('Уникальный идентификатор');
++                $table->integer('order_id')->unsigned()->comment('ID приказа');
++                $table->integer('requests_worker_id')->unsigned()->comment('ID записи со ссылкой на сотрудника, сформированному при подаче заявки');
+ 
+-            $table->foreign('request_order_id')->references('id')->on('labor_safety_request_orders');
+-            $table->foreign('worker_employee_id')->references('id')->on('users');
++                $table->foreign('order_id')->references('id')->on('labor_safety_request_orders');
++                $table->foreign('requests_worker_id', 'order_worker_employee_id_foreign')->references('id')->on('labor_safety_request_workers');
+ 
+-            $table->timestamps();
+-            $table->softDeletes();
+-        });
+-        DB::statement("ALTER TABLE labor_safety_order_workers COMMENT 'Список сотрудников (рабочих), которые участвуют при формировании приказов в модуле «Охрана труда»'");
++                $table->timestamps();
++                $table->softDeletes();
++            });
++            DB::statement("ALTER TABLE labor_safety_order_workers COMMENT 'Список сотрудников (рабочих), которые участвуют при формировании приказов в модуле «Охрана труда»'");
++        }
+     }
+ 
+     /**
+@@ -397,30 +454,37 @@
+             $permission->forceDelete();
+         }
+ 
++        $permission = Permission::where('codename', 'labor_safety_generate_documents_access')->first();
++        if (isset($permission)) {
++            UserPermission::where('permission_id', $permission->id)->forceDelete();
++            $permission->forceDelete();
++        }
++
+         $permission = Permission::where('codename', 'labor_safety_order_types_editing')->first();
+         if (isset($permission)) {
+             UserPermission::where('permission_id', $permission->id)->forceDelete();
+             $permission->forceDelete();
+         }
+ 
+-        Schema::dropIfExists('employees');
+-        Schema::dropIfExists('employees_1c_posts');
+-        Schema::dropIfExists('employees_1c_subdivisions');
+-        Schema::dropIfExists('employees_report_groups');
++        /*        Schema::dropIfExists('employees');
++                Schema::dropIfExists('employees_1c_posts');
++                Schema::dropIfExists('employees_1c_subdivisions');
++                Schema::dropIfExists('employees_report_groups');*/
+ 
+-        Schema::dropIfExists('labor_safety_order_workers');
++        /*Schema::dropIfExists('labor_safety_order_workers');
++        Schema::dropIfExists('labor_safety_request_workers');
+         Schema::dropIfExists('labor_safety_request_orders');
+         Schema::dropIfExists('labor_safety_requests');
+-        Schema::dropIfExists('labor_safety_request_statuses');
+-        Schema::dropIfExists('labor_safety_order_types');
+-        Schema::dropIfExists('labor_safety_order_type_categories');
++        /*Schema::dropIfExists('labor_safety_request_statuses');
++              Schema::dropIfExists('labor_safety_order_types');
++               Schema::dropIfExists('labor_safety_order_type_categories');
+ 
+-        Schema::dropIfExists('company_report_templates');
+-        Schema::dropIfExists('company_report_template_types');
+-        Schema::dropIfExists('companies');
++               Schema::dropIfExists('company_report_templates');
++               Schema::dropIfExists('company_report_template_types');
++               Schema::dropIfExists('companies');*/
+ 
+-        Schema::table('users', function (Blueprint $table) {
++        /*Schema::table('users', function (Blueprint $table) {
+             $table->dropColumn('individual_1c_uid');
+-        });
++        });*/
+     }
+ }
+Index: resources/views/labor-safety/labor-safety-orders-and-requests.blade.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php b/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php
+--- a/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
++++ b/resources/views/labor-safety/labor-safety-orders-and-requests.blade.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
+@@ -48,6 +48,27 @@
+             margin-top: 6px;
+             margin-right: 8px;
+         }
++
++        .dx-tabpanel-tabs {
++            display: none;
++        }
++
++        .order-types-grid {
++            border-right: #e5e5e5 1px dashed;
++        }
++
++        .orders-header {
++            color: #212121;
++            font-size: larger;
++            font-weight: bold;
++            border-bottom: #e5e5e5 1px solid;
++            padding-bottom: 10px;
++            margin-bottom: -8px;
++        }
++
++        .order-types-panel {
++            padding-top: 0 !important;
++        }
+     </style>
+ @endsection
+ 
+@@ -64,9 +85,11 @@
+     <script>
+         let dataSourceLoadOptions = {};
+         let currentSelectedOrder = {};
+-        let ordersData = new Map();
++        let employeesData = new Map();
+         let currentEditingRowIndex;
+         let currentEditingRowKey;
++        let selectedOrderTypes = [];
++        let requestWorkersGrid;
+ 
+         let usersStore = new DevExpress.data.CustomStore({
+             key: "id",
+@@ -81,7 +104,7 @@
+             key: "id",
+             loadMode: "raw",
+             load: function (loadOptions) {
+-                return $.getJSON("{{route('users.list')}}",
++                return $.getJSON("{{route('employees.list')}}",
+                     {data: JSON.stringify(loadOptions)});
+             },
+         });
+@@ -119,117 +142,23 @@
+             store: projectObjectsStore
+         });
+ 
++        let requestWorkersStoreData = [];
++
++        let requestWorkersStore = new DevExpress.data.ArrayStore({
++            key: "id",
++            data: requestWorkersStoreData,
++        });
++
++        let requestWorkersDataSource = new DevExpress.data.DataSource({
++            store: requestWorkersStore
++        })
++
+         $(function () {
+             $("div.content").children(".container-fluid.pd-0-360").removeClass();
+         });
+ 
+-        function getEditFormAttributesTemplate() {
+-            console.log(currentSelectedOrder);
+-            let formItems;
+-            let orderAttributes = {};
+-            if (ordersData.has(currentSelectedOrder.id)) {
+-                orderAttributes = ordersData.get(currentSelectedOrder.id);
+-            }
+-
+-            switch(currentSelectedOrder.order_type_category_id) {
+-                case 1:
+-                    formItems = [
+-                        {
+-                            dataField: "responsible_employee_id",
+-                            label: {
+-                                text: "Ответственный сотрудник",
+-                            },
+-                            editorType: "dxSelectBox",
+-                            editorOptions: {
+-                                dataSource: new DevExpress.data.DataSource({
+-                                    store: new DevExpress.data.CustomStore({
+-                                        key: "id",
+-                                        loadMode: "raw",
+-                                        load: function (loadOptions) {
+-                                            return $.getJSON("{{route('users.list')}}",
+-                                                {data: JSON.stringify(loadOptions)});
+-                                        },
+-                                    })
+-                                }),
+-                                displayExpr: "full_name",
+-                                valueExpr: "id",
+-                                searchEnabled: true
+-                            }
+-                        },
+-                        {
+-                            dataField: "sub_responsible_employee_id",
+-                            label: {
+-                                text: "Замещающий ответственного",
+-                            },
+-                            editorType: "dxSelectBox",
+-                            editorOptions: {
+-                                dataSource: new DevExpress.data.DataSource({
+-                                    store: new DevExpress.data.CustomStore({
+-                                        key: "id",
+-                                        loadMode: "raw",
+-                                        load: function (loadOptions) {
+-                                            return $.getJSON("{{route('users.list')}}",
+-                                                {data: JSON.stringify(loadOptions)});
+-                                        },
+-                                    })
+-                                }),
+-                                displayExpr: "full_name",
+-                                valueExpr: "id",
+-                                searchEnabled: true
+-                            }
+-                        },
+-
+-                    ]
+-                    break;
+-                case 2:
+-                    break;
+-                case 3:
+-                    break;
+-                case 4:
+-                    break;
+-                case 5:
+-                    break;
+-                case 6:
+-                    break;
+-                case 7:
+-                    break;
+-                case 8:
+-                    break;
+-                case 9:
+-                    break;
+-                case 10:
+-                    break;
+-            }
+-
+-
+-
+-            let attributesFormDiv = $(`<div>`);
+-            let attributesForm = attributesFormDiv.dxForm({
+-                colCount: 2,
+-                formData: orderAttributes,
+-                items: formItems
+-            }).dxForm("instance");
+-
+-            ordersData.set(currentSelectedOrder.id, attributesForm.option("formData"));
+-
+-            console.log("ordersData", ordersData)
+-
+-            return(attributesFormDiv)
+-        }
+-
+         $(function () {
+             //<editor-fold desc="JS: DataSources">
+-            let orderTypesDataSource = new DevExpress.data.DataSource({
+-                store: new DevExpress.data.CustomStore({
+-                    key: "id",
+-                    load: function (loadOptions) {
+-                        return $.getJSON("{{route('labor-safety.order-types.list')}}",
+-                            {
+-                                loadOptions: JSON.stringify(loadOptions),
+-                            });
+-                    },
+-                })
+-            })
+ 
+             let requestsDataSource = new DevExpress.data.DataSource({
+                 store: new DevExpress.data.CustomStore({
+@@ -241,7 +170,7 @@
+                             });
+                     },
+                     insert: function (values) {
+-                        values.ordersData = Array.from(ordersData.entries());
++                        values.workers = requestWorkersGrid.getDataSource().store().createQuery().toArray();
+                         return $.ajax({
+                             url: "{{route('labor-safety.orders-and-requests.store')}}",
+                             method: "POST",
+@@ -255,14 +184,10 @@
+                             success: function (data, textStatus, jqXHR){
+                                 DevExpress.ui.notify("Данные успешно добавлены", "success", 1000)
+                             },
+-
+-                            /*error: function(jqXHR, textStatus, errorThrown) {
+-                                DevExpress.ui.notify("При сохранении данных произошла ошибка", "error", 5000)
+-                            }*/
+                         })
+                     },
+                     update: function (key, values) {
+-                        values.ordersData = Array.from(ordersData.entries());
++                        values.workers = requestWorkersGrid.getDataSource().store().createQuery().toArray();
+                         return $.ajax({
+                             url: "{{route('labor-safety.orders-and-requests.update')}}",
+                             method: "PUT",
+@@ -281,7 +206,7 @@
+                 })
+             });
+ 
+-            let editForm = {
++            let requestEditForm = {
+                 colCount: 3,
+                 items: [
+                     {
+@@ -329,130 +254,152 @@
+                         }
+                     },
+                     {
++                        dataField: "responsible_employee_id",
++                        label: {
++                            text: "Ответственный сотрудник",
++                        },
++                        editorType: "dxSelectBox",
++                        editorOptions: {
++                            dataSource: new DevExpress.data.DataSource({
++                                store: new DevExpress.data.CustomStore({
++                                    key: "id",
++                                    loadMode: "raw",
++                                    load: function (loadOptions) {
++                                        return $.getJSON("{{route('employees.list')}}",
++                                            {data: JSON.stringify(loadOptions)});
++                                    },
++                                })
++                            }),
++                            displayExpr: "employee_1c_name",
++                            valueExpr: "id",
++                            searchEnabled: true
++                        }
++                    },
++                    {
++                        dataField: "sub_responsible_employee_id",
+                         label: {
+-                            text: "Приказ",
++                            text: "Замещающий ответственного",
++                        },
++                        editorType: "dxSelectBox",
++                        editorOptions: {
++                            dataSource: new DevExpress.data.DataSource({
++                                store: new DevExpress.data.CustomStore({
++                                    key: "id",
++                                    loadMode: "raw",
++                                    load: function (loadOptions) {
++                                        return $.getJSON("{{route('employees.list')}}",
++                                            {data: JSON.stringify(loadOptions)});
++                                    },
++                                })
++                            }),
++                            displayExpr: "employee_1c_name",
++                            valueExpr: "id",
++                            searchEnabled: true
++                        }
++                    },
++                    {
++                        itemType: "empty"
++                    },
++                    {
++                        colSpan: 3,
++                        itemType: "simpleItem",
++                        dataField: "workers",
++                        name: 'workers',
++                        cssClass: 'request-workers-grid',
++                        label: {
++                            text: "Персонал",
+                             visible: false
+                         },
+-                        itemType: "simpleItem",
+-                        name: "orderTypesGrid",
+                         editorType: "dxDataGrid",
+                         editorOptions: {
+-                            height: "60vh",
+-                            focusedRowEnabled: true,
+-                            dataSource: orderTypesDataSource,
+-                            showColumnHeaders: false,
+-                            selection: {
+-                                allowSelectAll: false,
+-                                deferred: false,
+-                                mode: "multiple",
+-                                selectAllMode: "allPages",
+-                                showCheckBoxesMode: "always"
++                            onInitialized: (e) => {
++                                requestWorkersGrid = e.component;
++                                requestWorkersGrid.getDataSource().store().createQuery().toArray().forEach((item) => {
++                                    requestWorkersGrid.getDataSource().store().push([{type: "remove", key: item.id}]);
++                                });
++                            },
++                            onDisposing: (e) => {
++                                requestWorkersGrid = undefined;
++                            },
++                            editing: {
++                                mode: 'popup',
++                                allowUpdating: true,
++                                allowAdding: false,
++                                allowDeleting: true,
++                                selectTextOnEditStart: true,
++                                newRowPosition: "last",
++                                popup: {
++                                    title: "Сотрудник",
++                                    showTitle: false,
++                                    width: "800",
++                                    height: "auto",
++                                    position: {
++                                        my: "center",
++                                        at: "center",
++                                        of: window
++                                    }
++                                },
++                                form: {
++                                    colCount: 1
++                                }
++                            },
++                            height: "40vh",
++                            dataSource: requestWorkersDataSource,
++                            hoverStateEnabled: true,
++                            columnAutoWidth: true,
++                            showBorders: true,
++                            showColumnLines: true,
++                            filterRow: {
++                                visible: false,
++                                applyFilter: "auto"
++                            },
++                            toolbar: {
++                                visible: false
++                            },
++                            grouping: {
++                                autoExpandAll: true,
++                            },
++                            groupPanel: {
++                                visible: false
+                             },
+                             paging: {
+                                 enabled: false
+                             },
+                             columns: [
+                                 {
+-                                    dataField: "short_name",
+-                                    cellTemplate: (container, options) => {
+-                                        let orderTypeName = `[${options.data.short_name}] ${options.data.name}`;
+-                                        $(`<div>${orderTypeName}</div>`)
+-                                            .appendTo(container);
+-                                    }
+-                                }
+-                            ],
+-                            onSelectionChanged: (e) => {
+-                                if (e.currentSelectedRowKeys.length > 0) {
+-                                    e.currentSelectedRowKeys.forEach((key) => {
+-                                        e.component.byKey(key).done((data) => {
+-                                            if (!ordersData.has(data.id)) {
+-                                                ordersData.set(data.id, {});
+-                                            } else {
+-                                                ordersData.get(data.id).include_in_formation = true;
+-                                            }
+-                                        })
+-                                    })
+-                                }
+-
+-                                if (e.currentDeselectedRowKeys.length > 0) {
+-                                    e.currentDeselectedRowKeys.forEach((key) => {
+-                                        e.component.byKey(key).done((data) => {
+-                                            if (!ordersData.has(data.id)) {
+-                                                ordersData.set(data.id, {});
+-                                            } else {
+-                                                ordersData.get(data.id).include_in_formation = true;
+-                                            }
+-                                        })
+-                                    })
+-                                }
+-
+-                                $(".dx-tabpanel").dxTabPanel("instance").repaint();
+-                            },
+-                            onFocusedRowChanged: (e) => {
+-                                console.log("onFocusedRowChanged", e);
+-                                currentSelectedOrder = e.row.data;
+-                                $(".dx-tabpanel").dxTabPanel("instance").repaint();
+-                            },
+-                            onSaving: (e) => {
+-                                console.log("saving", e);
+-                            }
+-                        }
+-                    },
+-                    {
+-                        colSpan: 2,
+-                        label: {
+-                            visible: false
+-                        },
+-                        itemType: "simpleItem",
+-                        editorType: "dxTabPanel",
+-                        name: "orderTabPanel",
+-                        editorOptions: {
+-                            height: "60vh",
+-                            items: [
+-                                {
+-                                    title: "Атрибуты",
+-                                    template: (itemData, itemIndex, element) => {
+-                                        const attributesTemplate = getEditFormAttributesTemplate();
+-                                        console.log('templateRepainted');
+-                                        attributesTemplate.appendTo(element);
+-                                    }
++                                    dataField: "worker_employee_id",
++                                    caption: "Сотрудники",
++                                    lookup: {
++                                        dataSource: {
++                                            store: employeesStore,
++                                            paginate: true,
++                                            pageSize: 25,
++                                        },
++                                        displayExpr: 'employee_extended_name',
++                                        valueExpr: 'id'
++                                    },
++                                    validationRules: [{type: "required"}]
+                                 },
+-                                /*{
+-                                    title: "Приказ",
+-                                    template: (itemData, itemIndex, element) => {
+-                                        const htmlEditorDiv = $(`<div style="padding-top:15px; padding-left:15px; padding-right:15px; height: 100%">`)
+-                                        htmlEditorDiv.dxHtmlEditor({
+-                                            toolbar: {
+-                                                items: [
+-                                                    'undo', 'redo', 'separator',
+-                                                    {
+-                                                        name: 'size',
+-                                                        acceptedValues: ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'],
+-                                                    },
+-                                                    {
+-                                                        name: 'font',
+-                                                        acceptedValues: ['Arial', 'Calibri', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'],
+-                                                    },
+-                                                    'separator', 'bold', 'italic', 'strike', 'underline', 'separator',
+-                                                    'alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'separator',
+-                                                    'orderedList', 'bulletList', 'separator',
+-                                                    {
+-                                                        name: 'header',
+-                                                        acceptedValues: [false, 1, 2, 3, 4, 5],
+-                                                    }, 'separator',
+-                                                    'color', 'background', 'separator',
+-                                                    'link', 'image', 'separator',
+-                                                    'clear', 'codeBlock', 'blockquote', 'separator',
+-                                                    'insertTable', 'deleteTable',
+-                                                    'insertRowAbove', 'insertRowBelow', 'deleteRow',
+-                                                    'insertColumnLeft', 'insertColumnRight', 'deleteColumn',
+-                                                ],
+-                                            }
+-                                        })
+-                                        htmlEditorDiv.appendTo(element);
++                                {
++                                    type: 'buttons',
++                                    width: 150,
++                                    buttons: [
++                                        'edit',
++                                        'delete',
++                                    ],
++                                    headerCellTemplate: (container, options) => {
++                                        $('<div>')
++                                            .appendTo(container)
++                                            .dxButton({
++                                                text: "Добавить",
++                                                icon: "fas fa-plus",
++                                                onClick: (e) => {
++                                                    options.component.addRow();
++                                                }
++                                            })
+                                     }
+-                                }*/
+-                            ],
++                                }
++                            ]
+                         }
+                     }
+                 ]
+@@ -500,6 +447,7 @@
+                                         title: "Заявка",
+                                         showTitle: true,
+                                         width: "60%",
++                                        //height: "75vh",
+                                         height: "auto",
+                                         position: {
+                                             my: "center",
+@@ -517,7 +465,7 @@
+                                                     type: 'danger',
+                                                     stylingMode: 'contained',
+                                                     onClick: function(e){
+-                                                        //requestsForm.getEditor("requestsGrid").saveEditData();
++                                                        //getRequestsGrid().saveEditData();
+                                                     }
+                                                 }
+                                             },
+@@ -530,14 +478,14 @@
+                                                     type: 'default',
+                                                     stylingMode: 'contained',
+                                                     onClick: function(e){
+-                                                        if (!requestsForm.getEditor("requestsGrid").hasEditData() && currentEditingRowKey) {
+-                                                            requestsForm.getEditor("requestsGrid").cellValue(
++                                                        if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
++                                                            getRequestsGrid().cellValue(
+                                                                 currentEditingRowIndex,
+                                                                 "perform_orders",
+                                                                 true
+                                                             )
+                                                         }
+-                                                        requestsForm.getEditor("requestsGrid").saveEditData();
++                                                        getRequestsGrid().saveEditData();
+                                                     }
+                                                 }
+                                             },
+@@ -549,16 +497,16 @@
+                                                     text: "Сохранить",
+                                                     type: 'normal',
+                                                     stylingMode: 'contained',
+-                                                    onClick: function(e){
+-                                                        console.log("currentEditingRowIndex", currentEditingRowIndex)
+-                                                        if (!requestsForm.getEditor("requestsGrid").hasEditData() && currentEditingRowKey) {
+-                                                            requestsForm.getEditor("requestsGrid").cellValue(
++                                                    onClick: function(e) {
++                                                        if (!getRequestsGrid().hasEditData() && currentEditingRowKey) {
++                                                            getRequestsGrid().cellValue(
+                                                                 currentEditingRowIndex,
+                                                                 "perform_orders",
+                                                                 false
+                                                             )
+                                                         }
+-                                                        requestsForm.getEditor("requestsGrid").saveEditData();
++
++                                                        getRequestsGrid().saveEditData();
+                                                     }
+                                                 }
+                                             },
+@@ -573,13 +521,13 @@
+                                                     onClick: function(e){
+                                                         console.log("e", e);
+                                                         console.log("this", this);
+-                                                        requestsForm.getEditor("requestsGrid").cancelEditData();
++                                                        getRequestsGrid().cancelEditData();
+                                                     }
+                                                 }
+                                             }
+                                         ]
+                                     },
+-                                    form: editForm,
++                                    form: requestEditForm,
+                                 },
+                                 columns: [
+                                     {
+@@ -650,6 +598,14 @@
+                                         },
+                                     },
+                                     {
++                                        dataField: "responsible_employee_id",
++                                        visible: false
++                                    },
++                                    {
++                                        dataField: "sub_responsible_employee_id",
++                                        visible: false
++                                    },
++                                    {
+                                         dataField: "request_status_id",
+                                         caption: "Статус",
+                                         lookup: {
+@@ -668,11 +624,19 @@
+                                         visible: false
+                                     },
+                                     {
++                                        dataField: "workers",
++                                        dataType: "boolean",
++                                        visible: false
++                                    },
++                                    {
+                                         type: 'buttons',
+                                         width: 110,
+                                         buttons: [
+                                             'edit',
+                                             {
++                                                visible: (e) => {
++                                                    return e.row.data.generated_html;
++                                                },
+                                                 hint: 'Скачать',
+                                                 icon: 'download',
+                                                 onClick: (e) => {
+@@ -687,13 +651,25 @@
+                                     e.component.editRow(e.rowIndex);
+                                 },
+                                 onEditingStart: (e) => {
+-                                    console.log("onEditingStart", e);
+-                                    ordersData = new Map();
+-                                    e.data.orders_data.forEach((dataItem) => {
+-                                        ordersData.set(dataItem.order_type_id, dataItem);
+-                                    })
+                                     currentEditingRowKey = e.key;
+                                     currentEditingRowIndex = e.component.getRowIndexByKey(e.key);
++
++                                    $.getJSON("{{route('labor-safety.request-workers.list')}}",
++                                        {requestId: currentEditingRowKey})
++                                        .done((data) => {
++                                            data.forEach((item) => {
++                                                console.log(item);
++                                                requestWorkersGrid.getDataSource().store().push([{type: "insert", data: item}]);
++
++                                            })
++
++                                            console.log('data loaded');
++                                        })
++                                        .always(() => {
++                                            console.log('end update');
++                                            requestWorkersGrid.getDataSource().reload();
++                                            requestWorkersGrid.endCustomLoading();
++                                        });
+                                 }
+                             }
+                         }]
+@@ -701,6 +677,7 @@
+                 ]
+             }).dxForm('instance')
+ 
++            @can('labor_safety_order_creation')
+             function createGridGroupHeaderButtons() {
+                 let groupCaption = $('.requests-grid').find('.dx-form-group-with-caption');
+                 $('<div>').addClass('dx-form-group-caption-buttons').prependTo(groupCaption);
+@@ -712,15 +689,21 @@
+                         text: "Добавить",
+                         icon: "fas fa-plus",
+                         onClick: (e) => {
+-                            requestsForm.getEditor("requestsGrid").addRow();
++                            getRequestsGrid().addRow();
++                            currentEditingRowKey = undefined;
++                            currentEditingRowIndex = undefined;
++                            //getRequestWorkersDataSource().reload();
+                         }
+                     })
+                     .addClass('dx-form-group-caption-button')
+                     .prependTo(groupCaptionButtonsDiv)
+             }
+-
+             createGridGroupHeaderButtons();
++            @endcan
+ 
++            function getRequestsGrid() {
++                return requestsForm.getEditor("requestsGrid");
++            }
+         });
+     </script>
+ @endsection
+Index: routes/modules/labor-safety/labor-safety.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/routes/modules/labor-safety/labor-safety.php b/routes/modules/labor-safety/labor-safety.php
+--- a/routes/modules/labor-safety/labor-safety.php	(revision 0619735f30e8a41fcea06b0079b09823b805056c)
++++ b/routes/modules/labor-safety/labor-safety.php	(revision 4171bffa1fcf50cd1a8ade7470976563cf0e9574)
+@@ -17,3 +17,6 @@
+ Route::delete('/labor-safety/orders-and-requests', 'LaborSafety\LaborSafetyRequestController@update')->name('labor-safety.orders-and-requests.delete');
+ 
+ Route::post('/labor-safety/orders-and-requests/download', 'LaborSafety\LaborSafetyRequestController@download')->name('labor-safety.orders-and-requests.download');
++
++
++Route::get('/labor-safety/request-workers/list', 'LaborSafety\LaborSafetyRequestController@getRequestWorkers')->name('labor-safety.request-workers.list');

@@ -12,6 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class ProjectEvents
 {
+
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
@@ -28,22 +29,25 @@ class ProjectEvents
     {
         //        Log::info('Passing into event');
         $project_creator = User::find($project->user_id);
-        $ceos = User::whereIn('id', [6, 9, 27])->get()->pluck('id')->toArray();
+        $ceos            = User::whereIn('id', [6, 9, 27])->get()->pluck('id')
+            ->toArray();
         //        Log::info('initiator: ' . $project_creator->first_name . ' to whom: ' . $ceos->first()->last_name . ' count_ceos: ' . $ceos->count());
-        if ($project_creator and $ceos->count() > 0) {
+        if ($project_creator and count($ceos) > 0) {
             NewProjectCreationNotice::send(
                 $ceos,
                 [
-                    'name' => 'Был создан проект "'.$project->name.'". Автор: '.$project_creator->long_full_name,
-                    'additional_info' => "\r\nЗаказчик: ".$project->contractor_name.
+                    'name'            => 'Был создан проект "'.$project->name
+                        .'". Автор: '.$project_creator->long_full_name,
+                    'additional_info' => "\r\nЗаказчик: "
+                        .$project->contractor_name.
                         "\r\nНазвание объекта: ".$project->object->name.
                         "\r\nАдрес объекта: ".$project->object->address.
                         "\r\nЧтобы просмотреть проект, перейдите по ссылке: ",
-                    'url' => route('projects::card', $project->id),
-                    'contractor_id' => $project->contractor_id,
-                    'project_id' => $project->id,
-                    'object_id' => $project->object_id,
-                    'status' => 1,
+                    'url'             => route('projects::card', $project->id),
+                    'contractor_id'   => $project->contractor_id,
+                    'project_id'      => $project->id,
+                    'object_id'       => $project->object_id,
+                    'status'          => 1,
                 ]
             );
         }
@@ -60,4 +64,5 @@ class ProjectEvents
             new PrivateChannel('channel-name'),
         ];
     }
+
 }

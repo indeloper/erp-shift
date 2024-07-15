@@ -1,0 +1,17 @@
+Index: app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php b/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php
+--- a/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php	(revision 02b28f3e003e5397e4d5ebed4df0533a0884ec32)
++++ b/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php	(revision 4a06bbad1d81abfb574dd0cd855946b867303cec)
+@@ -373,7 +373,7 @@
+                     ->where('standard_id', $inputMaterial['standard_id'])
+                     ->firstOrFail();
+ 
+-                if (round($inputMaterial['amount'] * $inputMaterial['amount'], 2) > round($sourceMaterial['quantity'], 2)) {
++                if (round($inputMaterial['amount'] * $inputMaterial['quantity'], 2) > round($sourceMaterial['quantity'], 2)) {
+                     abort(400, 'Bad quantity for standard ' . $inputMaterial['standard_id']);
+                 }
+             }

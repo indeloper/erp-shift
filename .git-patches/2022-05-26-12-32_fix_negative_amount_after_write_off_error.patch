@@ -1,0 +1,47 @@
+Index: app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php b/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php
+--- a/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php	(revision cf9748857810ede5d2348be0207cd12022e07e18)
++++ b/app/Http/Controllers/q3wMaterial/operations/q3wMaterialWriteOffOperationController.php	(revision f56c1b295ce18ca8b164aed58c807f190053f44c)
+@@ -606,10 +606,10 @@
+             }
+ 
+             if ($materialType->accounting_type == 2) {
+-                $material->amount = $material->amount - $materialAmount;
++                $material->amount = round($material->amount - $materialAmount, 2);
+             } else {
+                 $material->amount = 1;
+-                $material->quantity = $material->quantity - $materialQuantity * $materialAmount;
++                $material->quantity = round($material->quantity - $materialQuantity * $materialAmount, 2);
+             }
+ 
+             if ( $material->amount < 0){
+@@ -617,7 +617,7 @@
+             }
+ 
+             if ( $material->quantity < 0){
+-                abort(400, 'Negative quantity amount after write-off');
++                abort(400, 'Negative material quantity after write-off');
+             }
+ 
+             $material->save();
+Index: app/Models/Contractors/Contractor.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/Contractors/Contractor.php b/app/Models/Contractors/Contractor.php
+--- a/app/Models/Contractors/Contractor.php	(revision cf9748857810ede5d2348be0207cd12022e07e18)
++++ b/app/Models/Contractors/Contractor.php	(revision f56c1b295ce18ca8b164aed58c807f190053f44c)
+@@ -157,7 +157,7 @@
+             $notification->save();
+             $notification->additional_info = '. ' . route('contractors::card', $this->id);
+             $notification->update([
+-                'name' => 'Заполните контактов контрагента ' . $this->short_name,
++                'name' => 'Заполните контакты контрагента ' . $this->short_name,
+                 'user_id' => $this->user_id,
+                 'contractor_id' => $this->id,
+                 'status' => 5,

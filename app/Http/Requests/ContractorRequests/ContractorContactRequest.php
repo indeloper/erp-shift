@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ContractorContactRequest extends FormRequest
 {
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -22,7 +23,10 @@ class ContractorContactRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         if ($this->has('phone_number')) {
-            $this->merge(['phone_number' => preg_replace('~[\D]~', '', $this->phone_number)]);
+            $this->merge([
+                'phone_number' => preg_replace('~[\D]~', '',
+                    $this->phone_number),
+            ]);
         }
     }
 
@@ -38,4 +42,5 @@ class ContractorContactRequest extends FormRequest
             'note' => $this->note ? ('string|max:200') : '',
         ];
     }
+
 }

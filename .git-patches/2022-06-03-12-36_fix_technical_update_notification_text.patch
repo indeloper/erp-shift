@@ -1,0 +1,35 @@
+Index: app/Console/Commands/TechUpdatesNotify.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Console/Commands/TechUpdatesNotify.php b/app/Console/Commands/TechUpdatesNotify.php
+--- a/app/Console/Commands/TechUpdatesNotify.php	(revision feda7676d4efcd96b7d2a6171d6b83fb019be992)
++++ b/app/Console/Commands/TechUpdatesNotify.php	(revision 9b81548d37df042d36604acb7c384e3b7169c0e6)
+@@ -45,7 +45,7 @@
+     public function handle()
+     {
+         $notifications = [];
+-        $message = 'Техническая поддержка. '. 'C ' . $this->argument('start_date') . ' ' . $this->argument('start_time') . ' по ' . $this->argument('finish_date') . ' ' . $this->argument('finish_time') . 'в ERP-системе (ТУКИ) будут проводиться технические работы. Сервис может быть временно недоступен.';
++        $message = 'Техническая поддержка. '. 'C ' . $this->argument('start_date') . ' ' . $this->argument('start_time') . ' по ' . $this->argument('finish_date') . ' ' . $this->argument('finish_time') . ' в ERP-системе (ТУКИ) будут проводиться технические работы. Сервис может быть временно недоступен.';
+         DB::beginTransaction();
+         foreach (User::all() as $user) {
+             $notification = Notification::create([
+Index: resources/views/support/admin.blade.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/resources/views/support/admin.blade.php b/resources/views/support/admin.blade.php
+--- a/resources/views/support/admin.blade.php	(revision feda7676d4efcd96b7d2a6171d6b83fb019be992)
++++ b/resources/views/support/admin.blade.php	(revision 9b81548d37df042d36604acb7c384e3b7169c0e6)
+@@ -50,7 +50,7 @@
+         {
+             swal({
+                 title: "Проверьте текст",
+-                text: "Техническая поддержка. С " + $('#start_date')[0].value + " " + $('#start_time')[0].value + " по " + $('#finish_date')[0].value + " "  + $('#finish_time')[0].value + "в ERP-системе (ТУКИ) будут проводиться технические работы. Сервис может быть временно недоступен.",
++                text: "Техническая поддержка. С " + $('#start_date')[0].value + " " + $('#start_time')[0].value + " по " + $('#finish_date')[0].value + " "  + $('#finish_time')[0].value + " в ERP-системе (ТУКИ) будут проводиться технические работы. Сервис может быть временно недоступен.",
+                 type: 'warning',
+                 showCancelButton: true,
+ 
+
