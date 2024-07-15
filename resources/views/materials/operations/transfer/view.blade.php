@@ -1455,22 +1455,22 @@
                                 readOnly: true,
                             }
                         },
-                        {
-                            name: "materialOperationReasonSelectBox",
-                            colSpan: 2,
-                            dataField: "material_operation_reason_id",
-                            label: {
-                                text: "Причина движения"
-                            },
-                            editorType: "dxSelectBox",
-                            editorOptions: {
-                                dataSource: materialOperationReasonSource,
-                                displayExpr: "name",
-                                valueExpr: "id",
-                                searchEnabled: true,
-                                disabled: true,
-                            }
-                        },
+                        // {
+                        //     name: "materialOperationReasonSelectBox",
+                        //     colSpan: 2,
+                        //     dataField: "material_operation_reason_id",
+                        //     label: {
+                        //         text: "Причина движения"
+                        //     },
+                        //     editorType: "dxSelectBox",
+                        //     editorOptions: {
+                        //         dataSource: materialOperationReasonSource,
+                        //         displayExpr: "name",
+                        //         valueExpr: "id",
+                        //         searchEnabled: true,
+                        //         disabled: true,
+                        //     }
+                        // },
                         {
                             colSpan: (e) => {
                                 if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
