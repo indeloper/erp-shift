@@ -114,7 +114,7 @@ class ProjectController extends Controller
 
         return view('projects.create', [
             'contractor' => $request->contractor_id ? $contractor : '',
-            'entities'   => Project::$entities,
+            'entities' => Project::$entities,
         ]);
     }
 
@@ -126,16 +126,16 @@ class ProjectController extends Controller
 
         // now we have array of contractors with one main
         $project->contractor_id
-                              = $request->contractor_ids[array_search($request->main_contractor,
+            = $request->contractor_ids[array_search($request->main_contractor,
             $request->contractor_ids)];
-        $project->name        = $request->name;
-        $project->object_id   = $request->object_id;
+        $project->name = $request->name;
+        $project->object_id = $request->object_id;
         $project->description = $request->description;
-        $project->entity      = $request->entity;
-        $project->status      = 1;
-        $project->is_tongue   = in_array('is_tongue', $request->type);
-        $project->is_pile     = in_array('is_pile', $request->type);
-        $project->user_id     = Auth::id();
+        $project->entity = $request->entity;
+        $project->status = 1;
+        $project->is_tongue = in_array('is_tongue', $request->type);
+        $project->is_pile = in_array('is_pile', $request->type);
+        $project->user_id = Auth::id();
 
         $project->save();
 
@@ -144,15 +144,15 @@ class ProjectController extends Controller
             [$request->main_contractor]);
         foreach ($other_contractors as $contractor_id) {
             ProjectContractors::create([
-                'project_id'    => $project->id,
+                'project_id' => $project->id,
                 'contractor_id' => $contractor_id,
-                'user_id'       => Auth::id(),
+                'user_id' => Auth::id(),
             ]);
 
             ProjectContractorsChangeHistory::create([
                 'new_contractor_id' => $contractor_id,
-                'project_id'        => $project->id,
-                'user_id'           => Auth::id(),
+                'project_id' => $project->id,
+                'user_id' => Auth::id(),
             ]);
         }
 
@@ -167,9 +167,9 @@ class ProjectController extends Controller
         if ($request->task_id) {
             return redirect()->route('tasks::new_call', [
                 $request->task_id,
-                'project_id'    => $project->id,
+                'project_id' => $project->id,
                 'contractor_id' => $request->contractor_id,
-                'contact_id'    => $request->contact_id,
+                'contact_id' => $request->contact_id,
             ]);
         }
 
@@ -178,16 +178,16 @@ class ProjectController extends Controller
 
     public function users(Project $project): View
     {
-        $projectTimeResp   = $project->timeResponsible->id ?? -1;
+        $projectTimeResp = $project->timeResponsible->id ?? -1;
         $isTimeResponsible = auth()->id() == $projectTimeResp;
 
         return view('human_resources.users_wrapper', [
             'data' => [
-                'can_add_user'  => $isTimeResponsible,
-                'project'       => $project,
+                'can_add_user' => $isTimeResponsible,
+                'project' => $project,
                 'project_users' => array_reverse($project->allUsers()
                     ->toArray()),
-                'source'        => 'project',
+                'source' => 'project',
             ],
         ]);
     }
@@ -219,7 +219,7 @@ class ProjectController extends Controller
 
         $p_contacts = ProjectContact::where('project_id', $id)
             ->pluck('contact_id');
-        $p_users    = ProjectResponsibleUser::where('project_id', $id)
+        $p_users = ProjectResponsibleUser::where('project_id', $id)
             ->pluck('user_id')->toArray();
 
         $contacts = ContractorContact::with('phones')
@@ -367,7 +367,7 @@ class ProjectController extends Controller
             ->select('commercial_offer_requests.*', 'users.last_name',
                 'users.first_name', 'users.patronymic');
 
-        $COpile   = ProjectResponsibleUser::where('project_id', $id)
+        $COpile = ProjectResponsibleUser::where('project_id', $id)
             ->where('role', 1)->first();
         $COtongue = ProjectResponsibleUser::where('project_id', $id)
             ->where('role', 2)->first();
@@ -405,12 +405,12 @@ class ProjectController extends Controller
                 ->where('role', 2)->first()->user_id)
             ? ProjectResponsibleUser::where('project_id', $id)->where('role', 2)
                 ->first()->user_id : 0;
-        $respPileKP   = isset(ProjectResponsibleUser::where('project_id', $id)
+        $respPileKP = isset(ProjectResponsibleUser::where('project_id', $id)
                 ->where('role', 1)->first()->user_id)
             ? ProjectResponsibleUser::where('project_id', $id)->where('role', 1)
                 ->first()->user_id : 0;
 
-        $alwaysResp  = [];
+        $alwaysResp = [];
         $resp_groups = Group::whereIn('id',
             [5/*3*/, 8/*5*/, 50/*7*/, 53/*16*/, 6/*24*/, 54/*35*/])->get();
         foreach ($resp_groups as $group) {
@@ -419,7 +419,7 @@ class ProjectController extends Controller
         }
         $all_resp_users = array_unique(array_merge($resp_users->pluck('user_id')
             ->toArray(), $alwaysResp));
-        $contractors    = Contractor::where('in_archive', 0)->get();
+        $contractors = Contractor::where('in_archive', 0)->get();
 
         // for new agreeKP logic
         $agree_tasks = Task::where('project_id', $id)->where('status', 6)
@@ -455,48 +455,48 @@ class ProjectController extends Controller
             ->with('get_requests');
 
         return view('projects.card', [
-            'project'                   => $project,
-            'object'                    => $object,
-            'contractor'                => $contractor,
-            'contacts'                  => $contacts->unique(),
-            'resp_users'                => $resp_users/*->unique()*/,
-            'creater'                   => $creater,
-            'project_docs'              => $project_docs,
-            'extra_documents'           => $extra_documents,
-            'com_offersForeach'         => $com_offers->get()
+            'project' => $project,
+            'object' => $object,
+            'contractor' => $contractor,
+            'contacts' => $contacts->unique(),
+            'resp_users' => $resp_users/*->unique()*/,
+            'creater' => $creater,
+            'project_docs' => $project_docs,
+            'extra_documents' => $extra_documents,
+            'com_offersForeach' => $com_offers->get()
                 ->sortByDesc('version')->groupBy(['is_tongue', 'option']),
-            'com_offers'                => $com_offers->get(),
+            'com_offers' => $com_offers->get(),
             // 'extra_com_offers' => $extra_com_offers,
             'commercial_offer_requests' => $commercial_offer_requests->get(),
-            'COpile'                    => $COpile,
-            'COtongue'                  => $COtongue,
-            'com_offers_options'        => $com_offers_options,
-            'solved_tasks'              => $solved_tasks,
-            'task_files'                => $task_files->get(),
-            'task_responsible_users'    => $task_responsible_users->get(),
-            'task_redirects'            => $task_redirects->get(),
-            'com_offers_task'           => $com_offers_task,
-            'work_volumesForeach'       => $work_volumes->get()
+            'COpile' => $COpile,
+            'COtongue' => $COtongue,
+            'com_offers_options' => $com_offers_options,
+            'solved_tasks' => $solved_tasks,
+            'task_files' => $task_files->get(),
+            'task_responsible_users' => $task_responsible_users->get(),
+            'task_redirects' => $task_redirects->get(),
+            'com_offers_task' => $com_offers_task,
+            'work_volumesForeach' => $work_volumes->get()
                 ->sortByDesc('version')->groupBy(['type', 'option']),
-            'work_volumes'              => $work_volumes->orderBy('id', 'desc')
+            'work_volumes' => $work_volumes->orderBy('id', 'desc')
                 ->groupBy(['type', 'option'])->get(),
-            'work_volumes_all'          => $work_volumes_all->get(),
-            'work_volumes_options'      => $work_volumes_options,
-            'work_volume_requests'      => $work_volume_requests->get(),
-            'contract_requests'         => $contract_requests->get(),
-            'contracts'                 => $contracts->orderBy('contract_id',
+            'work_volumes_all' => $work_volumes_all->get(),
+            'work_volumes_options' => $work_volumes_options,
+            'work_volume_requests' => $work_volume_requests->get(),
+            'contract_requests' => $contract_requests->get(),
+            'contracts' => $contracts->orderBy('contract_id',
                 'desc')->orderBy('version', 'desc')->get(),
-            'next_contract_id'          => Contract::max('contract_id') + 1,
-            'contract_map'              => $contract_map,
-            'contract_resp_user_ids'    => $contract_resp_user_ids,
-            'contractLogic'             => $contractsLogic,
-            'allRespUsers'              => $all_resp_users,
-            'contractors'               => $contractors,
-            'respTongueKP'              => $respTongueKP,
-            'respPileKP'                => $respPileKP,
-            'agree_tasks'               => $agree_tasks,
-            'task_to_show'              => $task_to_show,
-            'additional_contractors'    => $project->contractors->count()
+            'next_contract_id' => Contract::max('contract_id') + 1,
+            'contract_map' => $contract_map,
+            'contract_resp_user_ids' => $contract_resp_user_ids,
+            'contractLogic' => $contractsLogic,
+            'allRespUsers' => $all_resp_users,
+            'contractors' => $contractors,
+            'respTongueKP' => $respTongueKP,
+            'respPileKP' => $respPileKP,
+            'agree_tasks' => $agree_tasks,
+            'task_to_show' => $task_to_show,
+            'additional_contractors' => $project->contractors->count()
                 ? $project->contractors : null,
         ]);
     }
@@ -505,7 +505,7 @@ class ProjectController extends Controller
     {
         DB::beginTransaction();
 
-        $project         = Project::findOrFail($project_id);
+        $project = Project::findOrFail($project_id);
         $project->status = $request->new_status;
         $project->save();
 
@@ -520,7 +520,7 @@ class ProjectController extends Controller
 
         $this->authorize('edit', $project);
 
-        $p_contact       = ProjectContact::firstOrCreate(
+        $p_contact = ProjectContact::firstOrCreate(
             ['contact_id' => $request->contact_id, 'project_id' => $id]
         );
         $p_contact->note = $request->project_note;
@@ -549,10 +549,10 @@ class ProjectController extends Controller
         $contacts = $contacts->take(6)->get();
 
         $contacts = $contacts->whereNotIn('id', $p_contacts);
-        $results  = [];
+        $results = [];
         foreach ($contacts as $contact) {
             $results[] = [
-                'id'   => $contact->id,
+                'id' => $contact->id,
                 'text' => $contact->last_name.' '.$contact->first_name.' '
                     .$contact->patronymic.', Должность: '.$contact->position,
             ];
@@ -582,10 +582,10 @@ class ProjectController extends Controller
         $contacts = $contacts->take(6)->get();
 
         $contacts = $contacts->whereNotIn('id', $p_contacts);
-        $results  = [];
+        $results = [];
         foreach ($contacts as $contact) {
             $results[] = [
-                'id'   => $contact->id,
+                'id' => $contact->id,
                 'text' => $contact->last_name.' '.$contact->first_name.' '
                     .$contact->patronymic.', Должность: '.$contact->position,
             ];
@@ -612,14 +612,14 @@ class ProjectController extends Controller
         if (Auth::user()->can('objects_create')) {
             if ($request->create_project == 1) {
                 $results[] = [
-                    'id'   => 'create_object',
+                    'id' => 'create_object',
                     'text' => 'Новый объект',
                 ];
             }
         }
         foreach ($objects as $object) {
             $results[] = [
-                'id'   => $object->id,
+                'id' => $object->id,
                 'text' => $object->name.'. Адрес: '.$object->address,
             ];
         }
@@ -642,7 +642,7 @@ class ProjectController extends Controller
                 = $users->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'),
                 'like', '%'.$request->q.'%');
 
-            if ( ! empty($groups)) {
+            if (!empty($groups)) {
                 $users = $users->orWhereIn('group_id', [$groups]);
             }
         }
@@ -722,7 +722,7 @@ class ProjectController extends Controller
         $results = [];
         foreach ($users as $user) {
             $results[] = [
-                'id'   => $user->id,
+                'id' => $user->id,
                 'text' => $user->last_name.' '.$user->first_name.' '
                     .$user->patronymic.', Должность: '.$user->group_name,
             ];
@@ -755,7 +755,7 @@ class ProjectController extends Controller
         $results = [];
         foreach ($contractors->where('is_client', 1)->take(20) as $contractor) {
             $results[] = [
-                'id'   => $contractor->id,
+                'id' => $contractor->id,
                 'text' => $contractor->short_name.', ИНН: '.$contractor->inn,
             ];
         }
@@ -769,7 +769,7 @@ class ProjectController extends Controller
 
         $project = Project::find($id);
         // check role existence
-        $resp_user     = ProjectResponsibleUser::where([
+        $resp_user = ProjectResponsibleUser::where([
             'project_id' => $id, 'role' => $request->role,
         ]);
         $contract_resp = collect();
@@ -786,7 +786,7 @@ class ProjectController extends Controller
             $old_user = null;
         }
 
-        if ($resp_user and ! in_array($request->role, ['7', '8', '9'])) {
+        if ($resp_user and !in_array($request->role, ['7', '8', '9'])) {
             // if exist, update
             $resp_user->user_id = $request->user;
             $resp_user->save();
@@ -796,8 +796,8 @@ class ProjectController extends Controller
             // if !exist, create
             $resp_user = ProjectResponsibleUser::create([
                 'project_id' => $id,
-                'role'       => $request->role,
-                'user_id'    => $request->user,
+                'role' => $request->role,
+                'user_id' => $request->user,
             ]);
         }
 
@@ -829,7 +829,7 @@ class ProjectController extends Controller
                     ->get()
                     ->first();
 
-                if ( ! $newObjectResponsibleUserExists) {
+                if (!$newObjectResponsibleUserExists) {
                     $objectResponsibleUser->user_id = $request->user;
                     $objectResponsibleUser->save();
                 }
@@ -837,8 +837,8 @@ class ProjectController extends Controller
                 $roleId
                     = (new ObjectResponsibleUserRole())->getRoleIdBySlug('TONGUE_PROJECT_MANAGER');
                 ObjectResponsibleUser::create([
-                    'object_id'                       => $project->object_id,
-                    'user_id'                         => $request->user,
+                    'object_id' => $project->object_id,
+                    'user_id' => $request->user,
                     'object_responsible_user_role_id' => $roleId,
                 ]);
             }
@@ -851,66 +851,66 @@ class ProjectController extends Controller
         }
 
         if ($request->task24 or $request->task25) {
-            $solved_task             = Task::where('status',
+            $solved_task = Task::where('status',
                 $request->task24 ? 24 : 25)->where('is_solved', 0)->first();
             $solved_task->final_note = $request->final_note;
             $solved_task->solve_n_notify();
 
-            $respUser   = User::find($request->user);
+            $respUser = User::find($request->user);
             $taskSolver = User::find($solved_task->responsible_user_id);
 
             /** Отправка уведомлений трём пользователям */
-            $users         = [$request->user, 6, 7];
+            $users = [$request->user, 6, 7];
             $name
-                           = "По проекту {$project->name} ({$project->object->address}) по направлению "
+                = "По проекту {$project->name} ({$project->object->address}) по направлению "
                 .
                 ($request->task24 ? ' сваи ' : 'шпунт').', был выбран отв.'.
                 " РП - {$respUser->full_name}, автор назначения {$taskSolver->full_name}";
-            $task_id       = $solved_task->id;
+            $task_id = $solved_task->id;
             $contractor_id = $project->contractor_id;
-            $project_id    = $project->id;
-            $object_id     = $project->object_id;
+            $project_id = $project->id;
+            $object_id = $project->object_id;
 
             ResponsibleSelectedForProjectDirectionProjectLeaderNotice::send(
                 $users,
                 [
-                    'name'          => $name,
-                    'task_id'       => $task_id,
+                    'name' => $name,
+                    'task_id' => $task_id,
                     'contractor_id' => $contractor_id,
-                    'project_id'    => $project_id,
-                    'object_id'     => $object_id,
+                    'project_id' => $project_id,
+                    'object_id' => $object_id,
                 ]
             );
         }
 
-        if ( ! empty($resp_user->getChanges())) {
+        if (!empty($resp_user->getChanges())) {
             // if we update resp_user
             $user_roles = new User();
 
             $tasks = Task::where([
                 'responsible_user_id' => $old_user, 'is_solved' => 0,
-                'project_id'          => $id,
+                'project_id' => $id,
             ])->whereIn('status', $user_roles->role_tasks[$request->role])
                 ->get();
-            // move all tasks from old user to new user
+            // move all tasks from styles user to new user
             foreach ($tasks as $updated_task) {
-                $project  = Project::find($updated_task->project_id);
+                $project = Project::find($updated_task->project_id);
                 $new_user = User::find($resp_user->user_id);
 
                 if ($updated_task->responsible_user_id != 6) {
-                    // notify old user
+                    // notify styles user
                     TaskTransferNotificationToNewResponsibleNotice::send(
                         $updated_task->responsible_user_id,
                         [
-                            'name'          => 'Задача «'.$updated_task->name
+                            'name' => 'Задача «'.$updated_task->name
                                 .'» передана пользователю '
                                 .$new_user->long_full_name,
-                            'task_id'       => $updated_task->id,
+                            'task_id' => $updated_task->id,
                             'contractor_id' => $updated_task->project_id
                                 ? $project->contractor_id : null,
-                            'project_id'    => $updated_task->project_id
+                            'project_id' => $updated_task->project_id
                                 ? $updated_task->project_id : null,
-                            'object_id'     => $updated_task->project_id
+                            'object_id' => $updated_task->project_id
                                 ? $project->object_id : null,
                         ]
                     );
@@ -919,16 +919,16 @@ class ProjectController extends Controller
                     StandardTaskCreationNotice::send(
                         $resp_user->user_id,
                         [
-                            'name'            => 'Новая задача «'
+                            'name' => 'Новая задача «'
                                 .$updated_task->name.'»',
                             'additional_info' => ' Ссылка на задачу: ',
-                            'url'             => $updated_task->task_route(),
-                            'task_id'         => $updated_task->id,
-                            'contractor_id'   => $updated_task->project_id
+                            'url' => $updated_task->task_route(),
+                            'task_id' => $updated_task->id,
+                            'contractor_id' => $updated_task->project_id
                                 ? $project->contractor_id : null,
-                            'project_id'      => $updated_task->project_id
+                            'project_id' => $updated_task->project_id
                                 ? $updated_task->project_id : null,
-                            'object_id'       => $updated_task->project_id
+                            'object_id' => $updated_task->project_id
                                 ? $project->object_id : null,
                         ]
                     );
@@ -944,7 +944,7 @@ class ProjectController extends Controller
                     ->where('is_solved', 0)->first();
 
                 if ($task) {
-                    $project      = Project::find($id);
+                    $project = Project::find($id);
                     $work_volumes = WorkVolume::where('project_id', $id)
                         ->where('type', 0)->whereStatus(2)->get();
                     $offers_count = CommercialOffer::where('project_id', $id)
@@ -963,17 +963,17 @@ class ProjectController extends Controller
                         $commercial_offer = new CommercialOffer();
 
                         $commercial_offer->name
-                                                          = 'Коммерческое предложение (шпунтовое направление)';
-                        $commercial_offer->user_id        = Auth::id();
+                            = 'Коммерческое предложение (шпунтовое направление)';
+                        $commercial_offer->user_id = Auth::id();
                         $commercial_offer->project_id
-                                                          = $work_volume->project_id;
+                            = $work_volume->project_id;
                         $commercial_offer->work_volume_id = $work_volume->id;
                         $commercial_offer->option
-                                                          = $work_volume->option;
-                        $commercial_offer->status         = 1;
-                        $commercial_offer->version        = $offers_count + 1;
-                        $commercial_offer->file_name      = 0;
-                        $commercial_offer->is_tongue      = 1;
+                            = $work_volume->option;
+                        $commercial_offer->status = 1;
+                        $commercial_offer->version = $offers_count + 1;
+                        $commercial_offer->file_name = 0;
+                        $commercial_offer->is_tongue = 1;
 
                         $commercial_offer->save();
 
@@ -981,21 +981,21 @@ class ProjectController extends Controller
                             foreach ($prev_com_offer->notes as $item) {
                                 $new_note = $item->replicate();
                                 $new_note->commercial_offer_id
-                                          = $commercial_offer->id;
+                                    = $commercial_offer->id;
                                 $new_note->save();
                             }
 
                             foreach ($prev_com_offer->requirements as $item) {
                                 $new_note = $item->replicate();
                                 $new_note->commercial_offer_id
-                                          = $commercial_offer->id;
+                                    = $commercial_offer->id;
                                 $new_note->save();
                             }
 
                             foreach ($prev_com_offer->advancements as $item) {
                                 $new_note = $item->replicate();
                                 $new_note->commercial_offer_id
-                                          = $commercial_offer->id;
+                                    = $commercial_offer->id;
                                 $new_note->save();
                             }
 
@@ -1011,7 +1011,7 @@ class ProjectController extends Controller
 
                             //get splits from previous com_offer
                             $control_count
-                                = $prev_com_offer->mat_splits->groupBy('man_mat_id'); //here are old ones
+                                = $prev_com_offer->mat_splits->groupBy('man_mat_id'); //here are styles ones
 
                             //creating splits for new commercial_offer
                             foreach ($split_adapter as $manual_id => $count) {
@@ -1024,16 +1024,16 @@ class ProjectController extends Controller
                                     ) {
                                         $new_split = $old_split->replicate();
                                         $new_split->man_mat_id
-                                                   = $old_split->man_mat_id;
+                                            = $old_split->man_mat_id;
                                         $new_split->com_offer_id
-                                                   = $commercial_offer->id;
+                                            = $commercial_offer->id;
                                         $new_split->save();
                                     }
                                 } else {
                                     CommercialOfferMaterialSplit::create([
-                                        'man_mat_id'   => $manual_id,
-                                        'count'        => $count,
-                                        'type'         => 1,
+                                        'man_mat_id' => $manual_id,
+                                        'count' => $count,
+                                        'type' => 1,
                                         'com_offer_id' => $commercial_offer->id,
                                     ]);
                                 }
@@ -1044,28 +1044,28 @@ class ProjectController extends Controller
                                 as $man_mat_id => $wv_mats
                             ) {
                                 CommercialOfferMaterialSplit::create([
-                                    'man_mat_id'   => $man_mat_id,
-                                    'type'         => 1,
-                                    'count'        => $wv_mats->sum('count'),
+                                    'man_mat_id' => $man_mat_id,
+                                    'type' => 1,
+                                    'count' => $wv_mats->sum('count'),
                                     'com_offer_id' => $commercial_offer->id,
                                 ]);
                             }
                         }
 
                         $task = new Task([
-                            'project_id'          => $work_volume->project_id,
-                            'name'                => 'Формирование КП (шпунтовое направление)',
+                            'project_id' => $work_volume->project_id,
+                            'name' => 'Формирование КП (шпунтовое направление)',
                             'responsible_user_id' => ProjectResponsibleUser::where('project_id',
                                 $work_volume->project_id)->where('role', 2)
                                 ->first()->user_id,
-                            'contractor_id'       => $project->contractor_id,
-                            'target_id'           => $commercial_offer->id,
-                            'prev_task_id'        => Task::where('target_id',
+                            'contractor_id' => $project->contractor_id,
+                            'target_id' => $commercial_offer->id,
+                            'prev_task_id' => Task::where('target_id',
                                 $work_volume->id)->where('status', 18)
                                 ->where('is_solved', 1)->first()->id,
-                            'expired_at'          => Carbon::now()
+                            'expired_at' => Carbon::now()
                                 ->addHours(24),
-                            'status'              => 5,
+                            'status' => 5,
                         ]);
 
                         $task->save();
@@ -1073,33 +1073,33 @@ class ProjectController extends Controller
                         OfferCreationSheetPilingTaskNotice::send(
                             $task->responsible_user_id,
                             [
-                                'name'            => 'Новая задача «'
+                                'name' => 'Новая задача «'
                                     .$task->name.'»',
                                 'additional_info' => ' Ссылка на задачу: ',
-                                'url'             => $task->task_route(),
-                                'task_id'         => $task->id,
-                                'contractor_id'   => $task->project_id
+                                'url' => $task->task_route(),
+                                'task_id' => $task->id,
+                                'contractor_id' => $task->project_id
                                     ? Project::find($task->project_id)->contractor_id
                                     : null,
-                                'project_id'      => $task->project_id
+                                'project_id' => $task->project_id
                                     ? $task->project_id : null,
-                                'object_id'       => $task->project_id
+                                'object_id' => $task->project_id
                                     ? Project::find($task->project_id)->object_id
                                     : null,
                             ]
                         );
 
-                        $com_offer_request          = new CommercialOfferRequest();
+                        $com_offer_request = new CommercialOfferRequest();
                         $com_offer_request->user_id = 0;
                         $com_offer_request->project_id
-                                                    = $work_volume->project_id;
+                            = $work_volume->project_id;
                         $com_offer_request->commercial_offer_id
-                                                    = $commercial_offer->id;
-                        $com_offer_request->status  = 0;
+                            = $commercial_offer->id;
+                        $com_offer_request->status = 0;
                         $com_offer_request->description
-                                                    = 'Сформирован новый объём работ, проверьте актуальность цен';
+                            = 'Сформирован новый объём работ, проверьте актуальность цен';
                         $com_offer_request->is_tongue
-                                                    = $commercial_offer->is_tongue;
+                            = $commercial_offer->is_tongue;
 
                         $com_offer_request->save();
                     }
@@ -1116,34 +1116,34 @@ class ProjectController extends Controller
                     $work_volumes = WorkVolume::whereProjectId($id)
                         ->whereType(0)->whereStatus(1)->get();
                     foreach ($work_volumes as $work_volume) {
-                        $tongueTask                      = new Task();
-                        $tongueTask->project_id          = $id;
+                        $tongueTask = new Task();
+                        $tongueTask->project_id = $id;
                         $tongueTask->name
-                                                         = 'Расчёт объемов (шпунтовое направление)';
-                        $tongueTask->status              = 3;
+                            = 'Расчёт объемов (шпунтовое направление)';
+                        $tongueTask->status = 3;
                         $tongueTask->responsible_user_id = $resp_user->user_id;
                         $tongueTask->contractor_id
-                                                         = Project::find($id)->contractor_id;
-                        $tongueTask->expired_at          = Carbon::now()
+                            = Project::find($id)->contractor_id;
+                        $tongueTask->expired_at = Carbon::now()
                             ->addHours(24);
-                        $tongueTask->target_id           = $work_volume->id;
+                        $tongueTask->target_id = $work_volume->id;
                         $tongueTask->save();
                     }
 
                     SheetPilingCalculationTaskCreationNotice::send(
                         $tongueTask->responsible_user_id,
                         [
-                            'name'            => 'Новая задача «'
+                            'name' => 'Новая задача «'
                                 .$tongueTask->name.'»',
                             'additional_info' => ' Ссылка на задачу: ',
-                            'url'             => $task->task_route(),
-                            'task_id'         => $tongueTask->id,
-                            'contractor_id'   => $tongueTask->project_id
+                            'url' => $task->task_route(),
+                            'task_id' => $tongueTask->id,
+                            'contractor_id' => $tongueTask->project_id
                                 ? Project::find($tongueTask->project_id)->contractor_id
                                 : null,
-                            'project_id'      => $tongueTask->project_id
+                            'project_id' => $tongueTask->project_id
                                 ? $tongueTask->project_id : null,
-                            'object_id'       => $tongueTask->project_id
+                            'object_id' => $tongueTask->project_id
                                 ? Project::find($tongueTask->project_id)->object_id
                                 : null,
                         ]
@@ -1173,7 +1173,7 @@ class ProjectController extends Controller
             $request->user_id)->where('project_id', $request->project_id)
             ->where('is_solved', 0)->count();
 
-        if ( ! $user_tasks_count) {
+        if (!$user_tasks_count) {
             DB::beginTransaction();
 
             ProjectResponsibleUser::where('user_id', $request->user_id)
@@ -1195,7 +1195,7 @@ class ProjectController extends Controller
             $objectResponsibleUser->delete();
         }
 
-        return response()->json(! $user_tasks_count ? true : false);
+        return response()->json(!$user_tasks_count ? true : false);
     }
 
     public function edit($id): View
@@ -1206,7 +1206,7 @@ class ProjectController extends Controller
 
         return view('projects.edit', [
             'project' => $project,
-            'object'  => ProjectObject::findOrFail($project->object_id),
+            'object' => ProjectObject::findOrFail($project->object_id),
         ]);
     }
 
@@ -1222,12 +1222,12 @@ class ProjectController extends Controller
 
         $contact = new ContractorContact();
 
-        $contact->first_name    = $request->first_name;
-        $contact->last_name     = $request->last_name;
-        $contact->patronymic    = $request->patronymic;
-        $contact->position      = $request->position;
-        $contact->email         = $request->email;
-        $contact->note          = $request->note;
+        $contact->first_name = $request->first_name;
+        $contact->last_name = $request->last_name;
+        $contact->patronymic = $request->patronymic;
+        $contact->position = $request->position;
+        $contact->email = $request->email;
+        $contact->note = $request->note;
         $contact->contractor_id = $id;
 
         $contact->save();
@@ -1237,13 +1237,13 @@ class ProjectController extends Controller
                 != ''
             ) {
                 ContractorContactPhone::create([
-                    'name'         => $request->phone_name[$phone],
+                    'name' => $request->phone_name[$phone],
                     'phone_number' => preg_replace('~[\D]~', '',
                         $request->phone_number[$phone]),
-                    'dop_phone'    => $request->phone_dop[$phone],
-                    'type'         => 1,
-                    'is_main'      => $request->main == $main_id,
-                    'contact_id'   => $contact->id,
+                    'dop_phone' => $request->phone_dop[$phone],
+                    'type' => 1,
+                    'is_main' => $request->main == $main_id,
+                    'contact_id' => $contact->id,
                 ]);
             }
         }
@@ -1252,7 +1252,7 @@ class ProjectController extends Controller
 
         $p_contact->contact_id = $contact->id;
         $p_contact->project_id = $request->project_id;
-        $p_contact->note       = $request->project_note;
+        $p_contact->note = $request->project_note;
 
         $p_contact->save();
 
@@ -1269,11 +1269,11 @@ class ProjectController extends Controller
 
         $this->authorize('edit', $project);
 
-        $project->is_tongue   = in_array('is_tongue', $request->type);
-        $project->is_pile     = in_array('is_pile', $request->type);
-        $project->name        = $request->name;
-        $project->object_id   = $request->object_id;
-        $project->entity      = $request->entity;
+        $project->is_tongue = in_array('is_tongue', $request->type);
+        $project->is_pile = in_array('is_pile', $request->type);
+        $project->name = $request->name;
+        $project->object_id = $request->object_id;
+        $project->entity = $request->entity;
         $project->description = $request->description;
 
         $project->save();
@@ -1305,13 +1305,13 @@ class ProjectController extends Controller
 
     public function tasks(Request $request, $id): View
     {
-        $project      = Project::findOrFail($id);
-        $com_offers   = CommercialOffer::where('project_id', $id);
+        $project = Project::findOrFail($id);
+        $com_offers = CommercialOffer::where('project_id', $id);
         $work_volumes = WorkVolume::where('work_volumes.project_id', $id)
             ->orderBy('work_volumes.version', 'desc')
             ->with('get_requests');
-        $contractor   = Contractor::findOrFail($project->contractor_id);
-        $contacts     = ContractorContact::where('contractor_id',
+        $contractor = Contractor::findOrFail($project->contractor_id);
+        $contacts = ContractorContact::where('contractor_id',
             $contractor->id)->get();
 
         $solved_tasks = Task::orderBy('created_at', 'desc')
@@ -1360,16 +1360,16 @@ class ProjectController extends Controller
         $solved_tasks = $solved_tasks->get();
 
         return view('projects.tasks', [
-            'solved_tasks'           => $solved_tasks,
-            'task_files'             => $task_files->get(),
+            'solved_tasks' => $solved_tasks,
+            'task_files' => $task_files->get(),
             'task_responsible_users' => $task_responsible_users->get(),
-            'task_redirects'         => $task_redirects->get(),
-            'project'                => $project,
-            'contractor'             => $contractor,
-            'com_offers_task'        => $com_offers_task,
-            'contacts'               => $contacts,
-            'work_volumes'           => $work_volumes->get(),
-            'com_offers'             => $com_offers->get(),
+            'task_redirects' => $task_redirects->get(),
+            'project' => $project,
+            'contractor' => $contractor,
+            'com_offers_task' => $com_offers_task,
+            'contacts' => $contacts,
+            'work_volumes' => $work_volumes->get(),
+            'com_offers' => $com_offers->get(),
         ]);
     }
 
@@ -1391,7 +1391,7 @@ class ProjectController extends Controller
         $results = [];
         foreach ($documents as $documents) {
             $results[] = [
-                'id'   => $documents->id,
+                'id' => $documents->id,
                 'text' => $documents->name,
             ];
         }
@@ -1425,8 +1425,8 @@ class ProjectController extends Controller
 
         ProjectContractorsChangeHistory::create([
             'old_contractor_id' => $relation->contractor_id,
-            'project_id'        => $relation->project_id,
-            'user_id'           => Auth::id(),
+            'project_id' => $relation->project_id,
+            'user_id' => Auth::id(),
         ]);
 
         $relation->delete();
@@ -1447,15 +1447,15 @@ class ProjectController extends Controller
         foreach ($request->contractor_ids as $contractor_id) {
             if ($contractor_id != 'default') {
                 ProjectContractors::create([
-                    'project_id'    => $project_id,
+                    'project_id' => $project_id,
                     'contractor_id' => $contractor_id,
-                    'user_id'       => Auth::id(),
+                    'user_id' => Auth::id(),
                 ]);
 
                 ProjectContractorsChangeHistory::create([
                     'new_contractor_id' => $contractor_id,
-                    'project_id'        => $project_id,
-                    'user_id'           => Auth::id(),
+                    'project_id' => $project_id,
+                    'user_id' => Auth::id(),
                 ]);
             }
         }
@@ -1505,12 +1505,12 @@ class ProjectController extends Controller
 
             $contact = new ContractorContact();
 
-            $contact->first_name    = $request->first_name;
-            $contact->last_name     = $request->last_name;
-            $contact->patronymic    = $request->patronymic;
-            $contact->position      = $request->position;
-            $contact->email         = $request->email;
-            $contact->note          = $request->note;
+            $contact->first_name = $request->first_name;
+            $contact->last_name = $request->last_name;
+            $contact->patronymic = $request->patronymic;
+            $contact->position = $request->position;
+            $contact->email = $request->email;
+            $contact->note = $request->note;
             $contact->contractor_id = 0;
 
             $contact->save();
@@ -1520,13 +1520,13 @@ class ProjectController extends Controller
                         $request->phone_number[$phone])) != ''
                 ) {
                     ContractorContactPhone::create([
-                        'name'         => $request->phone_name[$phone],
+                        'name' => $request->phone_name[$phone],
                         'phone_number' => preg_replace('~[\D]~', '',
                             $request->phone_number[$phone]),
-                        'dop_phone'    => $request->phone_dop[$phone],
-                        'type'         => 1,
-                        'is_main'      => $request->main == $main_id,
-                        'contact_id'   => $contact->id,
+                        'dop_phone' => $request->phone_dop[$phone],
+                        'type' => 1,
+                        'is_main' => $request->main == $main_id,
+                        'contact_id' => $contact->id,
                     ]);
                 }
             }
@@ -1535,7 +1535,7 @@ class ProjectController extends Controller
 
             $p_contact->contact_id = $contact->id;
             $p_contact->project_id = 0;
-            $p_contact->note       = $request->project_note;
+            $p_contact->note = $request->project_note;
 
             $p_contact->save();
 
@@ -1544,7 +1544,7 @@ class ProjectController extends Controller
             return response()->json([
                 [
                     'contractor_contact_id' => $contact->id,
-                    'project_contact_id'    => $p_contact->id,
+                    'project_contact_id' => $p_contact->id,
                 ],
                 'html' => $this->render_contact($contact->id, $request->key),
             ]);
@@ -1553,7 +1553,7 @@ class ProjectController extends Controller
         // selected person
         DB::beginTransaction();
 
-        $p_contact       = ProjectContact::firstOrCreate(
+        $p_contact = ProjectContact::firstOrCreate(
             ['contact_id' => $request->contact_id, 'project_id' => 0]
         );
         $p_contact->note = $request->project_note;
@@ -1564,7 +1564,7 @@ class ProjectController extends Controller
         return response()->json([
             [
                 'contractor_contact_id' => $request->contact_id,
-                'project_contact_id'    => $p_contact->id,
+                'project_contact_id' => $p_contact->id,
             ],
             'html' => $this->render_contact($request->contact_id,
                 $request->key),
@@ -1630,20 +1630,20 @@ class ProjectController extends Controller
     public function get_project_options()
     {
         $project = Project::findOrFail(request()->project_id);
-        $types   = [0, 1];
+        $types = [0, 1];
         if (request()->type) {
             $types = [(request()->type ? 0 : 1)];
         }
-        $options   = $project->work_volumes->whereIn('type', $types)
+        $options = $project->work_volumes->whereIn('type', $types)
             ->pluck('option', 'id')->unique();
         $results[] = [
-            'id'       => 'disabled',
-            'text'     => 'Нажмите Enter, чтобы выбрать свой вариант',
+            'id' => 'disabled',
+            'text' => 'Нажмите Enter, чтобы выбрать свой вариант',
             'disabled' => true,
         ];
         foreach ($options as $id => $option) {
             $results[] = [
-                'id'   => trim($option) ?: ('id:'.$id),
+                'id' => trim($option) ?: ('id:'.$id),
                 'text' => trim($option) ?: ('id:'.$id),
             ];
         }
@@ -1733,7 +1733,7 @@ class ProjectController extends Controller
 
         return $projects->map(function ($project) {
             return [
-                'code'  => $project->id.'',
+                'code' => $project->id.'',
                 'label' => $project->id.') '.$project->name_with_object,
             ];
         })->toArray();

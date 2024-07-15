@@ -32,7 +32,7 @@ class CommentController extends Controller
         $comment->update($request->all());
 
         if ($request->deleted_file_ids) {
-            //detach old files
+            //detach styles files
             FileEntry::whereIn('id', $request->deleted_file_ids)->delete();
         }
         if ($request->file_ids) {
