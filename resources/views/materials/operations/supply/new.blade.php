@@ -118,6 +118,15 @@
                         {data: JSON.stringify(loadOptions)});
                 },
             });
+
+            let materialOperationReasonStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('material-operation-reason')}}",
+                        {data: JSON.stringify(loadOptions)});
+                },
+            });
             //</editor-fold>
 
             let materialCommentEditForm = $("#commentEditForm").dxForm({
@@ -633,11 +642,11 @@
                 colCount: 2,
                 items: [{
                     itemType: "group",
-                    colCount: 3,
+                    colCount: 4,
                     caption: "Поставка",
                     items: [{
                         name: "projectObjectSelectBox",
-                        colSpan: 3,
+                        colSpan: 4,
                         dataField: "project_object_id",
                         label: {
                             text: "Объект"
@@ -678,8 +687,33 @@
                             }]
                         },
                         {
-                            name: "destinationResponsibleUserSelectBox",
+                            name: "materialOperationReasonSelectBox",
                             colSpan: 2,
+                            dataField: "material_operation_reason_id",
+                            label: {
+                                text: "Причина движения"
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: {
+                                    store: materialOperationReasonStore,
+                                    filter: [
+                                        'operation_route_id', '=', 1
+                                    ]
+                                },
+                                displayExpr: "name",
+                                valueExpr: "id",
+                                searchEnabled: true
+                            },
+                            validationRules: [{
+                                type: "required",
+                                message: 'Поле "Причина движения" обязательно для заполнения'
+                            }]
+
+                        },
+                        {
+                            name: "destinationResponsibleUserSelectBox",
+                            colSpan: 1,
                             dataField: "destination_responsible_user_id",
                             label: {
                                 text: "Ответственный"
@@ -864,6 +898,7 @@
                 supplyOperationData.destination_responsible_user_id = operationForm.option("formData").destination_responsible_user_id;
                 supplyOperationData.contractor_id = operationForm.option("formData").contractor_id;
                 supplyOperationData.consignment_note_number = operationForm.option("formData").consignment_note_number;
+                supplyOperationData.material_operation_reason_id = operationForm.option("formData").material_operation_reason_id;
                 supplyOperationData.new_comment = operationForm.option("formData").new_comment;
 
                 let uploadedFiles = []
@@ -1201,6 +1236,7 @@
                 operationForm.getEditor("supplyMaterialGrid").option("disabled", state);
                 operationForm.getEditor("projectObjectSelectBox").option("disabled", state);
                 operationForm.getEditor("operationDateDateBox").option("disabled", state);
+                operationForm.getEditor("materialOperationReasonSelectBox").option("disabled", state);
                 operationForm.getEditor("destinationResponsibleUserSelectBox").option("disabled", state);
                 operationForm.getEditor("contractorSelectBox").option("disabled", state);
                 operationForm.getEditor("consignmentNoteNumberTextBox").option("disabled", state);

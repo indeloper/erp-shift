@@ -265,6 +265,7 @@ Route::middleware('activeuser', 'auth')->group(function () {
     Route::get('/contractors/list', [q3wMaterial\q3wCommonController::class, 'contractorsList'])->name('contractors.list');
     Route::get('/users/list', [q3wMaterial\q3wCommonController::class, 'usersList'])->name('users.list');
     Route::get('/users-with-material-list-access.list/list', [q3wMaterial\q3wCommonController::class, 'usersWithMaterialListAccess'])->name('users-with-material-list-access.list');
+    Route::get('/material-operation-reason', [q3wMaterial\q3wCommonController::class, 'materialOperationReason'])->name('material-operation-reason');
 
     Route::get('/material/measure-units/list', [q3wMaterial\q3wCommonController::class, 'measureUnitsList'])->name('material.measure-units.list');
     Route::get('/material/accounting-types/list', [q3wMaterial\q3wCommonController::class, 'materialAccountingTypesList'])->name('material.accounting-types.list');

@@ -162,6 +162,15 @@
                         {data: JSON.stringify(loadOptions)});
                 },
             });
+
+            let materialOperationReasonStore = new DevExpress.data.CustomStore({
+                key: "id",
+                loadMode: "raw",
+                load: function (loadOptions) {
+                    return $.getJSON("{{route('material-operation-reason')}}",
+                        {data: JSON.stringify(loadOptions)});
+                },
+            });
             //</editor-fold>
 
             let materialCommentEditForm = $("#commentEditForm").dxForm({
@@ -827,11 +836,11 @@
                 colCount: 2,
                 items: [{
                     itemType: "group",
-                    colCount: 3,
+                    colCount: 4,
                     caption: "Отправление",
                     items: [{
                         name: "sourceProjectObjectSelectBox",
-                        colSpan: 3,
+                        colSpan: 4,
                         dataField: "source_project_object_id",
                         label: {
                             text: "Объект отправления"
@@ -905,6 +914,31 @@
                                 type: transferOperationInitiator !== "destination" ? "required" : "",
                                 message: 'Поле "Дата отправления" обязательно для заполнения'
                             }]
+                        },
+                        {
+                            name: "materialOperationReasonSelectBox",
+                            colSpan: 2,
+                            dataField: "material_operation_reason_id",
+                            label: {
+                                text: "Причина движения"
+                            },
+                            editorType: "dxSelectBox",
+                            editorOptions: {
+                                dataSource: {
+                                    store: materialOperationReasonStore,
+                                    filter: [
+                                        'operation_route_id', '=', 2
+                                    ]
+                                },
+                                displayExpr: "name",
+                                valueExpr: "id",
+                                searchEnabled: true
+                            },
+                            validationRules: [{
+                                type: "required",
+                                message: 'Поле "Причина движения" обязательно для заполнения'
+                            }]
+
                         },
                         {
                             name: "sourceResponsibleUserSelectBox",
@@ -1135,6 +1169,7 @@
                 transferOperationData.transfer_operation_initiator = transferOperationInitiator;
                 transferOperationData.source_project_object_id = operationForm.option("formData").source_project_object_id;
                 transferOperationData.destination_project_object_id = operationForm.option("formData").destination_project_object_id;
+                transferOperationData.material_operation_reason_id = operationForm.option("formData").material_operation_reason_id;
                 transferOperationData.new_comment = operationForm.option("formData").new_comment;
                 //TODO Дата формаируется в UTC. Нужно либо учитывать это при перобразовании, либо хранить в UTC в БД
                 if (transferOperationInitiator === "none" || transferOperationInitiator === "source") {
@@ -1583,6 +1618,7 @@
                         break;
                 }
 
+                operationForm.getEditor("materialOperationReasonSelectBox").option("disabled", state);
                 operationForm.getEditor("sourceResponsibleUserSelectBox").option("disabled", state);
                 operationForm.getEditor("destinationProjectObjectSelectBox").option("disabled", state);
                 operationForm.getEditor("destinationResponsibleUserSelectBox").option("disabled", state);

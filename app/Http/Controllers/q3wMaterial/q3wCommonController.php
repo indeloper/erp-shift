@@ -9,6 +9,7 @@ use App\Models\ProjectObject;
 use App\Models\q3wMaterial\operations\q3wOperationRoute;
 use App\Models\q3wMaterial\operations\q3wOperationRouteStage;
 use App\Models\q3wMaterial\q3wMaterialAccountingType;
+use App\Models\q3wMaterial\q3wMaterialOperationReason;
 use App\Models\q3wMaterial\q3wMaterialTransformationType;
 use App\Models\q3wMaterial\q3wMaterialType;
 use App\Models\q3wMaterial\q3wMeasureUnit;
@@ -19,6 +20,14 @@ use Illuminate\Support\Facades\DB;
 
 class q3wCommonController extends Controller
 {
+    public function materialOperationReason(Request $request)
+    {
+        $options = json_decode($request['data']);
+
+        return (new q3wMaterialOperationReason)->dxLoadOptions($options)
+            ->get(['id', 'operation_route_id', 'name'])
+            ->toJson(JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
+    }
     /**
      * @return string
      */

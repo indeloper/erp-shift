@@ -255,10 +255,10 @@
                 colCount: 2,
                 items: [{
                     itemType: "group",
-                    colCount: 3,
+                    colCount: 4,
                     caption: "Поставка",
                     items: [{
-                        colSpan: 3,
+                        colSpan: 4,
                         dataField: "destination_project_object_name",
                         label: {
                             text: "Объект"
@@ -280,8 +280,19 @@
                             }
                         },
                         {
-                            name: "destinationResponsibleUserSelectBox",
+                            name: "materialOperationReasonSelectBox",
                             colSpan: 2,
+                            dataField: "material_operation_reason_name",
+                            label: {
+                                text: "Причина движения"
+                            },
+                            editorOptions: {
+                                readOnly:true
+                            }
+                        },
+                        {
+                            name: "destinationResponsibleUserSelectBox",
+                            colSpan: 1,
                             dataField: "destination_responsible_user_name",
                             label: {
                                 text: "Ответственный"

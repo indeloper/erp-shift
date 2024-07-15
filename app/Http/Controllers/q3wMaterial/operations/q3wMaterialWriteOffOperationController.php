@@ -396,6 +396,7 @@ class q3wMaterialWriteOffOperationController extends Controller
             'operation_date' => isset($requestData['operation_date']) ? $requestData['operation_date'] : null,
             'creator_user_id' => Auth::id(),
             'source_responsible_user_id' => $requestData['responsible_user_id'],
+            'material_operation_reason_id' => $requestData['material_operation_reason_id']
         ]);
 
         $materialOperation->save();
@@ -418,7 +419,8 @@ class q3wMaterialWriteOffOperationController extends Controller
             $inputMaterialQuantity = $inputMaterial['quantity'];
             $inputMaterialInitialCommentId = $inputMaterial['initial_comment_id'];
 
-            if (empty($inputMaterial['comment'])) {
+            // Если коммит пустой, или в нем нет ни одной буквы
+            if (!isset($inputMaterial['comment']) || empty(trim($inputMaterial['comment'])) || !preg_match('/[\p{L}\p{N}]/u', $inputMaterial['comment'])) {
                 $inputMaterialComment = null;
             } else {
                 $inputMaterialComment = $inputMaterial['comment'];
@@ -798,8 +800,10 @@ class q3wMaterialWriteOffOperationController extends Controller
     {
         $operation = q3wMaterialOperation::leftJoin('project_objects as source_project_objects', 'source_project_objects.id', '=', 'q3w_material_operations.source_project_object_id')
             ->leftJoin('users as source_users', 'source_users.id', '=', 'q3w_material_operations.source_responsible_user_id')
+            ->leftJoin('q3w_material_operation_reasons', 'q3w_material_operation_reasons.id', '=', 'q3w_material_operations.material_operation_reason_id')
             ->get(['q3w_material_operations.*',
                 'source_project_objects.short_name as source_project_object_name',
+                'q3w_material_operation_reasons.name as material_operation_reason_name',
                 DB::Raw('CONCAT(`source_users`.`last_name`, " ", UPPER(SUBSTRING(`source_users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`source_users`.`patronymic`, 1, 1)), ".") as source_responsible_user_name'),
             ])
             ->where('id', '=', $request->operationId)
