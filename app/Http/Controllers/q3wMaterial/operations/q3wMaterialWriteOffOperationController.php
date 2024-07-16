@@ -33,6 +33,7 @@ use Illuminate\View\View;
 
 class q3wMaterialWriteOffOperationController extends Controller
 {
+
     const EMPTY_COMMENT_TEXT = 'Комментарий не указан';
 
     /**
@@ -50,7 +51,6 @@ class q3wMaterialWriteOffOperationController extends Controller
      */
     public function create(Request $request): View
     {
-
         if (isset($request->project_object)) {
             $projectObjectId = $request->project_object;
         } else {
@@ -58,16 +58,22 @@ class q3wMaterialWriteOffOperationController extends Controller
         }
 
         if (isset($request->materialsToWriteOff)) {
-            $predefinedMaterialsArray = explode('+', $request->materialsToWriteOff);
+            $predefinedMaterialsArray = explode('+',
+                $request->materialsToWriteOff);
 
             $predefinedMaterials = DB::table('q3w_materials as a')
-                ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
-                ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
-                ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
-                ->leftJoin('q3w_material_comments as f', 'a.comment_id', '=', 'f.id')
+                ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=',
+                    'b.id')
+                ->leftJoin('q3w_material_types as d', 'b.material_type', '=',
+                    'd.id')
+                ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=',
+                    'e.id')
+                ->leftJoin('q3w_material_comments as f', 'a.comment_id', '=',
+                    'f.id')
                 ->where('a.project_object', '=', $projectObjectId)
                 ->whereIn('a.id', $predefinedMaterialsArray)
-                ->get(['a.id',
+                ->get([
+                    'a.id',
                     'a.standard_id',
                     'a.amount',
                     'a.amount as total_amount',
@@ -82,42 +88,64 @@ class q3wMaterialWriteOffOperationController extends Controller
                     'b.weight as standard_weight',
                     'd.accounting_type',
                     'd.measure_unit',
-                    'e.value as measure_unit_value'])
+                    'e.value as measure_unit_value',
+                ])
                 ->toArray();
 
             foreach ($predefinedMaterials as $material) {
                 switch ($material->accounting_type) {
                     case 2:
-                        $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
+                        $activeOperationMaterialAmount
+                            = q3wOperationMaterial::where('standard_id',
+                            $material->standard_id)
                             ->where('quantity', $material->quantity)
                             ->where(function ($query) use ($material) {
                                 if (empty($material->comment_id)) {
                                     $query->whereNull('initial_comment_id');
                                 } else {
-                                    $query->where('initial_comment_id', $material->comment_id);
+                                    $query->where('initial_comment_id',
+                                        $material->comment_id);
                                 }
                             })
                             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-                            ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
-                            ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
-                            ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
-                            ->where('q3w_material_operations.source_project_object_id', $projectObjectId)
+                            ->leftJoin('q3w_material_operations',
+                                'q3w_material_operations.id',
+                                'material_operation_id')
+                            ->whereNotIn('q3w_material_operations.operation_route_stage_id',
+                                q3wOperationRouteStage::completed()
+                                    ->pluck('id'))
+                            ->whereNotIn('q3w_material_operations.operation_route_stage_id',
+                                q3wOperationRouteStage::cancelled()
+                                    ->pluck('id'))
+                            ->where('q3w_material_operations.source_project_object_id',
+                                $projectObjectId)
                             ->get(DB::raw('sum(`amount`) as amount'))
                             ->first();
 
                         $material->total_amount -= $activeOperationMaterialAmount->amount;
                         break;
                     default:
-                        $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $material->standard_id)
+                        $activeOperationMaterialAmount
+                            = q3wOperationMaterial::where('standard_id',
+                            $material->standard_id)
                             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-                            ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
-                            ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
-                            ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                            ->leftJoin('q3w_material_operations',
+                                'q3w_material_operations.id',
+                                'material_operation_id')
+                            ->whereNotIn('q3w_material_operations.operation_route_stage_id',
+                                q3wOperationRouteStage::completed()
+                                    ->pluck('id'))
+                            ->whereNotIn('q3w_material_operations.operation_route_stage_id',
+                                q3wOperationRouteStage::cancelled()
+                                    ->pluck('id'))
                             ->whereRaw('IFNULL(`transform_operation_stage_id`, 0) NOT IN (2, 3) ')
-                            ->where('q3w_material_operations.source_project_object_id', $projectObjectId)
+                            ->where('q3w_material_operations.source_project_object_id',
+                                $projectObjectId)
                             ->get(DB::raw('sum(`quantity`) as quantity'))
                             ->first();
-                        $material->total_quantity = round($material->total_quantity - $activeOperationMaterialAmount->quantity, 2);
+                        $material->total_quantity
+                            = round($material->total_quantity
+                            - $activeOperationMaterialAmount->quantity, 2);
                 }
 
                 $material->validationUid = Str::uuid();
@@ -129,18 +157,28 @@ class q3wMaterialWriteOffOperationController extends Controller
         //dd($predefinedMaterials);
 
         return view('materials.operations.write-off.new')->with([
-            'projectObjectId' => $projectObjectId,
-            'currentUserId' => Auth::id(),
-            'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
-            'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
-            'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
-            'materialStandards' => DB::table('q3w_material_standards as a')
-                ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
-                ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
-                ->get(['a.*', 'b.name as material_type_name', 'b.measure_unit', 'b.accounting_type', 'd.value as measure_unit_value'])
+            'projectObjectId'     => $projectObjectId,
+            'currentUserId'       => Auth::id(),
+            'measureUnits'        => q3wMeasureUnit::all('id', 'value')
+                ->toJson(JSON_UNESCAPED_UNICODE),
+            'accountingTypes'     => q3wMaterialAccountingType::all('id',
+                'value')->toJson(JSON_UNESCAPED_UNICODE),
+            'materialTypes'       => q3wMaterialType::all('id', 'name')
+                ->toJson(JSON_UNESCAPED_UNICODE),
+            'materialStandards'   => DB::table('q3w_material_standards as a')
+                ->leftJoin('q3w_material_types as b', 'a.material_type', '=',
+                    'b.id')
+                ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=',
+                    'd.id')
+                ->get([
+                    'a.*', 'b.name as material_type_name', 'b.measure_unit',
+                    'b.accounting_type', 'd.value as measure_unit_value',
+                ])
                 ->toJSON(),
-            'projectObjects' => ProjectObject::all('id', 'name', 'short_name')->toJson(JSON_UNESCAPED_UNICODE),
-            'users' => User::getAllUsers()->where('status', 1)->get()->toJson(JSON_UNESCAPED_UNICODE),
+            'projectObjects'      => ProjectObject::all('id', 'name',
+                'short_name')->toJson(JSON_UNESCAPED_UNICODE),
+            'users'               => User::getAllUsers()->where('status', 1)
+                ->get()->toJson(JSON_UNESCAPED_UNICODE),
             'predefinedMaterials' => json_encode($predefinedMaterials),
         ]);
     }
@@ -158,69 +196,106 @@ class q3wMaterialWriteOffOperationController extends Controller
         }
 
         if (empty($validationData->materials)) {
-            $errors['common']['errorList'][] = (object) ['severity' => 1000, 'type' => 'materialsNotFound', 'message' => 'Материалы не указаны'];
+            $errors['common']['errorList'][] = (object) [
+                'severity' => 1000, 'type' => 'materialsNotFound',
+                'message'  => 'Материалы не указаны',
+            ];
         } else {
             $materials = $validationData->materials;
         }
 
         $projectObject = ProjectObject::find($validationData->projectObjectId);
         if (empty($projectObject)) {
-            $errors['common']['errorList'][] = (object) ['severity' => 1000, 'type' => 'sourceProjectObjectNotFound', 'message' => 'Объект отправления не найден'];
+            $errors['common']['errorList'][] = (object) [
+                'severity' => 1000, 'type' => 'sourceProjectObjectNotFound',
+                'message'  => 'Объект отправления не найден',
+            ];
         }
 
-        if (! empty($materials)) {
+        if ( ! empty($materials)) {
             $unitedMaterials = [];
 
             foreach ($materials as $material) {
-                if (isset($material->edit_states) && in_array('deletedByRecipient', $material->edit_states)) {
+                if (isset($material->edit_states)
+                    && in_array('deletedByRecipient', $material->edit_states)
+                ) {
                     continue;
                 }
 
-                $materialStandard = q3wMaterialStandard::find($material->standard_id);
+                $materialStandard
+                    = q3wMaterialStandard::find($material->standard_id);
 
-                $accountingType = $materialStandard->materialType->accounting_type;
+                $accountingType
+                    = $materialStandard->materialType->accounting_type;
 
                 $key = $material->validationUid;
 
                 switch ($accountingType) {
                     case 2:
                         if (array_key_exists($key, $unitedMaterials)) {
-                            $unitedMaterials[$key]->amount = $unitedMaterials[$key]->amount + $material->amount;
+                            $unitedMaterials[$key]->amount
+                                = $unitedMaterials[$key]->amount
+                                + $material->amount;
                         } else {
                             $unitedMaterials[$key] = $material;
-                            $unitedMaterials[$key]->max_quantity = $material->quantity;
+                            $unitedMaterials[$key]->max_quantity
+                                                   = $material->quantity;
                         }
                         break;
                     default:
                         if (array_key_exists($key, $unitedMaterials)) {
-                            if ($unitedMaterials[$key]->max_quantity < $material->quantity) {
-                                $unitedMaterials[$key]->max_quantity = $material->quantity;
+                            if ($unitedMaterials[$key]->max_quantity
+                                < $material->quantity
+                            ) {
+                                $unitedMaterials[$key]->max_quantity
+                                    = $material->quantity;
                             }
-                            $unitedMaterials[$key]->quantity = round($unitedMaterials[$key]->quantity + $material->quantity * $material->amount, 2);
+                            $unitedMaterials[$key]->quantity
+                                                           = round($unitedMaterials[$key]->quantity
+                                + $material->quantity * $material->amount, 2);
                             $unitedMaterials[$key]->amount = 1;
                         } else {
-                            $unitedMaterials[$key] = $material;
-                            $unitedMaterials[$key]->max_quantity = $material->quantity;
-                            $unitedMaterials[$key]->quantity = round($material->quantity * $material->amount, 2);
+                            $unitedMaterials[$key]         = $material;
+                            $unitedMaterials[$key]->max_quantity
+                                                           = $material->quantity;
+                            $unitedMaterials[$key]->quantity
+                                                           = round($material->quantity
+                                * $material->amount, 2);
                             $unitedMaterials[$key]->amount = 1;
                         }
                 }
 
-                if (! isset($material->amount) || $material->amount == null || $material->amount == 0 || $material->amount == '') {
-                    $errors[$key]['errorList'][] = (object) ['severity' => 1000, 'type' => 'amountIsNull', 'itemName' => $materialStandard->name, 'message' => 'Количество в штуках не указано'];
+                if ( ! isset($material->amount) || $material->amount == null
+                    || $material->amount == 0
+                    || $material->amount == ''
+                ) {
+                    $errors[$key]['errorList'][] = (object) [
+                        'severity' => 1000, 'type' => 'amountIsNull',
+                        'itemName' => $materialStandard->name,
+                        'message'  => 'Количество в штуках не указано',
+                    ];
                 }
 
-                if (! isset($material->quantity) || $material->quantity == null || $material->quantity == 0 || $material->quantity == '') {
-                    $errors[$key]['errorList'][] = (object) ['severity' => 1000, 'type' => 'quantityIsNull', 'itemName' => $materialStandard->name, 'message' => 'Количество в единицах измерения не указано'];
+                if ( ! isset($material->quantity) || $material->quantity == null
+                    || $material->quantity == 0
+                    || $material->quantity == ''
+                ) {
+                    $errors[$key]['errorList'][] = (object) [
+                        'severity' => 1000, 'type' => 'quantityIsNull',
+                        'itemName' => $materialStandard->name,
+                        'message'  => 'Количество в единицах измерения не указано',
+                    ];
                 }
             }
 
             $totalWeight = 0;
 
             foreach ($unitedMaterials as $key => $unitedMaterial) {
-                $materialStandard = q3wMaterialStandard::find($unitedMaterial->standard_id);
+                $materialStandard
+                    = q3wMaterialStandard::find($unitedMaterial->standard_id);
 
-                $accountingType = $materialStandard->materialType->accounting_type;
+                $accountingType
+                    = $materialStandard->materialType->accounting_type;
 
                 $materialName = $materialStandard->name;
 
@@ -231,7 +306,7 @@ class q3wMaterialWriteOffOperationController extends Controller
                 }
 
                 if ($accountingType == 2) {
-                    $sourceProjectObjectMaterial = (new q3wMaterial)
+                    $sourceProjectObjectMaterial = (new q3wMaterial())
                         ->where('project_object', $projectObject->id)
                         ->where('standard_id', $unitedMaterial->standard_id)
                         ->where('quantity', $unitedMaterial->quantity)
@@ -239,74 +314,114 @@ class q3wMaterialWriteOffOperationController extends Controller
                             if (empty($unitedMaterial->initial_comment_id)) {
                                 $query->whereNull('comment_id');
                             } else {
-                                $query->where('comment_id', $unitedMaterial->initial_comment_id);
+                                $query->where('comment_id',
+                                    $unitedMaterial->initial_comment_id);
                             }
                         })
                         ->get()
                         ->first();
 
-                    $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $unitedMaterial->standard_id)
+                    $activeOperationMaterialAmount
+                        = q3wOperationMaterial::where('standard_id',
+                        $unitedMaterial->standard_id)
                         ->where('quantity', $unitedMaterial->quantity)
                         ->where('material_operation_id', '<>', $operationId)
-                        ->where('initial_comment_id', $unitedMaterial->initial_comment_id)
+                        ->where('initial_comment_id',
+                            $unitedMaterial->initial_comment_id)
                         ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-                        ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
-                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
-                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->leftJoin('q3w_material_operations',
+                            'q3w_material_operations.id',
+                            'material_operation_id')
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id',
+                            q3wOperationRouteStage::completed()->pluck('id'))
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id',
+                            q3wOperationRouteStage::cancelled()->pluck('id'))
                         ->whereRaw('IFNULL(`transform_operation_stage_id`, 0) NOT IN (2, 3) ')
-                        ->where('q3w_material_operations.source_project_object_id', $projectObject->id)
+                        ->where('q3w_material_operations.source_project_object_id',
+                            $projectObject->id)
                         ->get(DB::raw('sum(`amount`) as amount'))
                         ->first();
 
                     $operationAmount = $activeOperationMaterialAmount->amount;
                 } else {
-                    $sourceProjectObjectMaterial = (new q3wMaterial)
+                    $sourceProjectObjectMaterial = (new q3wMaterial())
                         ->where('project_object', $projectObject->id)
                         ->where('standard_id', $unitedMaterial->standard_id)
                         ->where(function ($query) use ($unitedMaterial) {
                             if (empty($unitedMaterial->initial_comment_id)) {
                                 $query->whereNull('comment_id');
                             } else {
-                                $query->where('comment_id', $unitedMaterial->initial_comment_id);
+                                $query->where('comment_id',
+                                    $unitedMaterial->initial_comment_id);
                             }
                         })
                         ->get()
                         ->first();
 
-                    $activeOperationMaterialAmount = q3wOperationMaterial::where('standard_id', $unitedMaterial->standard_id)
-                        ->where('initial_comment_id', $unitedMaterial->initial_comment_id)
+                    $activeOperationMaterialAmount
+                        = q3wOperationMaterial::where('standard_id',
+                        $unitedMaterial->standard_id)
+                        ->where('initial_comment_id',
+                            $unitedMaterial->initial_comment_id)
                         ->where('material_operation_id', '<>', $operationId)
                         ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-                        ->leftJoin('q3w_material_operations', 'q3w_material_operations.id', 'material_operation_id')
-                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
-                        ->whereNotIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
+                        ->leftJoin('q3w_material_operations',
+                            'q3w_material_operations.id',
+                            'material_operation_id')
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id',
+                            q3wOperationRouteStage::completed()->pluck('id'))
+                        ->whereNotIn('q3w_material_operations.operation_route_stage_id',
+                            q3wOperationRouteStage::cancelled()->pluck('id'))
                         ->whereRaw('IFNULL(`transform_operation_stage_id`, 0) NOT IN (2, 3) ')
-                        ->where('q3w_material_operations.source_project_object_id', $projectObject->id)
+                        ->where('q3w_material_operations.source_project_object_id',
+                            $projectObject->id)
                         ->get(DB::raw('sum(`amount` * `quantity`) as total_quantity'))
                         ->first();
 
-                    $operationQuantity = $activeOperationMaterialAmount->total_quantity;
+                    $operationQuantity
+                        = $activeOperationMaterialAmount->total_quantity;
                 }
 
-                if (! isset($errors[$key])) {
+                if ( ! isset($errors[$key])) {
                     if ($materialStandard->materialType->measure_unit == 1) {
                         if ($unitedMaterial->max_quantity > 15) {
-                            $errors[$key]['errorList'][] = (object) ['severity' => 500, 'type' => 'largeMaterialLength', 'itemName' => $materialName, 'message' => 'Габарит груза превышает 15 м.п.'];
+                            $errors[$key]['errorList'][]
+                                = (object) [
+                                'severity' => 500,
+                                'type'     => 'largeMaterialLength',
+                                'itemName' => $materialName,
+                                'message'  => 'Габарит груза превышает 15 м.п.',
+                            ];
                         }
                     }
                 }
 
-                if (! isset($sourceProjectObjectMaterial)) {
-                    $errors[$key]['errorList'][] = (object) ['severity' => 1000, 'type' => 'materialNotFound', 'itemName' => $materialName, 'message' => 'На объекте отправления не существует такого материала'];
+                if ( ! isset($sourceProjectObjectMaterial)) {
+                    $errors[$key]['errorList'][] = (object) [
+                        'severity' => 1000, 'type' => 'materialNotFound',
+                        'itemName' => $materialName,
+                        'message'  => 'На объекте отправления не существует такого материала',
+                    ];
                 } else {
                     if ($accountingType == 2) {
-                        $materialAmountDelta = round($sourceProjectObjectMaterial->amount - $unitedMaterial->amount - $operationAmount, 2);
+                        $materialAmountDelta
+                            = round($sourceProjectObjectMaterial->amount
+                            - $unitedMaterial->amount - $operationAmount, 2);
                     } else {
-                        $materialAmountDelta = round($sourceProjectObjectMaterial->quantity - $unitedMaterial->quantity - $operationQuantity, 2);
+                        $materialAmountDelta
+                            = round($sourceProjectObjectMaterial->quantity
+                            - $unitedMaterial->quantity - $operationQuantity,
+                            2);
                     }
 
                     if (round($materialAmountDelta, 2) < 0) {
-                        $errors[$key]['errorList'][] = (object) ['severity' => 1000, 'type' => 'negativeMaterialQuantity', 'itemName' => $materialName, 'message' => 'На объекте отправления недостаточно материала'];
+                        $errors[$key]['errorList'][]
+                            = (object) [
+                            'severity' => 1000,
+                            'type'     => 'negativeMaterialQuantity',
+                            'itemName' => $materialName,
+                            'message'  => 'На объекте отправления недостаточно материала',
+                        ];
                     }
                 }
 
@@ -316,11 +431,15 @@ class q3wMaterialWriteOffOperationController extends Controller
                     $errors[$key]['isValid'] = true;
                 }
 
-                $totalWeight += $unitedMaterial->amount * $unitedMaterial->quantity * $materialStandard->weight;
+                $totalWeight += $unitedMaterial->amount
+                    * $unitedMaterial->quantity * $materialStandard->weight;
             }
 
             if ($totalWeight > 20) {
-                $errors['common']['errorList'][] = (object) ['severity' => 500, 'type' => 'totalWeightTooLarge', 'message' => 'Общая масса материалов превышает 20 т.'];
+                $errors['common']['errorList'][] = (object) [
+                    'severity' => 500, 'type' => 'totalWeightTooLarge',
+                    'message'  => 'Общая масса материалов превышает 20 т.',
+                ];
             }
         }
 
@@ -329,18 +448,26 @@ class q3wMaterialWriteOffOperationController extends Controller
         foreach ($errors as $key => $error) {
             if ($key != 'common') {
                 if ($error['isValid']) {
-                    $errorResult[] = ['validationUid' => $key, 'isValid' => $error['isValid']];
+                    $errorResult[] = [
+                        'validationUid' => $key, 'isValid' => $error['isValid'],
+                    ];
                 } else {
-                    $errorResult[] = ['validationUid' => $key, 'isValid' => $error['isValid'], 'errorList' => $error['errorList']];
+                    $errorResult[] = [
+                        'validationUid' => $key, 'isValid' => $error['isValid'],
+                        'errorList'     => $error['errorList'],
+                    ];
                 }
             } else {
-                $errorResult[] = ['validationUid' => $key, 'isValid' => false, 'errorList' => $error['errorList']];
+                $errorResult[] = [
+                    'validationUid' => $key, 'isValid' => false,
+                    'errorList'     => $error['errorList'],
+                ];
             }
         }
 
         return response()->json([
             'validationResult' => $errorResult,
-            'timestamp' => $validationData->timestamp,
+            'timestamp'        => $validationData->timestamp,
         ], 200, [], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
@@ -350,53 +477,63 @@ class q3wMaterialWriteOffOperationController extends Controller
     public function store(Request $request): JsonResponse
     {
         DB::beginTransaction();
-        $requestData = json_decode($request['data'], JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
+        $requestData = json_decode($request['data'],
+            JSON_OBJECT_AS_ARRAY /*| JSON_THROW_ON_ERROR)*/);
 
         //Нужно проверить, что материал существует
         //Нужно проверить, что остаток будет большим, или равным нулю
         foreach ($requestData['materials'] as $inputMaterial) {
             if ($inputMaterial['accounting_type'] == 2) {
-                $sourceMaterial = q3wMaterial::where('project_object', $requestData['project_object_id'])
+                $sourceMaterial = q3wMaterial::where('project_object',
+                    $requestData['project_object_id'])
                     ->where('standard_id', $inputMaterial['standard_id'])
                     ->where('quantity', $inputMaterial['quantity'])
                     ->where(function ($query) use ($inputMaterial) {
                         if (empty($inputMaterial['initial_comment_id'])) {
                             $query->whereNull('comment_id');
                         } else {
-                            $query->where('comment_id', $inputMaterial['initial_comment_id']);
+                            $query->where('comment_id',
+                                $inputMaterial['initial_comment_id']);
                         }
                     })
                     ->firstOrFail();
 
                 if ($inputMaterial['amount'] > $sourceMaterial['amount']) {
-                    abort(400, 'Bad amount for standard '.$inputMaterial['standard_id']);
+                    abort(400, 'Bad amount for standard '
+                        .$inputMaterial['standard_id']);
                 }
             } else {
-                $sourceMaterial = q3wMaterial::where('project_object', $requestData['project_object_id'])
+                $sourceMaterial = q3wMaterial::where('project_object',
+                    $requestData['project_object_id'])
                     ->where('standard_id', $inputMaterial['standard_id'])
                     ->where(function ($query) use ($inputMaterial) {
                         if (empty($inputMaterial['initial_comment_id'])) {
                             $query->whereNull('comment_id');
                         } else {
-                            $query->where('comment_id', $inputMaterial['initial_comment_id']);
+                            $query->where('comment_id',
+                                $inputMaterial['initial_comment_id']);
                         }
                     })
                     ->firstOrFail();
 
-                if (round($inputMaterial['amount'] * $inputMaterial['quantity'], 2) > round($sourceMaterial['quantity'], 2)) {
-                    abort(400, 'Bad quantity for standard '.$inputMaterial['standard_id']);
+                if (round($inputMaterial['amount'] * $inputMaterial['quantity'],
+                        2) > round($sourceMaterial['quantity'], 2)
+                ) {
+                    abort(400, 'Bad quantity for standard '
+                        .$inputMaterial['standard_id']);
                 }
             }
         }
 
         $materialOperation = new q3wMaterialOperation([
-            'operation_route_id' => 4,
-            'operation_route_stage_id' => 75,
-            'source_project_object_id' => $requestData['project_object_id'],
-            'operation_date' => isset($requestData['operation_date']) ? $requestData['operation_date'] : null,
-            'creator_user_id' => Auth::id(),
+            'operation_route_id'         => 4,
+            'operation_route_stage_id'   => 75,
+            'source_project_object_id'   => $requestData['project_object_id'],
+            'operation_date'             => isset($requestData['operation_date'])
+                ? $requestData['operation_date'] : null,
+            'creator_user_id'            => Auth::id(),
             'source_responsible_user_id' => $requestData['responsible_user_id'],
-            'material_operation_reason_id' => $requestData['material_operation_reason_id']
+            //            'material_operation_reason_id' => $requestData['material_operation_reason_id']
         ]);
 
         $materialOperation->save();
@@ -404,31 +541,36 @@ class q3wMaterialWriteOffOperationController extends Controller
         $newComment = $requestData['new_comment'] ?? self::EMPTY_COMMENT_TEXT;
 
         $materialOperationComment = new q3wOperationComment([
-            'material_operation_id' => $materialOperation->id,
+            'material_operation_id'    => $materialOperation->id,
             'operation_route_stage_id' => $materialOperation->operation_route_stage_id,
-            'comment' => $newComment,
-            'user_id' => Auth::id(),
+            'comment'                  => $newComment,
+            'user_id'                  => Auth::id(),
         ]);
 
         $materialOperationComment->save();
 
         foreach ($requestData['materials'] as $inputMaterial) {
-            $materialStandard = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
+            $materialStandard
+                = q3wMaterialStandard::findOrFail($inputMaterial['standard_id']);
 
-            $inputMaterialAmount = $inputMaterial['amount'];
+            $inputMaterialAmount   = $inputMaterial['amount'];
             $inputMaterialQuantity = $inputMaterial['quantity'];
-            $inputMaterialInitialCommentId = $inputMaterial['initial_comment_id'];
+            $inputMaterialInitialCommentId
+                                   = $inputMaterial['initial_comment_id'];
 
             // Если коммит пустой, или в нем нет ни одной буквы
-            if (!isset($inputMaterial['comment']) || empty(trim($inputMaterial['comment'])) || !preg_match('/[\p{L}\p{N}]/u', $inputMaterial['comment'])) {
+            if ( ! isset($inputMaterial['comment'])
+                || empty(trim($inputMaterial['comment']))
+                || ! preg_match('/[\p{L}\p{N}]/u', $inputMaterial['comment'])
+            ) {
                 $inputMaterialComment = null;
             } else {
                 $inputMaterialComment = $inputMaterial['comment'];
             }
 
-            if (! empty($inputMaterialComment)) {
+            if ( ! empty($inputMaterialComment)) {
                 $materialComment = new q3wOperationMaterialComment([
-                    'comment' => $inputMaterialComment,
+                    'comment'   => $inputMaterialComment,
                     'author_id' => Auth::id(),
                 ]);
                 $materialComment->save();
@@ -439,22 +581,23 @@ class q3wMaterialWriteOffOperationController extends Controller
 
             $operationMaterial = new q3wOperationMaterial([
                 'material_operation_id' => $materialOperation->id,
-                'standard_id' => $materialStandard->id,
-                'amount' => $inputMaterialAmount,
-                'quantity' => $inputMaterialQuantity,
-                'initial_amount' => $inputMaterialAmount,
-                'initial_quantity' => $inputMaterialQuantity,
-                'initial_comment_id' => $inputMaterialInitialCommentId,
-                'comment_id' => $materialCommentId,
+                'standard_id'           => $materialStandard->id,
+                'amount'                => $inputMaterialAmount,
+                'quantity'              => $inputMaterialQuantity,
+                'initial_amount'        => $inputMaterialAmount,
+                'initial_quantity'      => $inputMaterialQuantity,
+                'initial_comment_id'    => $inputMaterialInitialCommentId,
+                'comment_id'            => $materialCommentId,
             ]);
 
             $operationMaterial->save();
         }
 
         foreach ($requestData['uploaded_files'] as $uploadedFileId) {
-            $uploadedFile = q3wOperationFile::find($uploadedFileId);
+            $uploadedFile                        = q3wOperationFile::find($uploadedFileId);
             $uploadedFile->material_operation_id = $materialOperation->id;
-            $uploadedFile->operation_route_stage_id = $materialOperation->operation_route_stage_id;
+            $uploadedFile->operation_route_stage_id
+                                                 = $materialOperation->operation_route_stage_id;
             $uploadedFile->save();
         }
 
@@ -470,36 +613,54 @@ class q3wMaterialWriteOffOperationController extends Controller
     public function view(Request $request): View
     {
         if (isset($request->operationId)) {
-            $operation = q3wMaterialOperation::findOrFail($request->operationId);
+            $operation
+                = q3wMaterialOperation::findOrFail($request->operationId);
         }
 
         $operationData = $operation->toJSON(JSON_OBJECT_AS_ARRAY);
-        $operationRouteStage = q3wOperationRouteStage::find($operation->operation_route_stage_id)->name;
+        $operationRouteStage
+                       = q3wOperationRouteStage::find($operation->operation_route_stage_id)->name;
 
         return view('materials.operations.write-off.view')->with([
-            'operationData' => $operationData,
+            'operationData'       => $operationData,
             'operationRouteStage' => $operationRouteStage,
-            'currentUserId' => Auth::id(),
-            'measureUnits' => q3wMeasureUnit::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
-            'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
-            'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
-            'materialStandards' => DB::table('q3w_material_standards as a')
-                ->leftJoin('q3w_material_types as b', 'a.material_type', '=', 'b.id')
-                ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=', 'd.id')
-                ->get(['a.*', 'b.name as material_type_name', 'b.measure_unit', 'b.accounting_type', 'd.value as measure_unit_value'])
+            'currentUserId'       => Auth::id(),
+            'measureUnits'        => q3wMeasureUnit::all('id', 'value')
+                ->toJson(JSON_UNESCAPED_UNICODE),
+            'accountingTypes'     => q3wMaterialAccountingType::all('id',
+                'value')->toJson(JSON_UNESCAPED_UNICODE),
+            'materialTypes'       => q3wMaterialType::all('id', 'name')
+                ->toJson(JSON_UNESCAPED_UNICODE),
+            'materialStandards'   => DB::table('q3w_material_standards as a')
+                ->leftJoin('q3w_material_types as b', 'a.material_type', '=',
+                    'b.id')
+                ->leftJoin('q3w_measure_units as d', 'b.measure_unit', '=',
+                    'd.id')
+                ->get([
+                    'a.*', 'b.name as material_type_name', 'b.measure_unit',
+                    'b.accounting_type', 'd.value as measure_unit_value',
+                ])
                 ->toJSON(),
-            'projectObjects' => ProjectObject::all('id', 'name', 'short_name')->toJson(JSON_UNESCAPED_UNICODE),
-            'users' => User::getAllUsers()
+            'projectObjects'      => ProjectObject::all('id', 'name',
+                'short_name')->toJson(JSON_UNESCAPED_UNICODE),
+            'users'               => User::getAllUsers()
                 ->where('status', 1)
                 ->get()
                 ->toJson(JSON_UNESCAPED_UNICODE),
-            'operationMaterials' => q3wOperationMaterial::where('material_operation_id', '=', $operation->id)
-                ->leftJoin('q3w_material_standards as b', 'q3w_operation_materials.standard_id', '=', 'b.id')
-                ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
-                ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
-                ->leftJoin('q3w_material_comments as f', 'q3w_operation_materials.initial_comment_id', '=', 'f.id')
-                ->leftJoin('q3w_operation_material_comments as g', 'q3w_operation_materials.comment_id', '=', 'g.id')
-                ->get(['q3w_operation_materials.*',
+            'operationMaterials'  => q3wOperationMaterial::where('material_operation_id',
+                '=', $operation->id)
+                ->leftJoin('q3w_material_standards as b',
+                    'q3w_operation_materials.standard_id', '=', 'b.id')
+                ->leftJoin('q3w_material_types as d', 'b.material_type', '=',
+                    'd.id')
+                ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=',
+                    'e.id')
+                ->leftJoin('q3w_material_comments as f',
+                    'q3w_operation_materials.initial_comment_id', '=', 'f.id')
+                ->leftJoin('q3w_operation_material_comments as g',
+                    'q3w_operation_materials.comment_id', '=', 'g.id')
+                ->get([
+                    'q3w_operation_materials.*',
                     'b.name as standard_name',
                     'b.weight as standard_weight',
                     'd.measure_unit',
@@ -507,11 +668,12 @@ class q3wMaterialWriteOffOperationController extends Controller
                     'd.accounting_type',
                     'e.value as measure_unit_value',
                     'g.comment',
-                    'f.comment as initial_comment'])
+                    'f.comment as initial_comment',
+                ])
                 ->toJson(JSON_UNESCAPED_UNICODE),
-            'allowEditing' => $this->allowEditing($operation),
-            'allowCancelling' => $this->allowCancelling($operation),
-            'routeStageId' => $operation->operation_route_stage_id,
+            'allowEditing'        => $this->allowEditing($operation),
+            'allowCancelling'     => $this->allowCancelling($operation),
+            'routeStageId'        => $operation->operation_route_stage_id,
         ]);
     }
 
@@ -558,8 +720,10 @@ class q3wMaterialWriteOffOperationController extends Controller
                     $this->move($operation);
                     $operation->operation_route_stage_id = 80;
                     $operation->save();
-                    $projectObject = ProjectObject::findOrFail($operation->source_project_object_id);
-                    (new q3wMaterialSnapshot)->takeSnapshot($operation, $projectObject);
+                    $projectObject
+                        = ProjectObject::findOrFail($operation->source_project_object_id);
+                    (new q3wMaterialSnapshot())->takeSnapshot($operation,
+                        $projectObject);
                     $this->moveOperationToNextStage($operation->id);
                 }
                 break;
@@ -585,51 +749,60 @@ class q3wMaterialWriteOffOperationController extends Controller
 
     public function move(q3wMaterialOperation $operation)
     {
-        $materialsToWriteOff = q3wOperationMaterial::where('material_operation_id', '=', $operation->id)
+        $materialsToWriteOff
+            = q3wOperationMaterial::where('material_operation_id', '=',
+            $operation->id)
             ->get()
             ->toArray();
 
         foreach ($materialsToWriteOff as $materialToWriteOff) {
-            $materialStandard = q3wMaterialStandard::findOrFail($materialToWriteOff['standard_id']);
+            $materialStandard
+                          = q3wMaterialStandard::findOrFail($materialToWriteOff['standard_id']);
             $materialType = $materialStandard->materialType;
 
-            $materialAmount = $materialToWriteOff['amount'];
+            $materialAmount   = $materialToWriteOff['amount'];
             $materialQuantity = $materialToWriteOff['quantity'];
 
             if ($materialType->accounting_type == 2) {
-                $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
+                $material = q3wMaterial::where('project_object',
+                    $operation->source_project_object_id)
                     ->where('standard_id', $materialStandard->id)
                     ->where(function ($query) use ($materialToWriteOff) {
                         if (empty($materialToWriteOff['initial_comment_id'])) {
                             $query->whereNull('comment_id');
                         } else {
-                            $query->where('comment_id', $materialToWriteOff['initial_comment_id']);
+                            $query->where('comment_id',
+                                $materialToWriteOff['initial_comment_id']);
                         }
                     })
                     ->where('quantity', $materialQuantity)
                     ->first();
             } else {
-                $material = q3wMaterial::where('project_object', $operation->source_project_object_id)
+                $material = q3wMaterial::where('project_object',
+                    $operation->source_project_object_id)
                     ->where('standard_id', $materialStandard->id)
                     ->where(function ($query) use ($materialToWriteOff) {
                         if (empty($materialToWriteOff['initial_comment_id'])) {
                             $query->whereNull('comment_id');
                         } else {
-                            $query->where('comment_id', $materialToWriteOff['initial_comment_id']);
+                            $query->where('comment_id',
+                                $materialToWriteOff['initial_comment_id']);
                         }
                     })
                     ->first();
             }
 
-            if (! isset($material)) {
+            if ( ! isset($material)) {
                 abort(400, 'Source material not found');
             }
 
             if ($materialType->accounting_type == 2) {
-                $material->amount = round($material->amount - $materialAmount, 2);
+                $material->amount = round($material->amount - $materialAmount,
+                    2);
             } else {
-                $material->amount = 1;
-                $material->quantity = round($material->quantity - $materialQuantity * $materialAmount, 2);
+                $material->amount   = 1;
+                $material->quantity = round($material->quantity
+                    - $materialQuantity * $materialAmount, 2);
             }
 
             if ($material->amount < 0) {
@@ -642,15 +815,15 @@ class q3wMaterialWriteOffOperationController extends Controller
 
             $material->save();
         }
-
     }
 
     public function confirmOperation(Request $request)
     {
         $requestData = json_decode($request['data']);
 
-        $operation = q3wMaterialOperation::findOrFail($requestData->operationId);
-        if (! $this->allowEditing($operation)) {
+        $operation
+            = q3wMaterialOperation::findOrFail($requestData->operationId);
+        if ( ! $this->allowEditing($operation)) {
             abort(400, 'You are in read-only mode');
         }
 
@@ -659,25 +832,27 @@ class q3wMaterialWriteOffOperationController extends Controller
         $newComment = $requestData->new_comment ?? self::EMPTY_COMMENT_TEXT;
 
         $materialOperationComment = new q3wOperationComment([
-            'material_operation_id' => $operation->id,
+            'material_operation_id'    => $operation->id,
             'operation_route_stage_id' => $operation->operation_route_stage_id,
-            'comment' => $newComment,
-            'user_id' => Auth::id(),
+            'comment'                  => $newComment,
+            'user_id'                  => Auth::id(),
         ]);
 
         $materialOperationComment->save();
 
         foreach ($requestData->uploaded_files as $uploadedFileId) {
-            $uploadedFile = q3wOperationFile::find($uploadedFileId);
+            $uploadedFile                        = q3wOperationFile::find($uploadedFileId);
             $uploadedFile->material_operation_id = $operation->id;
-            $uploadedFile->operation_route_stage_id = $operation->operation_route_stage_id;
+            $uploadedFile->operation_route_stage_id
+                                                 = $operation->operation_route_stage_id;
             $uploadedFile->save();
         }
 
         $this->moveOperationToNextStage($operation->id);
 
         $operation = q3wMaterialOperation::find($operation->id);
-        $materialOperationComment->operation_route_stage_id = $operation->operation_route_stage_id;
+        $materialOperationComment->operation_route_stage_id
+                   = $operation->operation_route_stage_id;
         $materialOperationComment->save();
 
         DB::commit();
@@ -687,89 +862,111 @@ class q3wMaterialWriteOffOperationController extends Controller
     {
         $requestData = json_decode($request['data']);
 
-        $operation = q3wMaterialOperation::findOrFail($requestData->operationId);
+        $operation
+            = q3wMaterialOperation::findOrFail($requestData->operationId);
         if ($this->allowCancelling($operation)) {
             DB::beginTransaction();
 
             $newComment = $requestData->new_comment ?? self::EMPTY_COMMENT_TEXT;
 
             $materialOperationComment = new q3wOperationComment([
-                'material_operation_id' => $operation->id,
+                'material_operation_id'    => $operation->id,
                 'operation_route_stage_id' => $operation->operation_route_stage_id,
-                'comment' => $newComment,
-                'user_id' => Auth::id(),
+                'comment'                  => $newComment,
+                'user_id'                  => Auth::id(),
             ]);
 
             $materialOperationComment->save();
 
             foreach ($requestData->uploaded_files as $uploadedFileId) {
-                $uploadedFile = q3wOperationFile::find($uploadedFileId);
+                $uploadedFile                        = q3wOperationFile::find($uploadedFileId);
                 $uploadedFile->material_operation_id = $operation->id;
-                $uploadedFile->operation_route_stage_id = $operation->operation_route_stage_id;
+                $uploadedFile->operation_route_stage_id
+                                                     = $operation->operation_route_stage_id;
                 $uploadedFile->save();
             }
 
             $this->moveOperationToNextStage($operation->id, true);
 
             $operation = q3wMaterialOperation::find($operation->id);
-            $materialOperationComment->operation_route_stage_id = $operation->operation_route_stage_id;
+            $materialOperationComment->operation_route_stage_id
+                       = $operation->operation_route_stage_id;
             $materialOperationComment->save();
 
             DB::commit();
         }
     }
 
-    public function sendWriteOffNotificationToResponsibilityUsersOfObject(q3wMaterialOperation $operation, string $notificationText, int $projectObjectId)
-    {
-
-        $responsibilityUsers = (new ObjectResponsibleUser)->getResponsibilityUsers($projectObjectId, $role = 'TONGUE_PROJECT_MANAGER');
+    public function sendWriteOffNotificationToResponsibilityUsersOfObject(
+        q3wMaterialOperation $operation,
+        string $notificationText,
+        int $projectObjectId
+    ) {
+        $responsibilityUsers
+            = (new ObjectResponsibleUser())->getResponsibilityUsers($projectObjectId,
+            $role = 'TONGUE_PROJECT_MANAGER');
 
         foreach ($responsibilityUsers as $responsibilityUser) {
-            $this->sendWriteOffNotification($operation, $notificationText, $responsibilityUser->user_id, $projectObjectId);
+            $this->sendWriteOffNotification($operation, $notificationText,
+                $responsibilityUser->user_id, $projectObjectId);
         }
     }
 
-    public function sendWriteOffNotificationToResponsibilityUsers(q3wMaterialOperation $operation, string $notificationText, int $projectObjectId)
-    {
-        $permissionId = Permission::where('codename', 'material_accounting_write_off_confirmation')->first()->id;
-        $responsibilityUsers = UserPermission::where('permission_id', $permissionId)->get();
+    public function sendWriteOffNotificationToResponsibilityUsers(
+        q3wMaterialOperation $operation,
+        string $notificationText,
+        int $projectObjectId
+    ) {
+        $permissionId        = Permission::where('codename',
+            'material_accounting_write_off_confirmation')->first()->id;
+        $responsibilityUsers = UserPermission::where('permission_id',
+            $permissionId)->get();
 
         foreach ($responsibilityUsers as $responsibilityUser) {
-            $this->sendWriteOffNotification($operation, $notificationText, $responsibilityUser->user_id, $projectObjectId);
+            $this->sendWriteOffNotification($operation, $notificationText,
+                $responsibilityUser->user_id, $projectObjectId);
         }
     }
 
-    public function sendWriteOffNotification(q3wMaterialOperation $operation, string $notificationText, int $notifiedUserId, int $projectObjectId)
-    {
+    public function sendWriteOffNotification(
+        q3wMaterialOperation $operation,
+        string $notificationText,
+        int $notifiedUserId,
+        int $projectObjectId
+    ) {
         $projectObject = ProjectObject::where('id', $projectObjectId)->first();
 
         TaskPostponedAndClosedNotice::send(
             $notifiedUserId,
             [
-                'name' => 'Операция #'.$operation->id.' от '.$operation->created_at->format('d.m.Y').PHP_EOL.PHP_EOL.
-                        $projectObject->short_name.PHP_EOL.PHP_EOL.$notificationText,
+                'name'            => 'Операция #'.$operation->id.' от '
+                    .$operation->created_at->format('d.m.Y').PHP_EOL.PHP_EOL.
+                    $projectObject->short_name.PHP_EOL.PHP_EOL
+                    .$notificationText,
                 'additional_info' => 'Ссылка на операцию:',
-                'url' => $operation->url,
-                'target_id' => $operation->id,
-                'object_id' => $projectObjectId,
-                'created_at' => now(),
-                'status' => 7,
+                'url'             => $operation->url,
+                'target_id'       => $operation->id,
+                'object_id'       => $projectObjectId,
+                'created_at'      => now(),
+                'status'          => 7,
             ]
         );
     }
 
     public function isUserResponsibleForMaterialWriteOff(): bool
     {
-        $permissionId = Permission::where('codename', 'material_accounting_write_off_confirmation')->first()->id;
+        $permissionId = Permission::where('codename',
+            'material_accounting_write_off_confirmation')->first()->id;
 
         return UserPermission::where('permission_id', $permissionId)
             ->where('user_id', Auth::id())
             ->exists();
     }
 
-    public function isUserResponsibleForMaterialAccounting(int $projectObjectId): bool
-    {
-        return (new ObjectResponsibleUser)->isUserResponsibleForObject(Auth::id(), $projectObjectId, $role = 'TONGUE_PROJECT_MANAGER');
+    public function isUserResponsibleForMaterialAccounting(int $projectObjectId
+    ): bool {
+        return (new ObjectResponsibleUser())->isUserResponsibleForObject(Auth::id(),
+            $projectObjectId, $role = 'TONGUE_PROJECT_MANAGER');
     }
 
     public function allowEditing(q3wMaterialOperation $operation): bool
@@ -798,35 +995,47 @@ class q3wMaterialWriteOffOperationController extends Controller
 
     public function completed(Request $request): View
     {
-        $operation = q3wMaterialOperation::leftJoin('project_objects as source_project_objects', 'source_project_objects.id', '=', 'q3w_material_operations.source_project_object_id')
-            ->leftJoin('users as source_users', 'source_users.id', '=', 'q3w_material_operations.source_responsible_user_id')
-            ->leftJoin('q3w_material_operation_reasons', 'q3w_material_operation_reasons.id', '=', 'q3w_material_operations.material_operation_reason_id')
-            ->get(['q3w_material_operations.*',
+        $operation
+            = q3wMaterialOperation::leftJoin('project_objects as source_project_objects',
+            'source_project_objects.id', '=',
+            'q3w_material_operations.source_project_object_id')
+            ->leftJoin('users as source_users', 'source_users.id', '=',
+                'q3w_material_operations.source_responsible_user_id')
+            //            ->leftJoin('q3w_material_operation_reasons', 'q3w_material_operation_reasons.id', '=', 'q3w_material_operations.material_operation_reason_id')
+            ->get([
+                'q3w_material_operations.*',
                 'source_project_objects.short_name as source_project_object_name',
-                'q3w_material_operation_reasons.name as material_operation_reason_name',
+                //                'q3w_material_operation_reasons.name as material_operation_reason_name',
                 DB::Raw('CONCAT(`source_users`.`last_name`, " ", UPPER(SUBSTRING(`source_users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`source_users`.`patronymic`, 1, 1)), ".") as source_responsible_user_name'),
             ])
             ->where('id', '=', $request->operationId)
             ->first();
 
-        if (! isset($operation)) {
+        if ( ! isset($operation)) {
             abort(404, 'Операция не найдена');
         }
 
         $operationData = $operation->toJSON(JSON_OBJECT_AS_ARRAY);
-        $operationRouteStage = q3wOperationRouteStage::find($operation->operation_route_stage_id)->name;
+        $operationRouteStage
+                       = q3wOperationRouteStage::find($operation->operation_route_stage_id)->name;
 
         $materials = DB::table('q3w_operation_materials as a')
-            ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
-            ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
+            ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=',
+                'b.id')
+            ->leftJoin('q3w_material_types as d', 'b.material_type', '=',
+                'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
-            ->leftJoin('q3w_material_operations as f', 'a.material_operation_id', '=', 'f.id')
-            ->leftJoin('q3w_materials as g', 'a.standard_id', '=', 'g.standard_id')
-            ->leftJoin('q3w_operation_material_comments as j', 'a.comment_id', '=', 'j.id')
+            ->leftJoin('q3w_material_operations as f',
+                'a.material_operation_id', '=', 'f.id')
+            ->leftJoin('q3w_materials as g', 'a.standard_id', '=',
+                'g.standard_id')
+            ->leftJoin('q3w_operation_material_comments as j', 'a.comment_id',
+                '=', 'j.id')
             ->where('a.material_operation_id', '=', $operation->id)
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
             ->distinct()
-            ->get(['a.id',
+            ->get([
+                'a.id',
                 'a.standard_id',
                 'a.amount',
                 'a.quantity',
@@ -842,10 +1051,12 @@ class q3wMaterialWriteOffOperationController extends Controller
             ->toJson(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
 
         return view('materials.operations.write-off.completed')->with([
-            'operationData' => $operationData,
-            'operationMaterials' => $materials,
+            'operationData'       => $operationData,
+            'operationMaterials'  => $materials,
             'operationRouteStage' => $operationRouteStage,
-            'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
+            'materialTypes'       => q3wMaterialType::all('id', 'name')
+                ->toJson(JSON_UNESCAPED_UNICODE),
         ]);
     }
+
 }
