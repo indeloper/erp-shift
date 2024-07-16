@@ -434,72 +434,72 @@
                 },
               ],
             },
-            {
-              itemType: 'group',
-              colSpan: 2,
-              caption: 'История операций',
-              items: [
-                {
-                  editorType: 'dxTileView',
-                  editorOptions: {
-                    height: 70,
-                    baseItemHeight: 60,
-                    baseItemWidth: 160,
-                    itemMargin: 10,
-                    direction: 'horizontal',
-                    showScrollbar: true,
-                    dataSource: materialSnapshotsDataSource,
-                    onItemClick: function (e) {
-                      window.open(e.itemData.url, '_blank');
-                    },
-                    itemTemplate: function (itemData, _, itemElement) {
-                      let operationIcon;
-                      let operationCaption;
-
-                      switch (itemData.operation_route_id) {
-                        case 1:
-                          operationCaption = 'Поставка';
-                          break;
-                        case 2:
-                          operationCaption = 'Перемещение';
-                          break;
-                        case 3:
-                          operationCaption = 'Преобразование';
-                          break;
-                        case 4:
-                          operationCaption = 'Списание';
-                          break;
-                      }
-
-                      operationIcon = getOperationRouteIcon(itemData.operation_route_id,
-                        itemData.source_project_object_id,
-                        itemData.destination_project_object_id,
-                        null,
-                      );
-
-                      itemElement.append('<div class="snapshot-tile-icon">' +
-                        '<i class="' + operationIcon + '"></i>' +
-                        '</div>');
-
-                      createdDate = new Intl.DateTimeFormat('ru-RU', {
-                        dateStyle: 'short',
-                        timeStyle: 'short',
-                      }).format(new Date(itemData.created_at));
-
-                      createdDate = createdDate.replaceAll(',', ' ');
-
-                      itemElement.append('<div class="snapshot-tile-content">' +
-                        'Операция #' + itemData.id +
-                        '<br>' +
-                        createdDate +
-                        '<br>' +
-                        operationCaption +
-                        '</div>');
-                    },
-                  },
-                },
-              ],
-            },
+            // {
+            //   itemType: 'group',
+            //   colSpan: 2,
+            //   caption: 'История операций',
+            //   items: [
+            //     {
+            //       editorType: 'dxTileView',
+            //       editorOptions: {
+            //         height: 70,
+            //         baseItemHeight: 60,
+            //         baseItemWidth: 160,
+            //         itemMargin: 10,
+            //         direction: 'horizontal',
+            //         showScrollbar: true,
+            //         dataSource: materialSnapshotsDataSource,
+            //         onItemClick: function (e) {
+            //           window.open(e.itemData.url, '_blank');
+            //         },
+            //         itemTemplate: function (itemData, _, itemElement) {
+            //           let operationIcon;
+            //           let operationCaption;
+            //
+            //           switch (itemData.operation_route_id) {
+            //             case 1:
+            //               operationCaption = 'Поставка';
+            //               break;
+            //             case 2:
+            //               operationCaption = 'Перемещение';
+            //               break;
+            //             case 3:
+            //               operationCaption = 'Преобразование';
+            //               break;
+            //             case 4:
+            //               operationCaption = 'Списание';
+            //               break;
+            //           }
+            //
+            //           operationIcon = getOperationRouteIcon(itemData.operation_route_id,
+            //             itemData.source_project_object_id,
+            //             itemData.destination_project_object_id,
+            //             null,
+            //           );
+            //
+            //           itemElement.append('<div class="snapshot-tile-icon">' +
+            //             '<i class="' + operationIcon + '"></i>' +
+            //             '</div>');
+            //
+            //           createdDate = new Intl.DateTimeFormat('ru-RU', {
+            //             dateStyle: 'short',
+            //             timeStyle: 'short',
+            //           }).format(new Date(itemData.created_at));
+            //
+            //           createdDate = createdDate.replaceAll(',', ' ');
+            //
+            //           itemElement.append('<div class="snapshot-tile-content">' +
+            //             'Операция #' + itemData.id +
+            //             '<br>' +
+            //             createdDate +
+            //             '<br>' +
+            //             operationCaption +
+            //             '</div>');
+            //         },
+            //       },
+            //     },
+            //   ],
+            // },
             {
               itemType: 'tabbed',
               tabPanelOptions: {
