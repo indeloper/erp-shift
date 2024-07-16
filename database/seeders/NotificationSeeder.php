@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Notifications\BaseNotification;
-use App\Services\NotificationItem\NotificationItemServiceInterface;
+use App\Services\NotificationItem\NotificationItemService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 
@@ -15,12 +15,18 @@ class NotificationSeeder extends Seeder
     public function run(): void
     {
         $notificationPath = app_path('Notifications');
-        $files = File::files($notificationPath);
+        $files = File::allFiles($notificationPath);
 
-        $notificationService = app(NotificationItemServiceInterface::class);
+        $notificationService = app(NotificationItemService::class);
 
         foreach ($files as $file) {
-            $className = 'App\\Notifications\\'.pathinfo($file, PATHINFO_FILENAME);
+
+
+            $className = 'App\\Notifications\\';
+            if ($file->getRelativePath()) {
+                $className .= "{$file->getRelativePath()}\\";
+            }
+            $className .= pathinfo($file, PATHINFO_FILENAME);
 
             if (is_subclass_of($className, BaseNotification::class)) {
                 $description = constant("$className::DESCRIPTION");
