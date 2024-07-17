@@ -13,6 +13,7 @@ Start:
 - Creating database, then run command: `php artisan migrate`
 - Uncomment boot(): in `App/Http/Providers/AuthServiceProvider.php` uncomment public function boot()
 - Run project: `npm run dev`
+
 <hr>
 - Clone the repo
 - Copy .env.example, past & rename it to .env
@@ -26,5 +27,15 @@ Start:
 <hr>
 
 ### Уведомления
+
 Команда для создания уведомлений php artisan make:epr-notification <имя> <описание>
 [Подробное описание](https://gitlab.sk-gorod.com/dev/erp/-/wikis/%D0%A3%D0%B2%D0%B5%D0%B4%D0%BE%D0%BC%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F)
+
+### Команды после клонгирования проекта (от 11.07.2024)
+
+- `composer install`
+- `npm install`
+- `php artisan migrate`
+- `php artisan db:seed`
+- `php artisan db:seed --class=MenuItemSeeder`
+
