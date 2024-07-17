@@ -1,48 +1,24 @@
 stages:
-  - build
   - deploy
 
-composer:
-  stage: build
-  script:
-    - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
-  artifacts:
-    expire_in: 1 month
-    paths:
-      - vendor/
-      - .env
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-composer
-    paths:
-      - vendor/
+variables:
+  DEPLOY_SERVER: "gitlab-deployer@10.20.99.19"
+  DEPLOY_PATH: "/var/www/erp"
+  BRANCH: "main"
 
-npm:
-  stage: build
-  script:
-    - npm install
-    - npm run production
+before_script:
+  - apk add --no-cache openssh-client
+  - mkdir -p ~/.ssh
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  - ssh-keyscan 10.20.99.19 >> ~/.ssh/known_hosts
 
-  artifacts:
-    expire_in: 1 month
-    paths:
-      - node_modules/
-      - public/css/
-      - public/js/
-      - public/fonts/
-      - public/img/
-      - public/mix-manifest.json
-
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-npm
-    paths:
-      - node_modules/
-
-dev:
+deploy:
   stage: deploy
   script:
-    - ssh gitlab-deployer@10.20.99.19 "cd /var/www/erp && git pull && composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts && npm i && docker-compose down && docker-compose up --build --detach"
-  environment:
-    name: dev
-    url: http://10.20.99.19
+    - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && git pull origin $BRANCH"
+    - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts"
+    - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && npm i && npm run production"
+    - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && docker-compose down"
+    - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && docker-compose up --build --detach"
   only:
     - main
