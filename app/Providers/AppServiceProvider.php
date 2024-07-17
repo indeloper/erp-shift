@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Models\Permission;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -29,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (config('app.env') !== 'local') {
+        if (config('app.env') === 'production') {
             \URL::forceScheme('https');
         };
 
