@@ -385,17 +385,17 @@
                     readOnly: true,
                   },
                 },
-                // {
-                //     name: "materialOperationReasonSelectBox",
-                //     colSpan: 2,
-                //     dataField: "material_operation_reason_name",
-                //     label: {
-                //         text: "Причина движения"
-                //     },
-                //     editorOptions: {
-                //         readOnly:true
-                //     }
-                // },
+                {
+                    name: "materialOperationReasonSelectBox",
+                    colSpan: 2,
+                    dataField: "material_operation_reason_name",
+                    label: {
+                        text: "Причина движения"
+                    },
+                    editorOptions: {
+                        readOnly:true
+                    }
+                },
                 {
                   colSpan: 1,
                   dataField: 'source_responsible_user_name',
