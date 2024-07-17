@@ -12,9 +12,7 @@ before_script:
   - echo "$SSH_PRIVATE_KEY" | tr --delete '\r' | ssh-add - > /dev/null
   - mkdir --parents ~/.ssh
   - chmod 700 ~/.ssh
-  - ssh-keyscan 10.20.99.19 >> ~/.ssh/known_hosts
-  - echo "After ssh-keyscan"
-  - cat ~/.ssh/known_hosts
+  - ssh-keyscan 10.20.99.19 >> ~/.ssh/known_hosts || (echo "ssh-keyscan failed" && exit 1)
   - chmod 644 ~/.ssh/known_hosts
 
 deploy:
