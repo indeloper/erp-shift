@@ -23,7 +23,7 @@ npm:
   stage: build
   script:
     - npm install
-    - npm run build
+    - npm run production
 
   artifacts:
     expire_in: 1 month
