@@ -526,14 +526,14 @@ class q3wMaterialWriteOffOperationController extends Controller
         }
 
         $materialOperation = new q3wMaterialOperation([
-            'operation_route_id'         => 4,
-            'operation_route_stage_id'   => 75,
-            'source_project_object_id'   => $requestData['project_object_id'],
-            'operation_date'             => isset($requestData['operation_date'])
+            'operation_route_id'           => 4,
+            'operation_route_stage_id'     => 75,
+            'source_project_object_id'     => $requestData['project_object_id'],
+            'operation_date'               => isset($requestData['operation_date'])
                 ? $requestData['operation_date'] : null,
-            'creator_user_id'            => Auth::id(),
-            'source_responsible_user_id' => $requestData['responsible_user_id'],
-            //            'material_operation_reason_id' => $requestData['material_operation_reason_id']
+            'creator_user_id'              => Auth::id(),
+            'source_responsible_user_id'   => $requestData['responsible_user_id'],
+            'material_operation_reason_id' => $requestData['material_operation_reason_id'],
         ]);
 
         $materialOperation->save();
@@ -1001,11 +1001,11 @@ class q3wMaterialWriteOffOperationController extends Controller
             'q3w_material_operations.source_project_object_id')
             ->leftJoin('users as source_users', 'source_users.id', '=',
                 'q3w_material_operations.source_responsible_user_id')
-            //            ->leftJoin('q3w_material_operation_reasons', 'q3w_material_operation_reasons.id', '=', 'q3w_material_operations.material_operation_reason_id')
+                        ->leftJoin('q3w_material_operation_reasons', 'q3w_material_operation_reasons.id', '=', 'q3w_material_operations.material_operation_reason_id')
             ->get([
                 'q3w_material_operations.*',
                 'source_project_objects.short_name as source_project_object_name',
-                //                'q3w_material_operation_reasons.name as material_operation_reason_name',
+                                'q3w_material_operation_reasons.name as material_operation_reason_name',
                 DB::Raw('CONCAT(`source_users`.`last_name`, " ", UPPER(SUBSTRING(`source_users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`source_users`.`patronymic`, 1, 1)), ".") as source_responsible_user_name'),
             ])
             ->where('id', '=', $request->operationId)
