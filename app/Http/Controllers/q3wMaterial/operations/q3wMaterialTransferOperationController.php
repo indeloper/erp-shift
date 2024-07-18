@@ -967,6 +967,7 @@ class q3wMaterialTransferOperationController extends Controller
             'source_responsible_user_id'      => $requestData['source_responsible_user_id'],
             'destination_responsible_user_id' => $requestData['destination_responsible_user_id'],
             'consignment_note_number'         => $requestData['consignment_note_number'],
+            'material_operation_reason_id' => $requestData['material_operation_reason_id'],
         ]);
 
         $materialOperation->save();
@@ -1868,6 +1869,7 @@ class q3wMaterialTransferOperationController extends Controller
             ->leftJoin('project_objects as destination_project_objects',
                 'destination_project_objects.id', '=',
                 'q3w_material_operations.destination_project_object_id')
+            ->leftJoin('q3w_material_operation_reasons', 'q3w_material_operation_reasons.id', '=', 'q3w_material_operations.material_operation_reason_id')
             ->leftJoin('users as destination_users', 'destination_users.id',
                 '=', 'q3w_material_operations.destination_responsible_user_id')
             ->leftJoin('users as source_users', 'source_users.id', '=',
@@ -1876,7 +1878,7 @@ class q3wMaterialTransferOperationController extends Controller
                 'q3w_material_operations.*',
                 'source_project_objects.short_name as source_project_object_name',
                 'destination_project_objects.short_name as destination_project_object_name',
-                //                'q3w_material_operation_reasons.name as material_operation_reason_name',
+                                'q3w_material_operation_reasons.name as material_operation_reason_name',
                 DB::Raw('CONCAT(`destination_users`.`last_name`, " ", UPPER(SUBSTRING(`destination_users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`destination_users`.`patronymic`, 1, 1)), ".") as destination_responsible_user_name'),
                 DB::Raw('CONCAT(`source_users`.`last_name`, " ", UPPER(SUBSTRING(`source_users`.`first_name`, 1, 1)), ". ", UPPER(SUBSTRING(`source_users`.`patronymic`, 1, 1)), ".") as source_responsible_user_name'),
             ])
