@@ -24,7 +24,6 @@ deploy_dev:
     - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && npm i && npm run production"
     - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && docker-compose down"
     - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && docker-compose up --build --detach"
-    - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && php artisan migrate"
   only:
     - dev
 
@@ -48,7 +47,6 @@ deploy_stage:
     - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && npm i && npm run production"
     - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && docker-compose down"
     - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && docker-compose up --build --detach"
-    - ssh $DEPLOY_SERVER "cd $DEPLOY_PATH && php artisan migrate"
   only:
     - main
 
