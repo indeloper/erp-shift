@@ -31,12 +31,12 @@ class q3wMaterialController extends Controller
     public function index(Request $request): View
     {
         $projectObjectId = (new UsersSetting)->getSetting('material_accounting_last_project_object_id');
-        if (!isset($projectObjectId)) {
+        if (! isset($projectObjectId)) {
             $projectObjectId = $request->project_object ?? ProjectObject::whereNotNull('short_name')
                 ->where('is_participates_in_material_accounting', '=', 1)
                 ->orderBy('short_name')
                 ->get(['id'])
-                ->first()?->id;
+                ->first()->id;
         }
 
         return view('materials.materials')->with([
@@ -65,8 +65,7 @@ class q3wMaterialController extends Controller
             'accountingTypes' => q3wMaterialAccountingType::all('id', 'value')->toJson(JSON_UNESCAPED_UNICODE),
             'materialTypes' => q3wMaterialType::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
             'materialStandards' => q3wMaterialStandard::all('id', 'name')->toJson(JSON_UNESCAPED_UNICODE),
-            'projectObjects' => ProjectObject::all('id', 'name', 'short_name',
-                'address')->toJson(JSON_UNESCAPED_UNICODE),
+            'projectObjects' => ProjectObject::all('id', 'name', 'short_name', 'address')->toJson(JSON_UNESCAPED_UNICODE),
             'projectObjectId' => $projectObjectId,
         ]);
     }
@@ -105,21 +104,16 @@ class q3wMaterialController extends Controller
     {
         $projectObjectId = $request['projectObjectId'];
 
-        return response()->json(q3wMaterialOperation::select(
-            [
-                'q3w_material_operations.id',
+        return q3wMaterialOperation::join('q3w_material_snapshots', 'q3w_material_snapshots.operation_id', 'q3w_material_operations.id')
+            ->where('q3w_material_snapshots.project_object_id', '=', $projectObjectId)
+            ->orderBy('q3w_material_snapshots.created_at', 'desc')
+            ->get(['q3w_material_operations.id',
                 'q3w_material_operations.operation_route_stage_id',
                 'q3w_material_snapshots.created_at',
                 'q3w_material_operations.operation_route_id',
                 'source_project_object_id',
-                'destination_project_object_id'
-            ]
-        )
-            ->join('q3w_material_snapshots', 'q3w_material_snapshots.operation_id', 'q3w_material_operations.id')
-            ->where('q3w_material_snapshots.project_object_id', '=', $projectObjectId)
-            ->whereMonth('operation_date', now()->month)
-            ->orderBy('q3w_material_snapshots.created_at', 'desc')
-            ->get());
+                'destination_project_object_id'])
+            ->toJson(JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -138,15 +132,13 @@ class q3wMaterialController extends Controller
             ->where('a.snapshot_id', '=', $snapshotId)
             ->where('amount', '<>', 0)
             ->where('quantity', '<>', 0)
-            ->get([
-                'a.*',
+            ->get(['a.*',
                 'b.name as standard_name',
                 'b.material_type',
                 'b.weight',
                 'd.accounting_type',
                 'd.measure_unit',
-                'e.value as measure_unit_value'
-            ])
+                'e.value as measure_unit_value'])
             ->toJSON();
     }
 
@@ -176,8 +168,7 @@ class q3wMaterialController extends Controller
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
             ->whereRaw('IFNULL(`transform_operation_stage_id`, 0) NOT IN (2, 3) ')
             ->where('a.material_operation_id', '<>', $operationId)
-            ->get([
-                'a.id',
+            ->get(['a.id',
                 'a.standard_id',
                 'a.quantity',
                 'a.amount',
@@ -189,8 +180,7 @@ class q3wMaterialController extends Controller
                 'd.accounting_type',
                 'd.measure_unit',
                 'd.name as material_type_name',
-                'e.value as measure_unit_value'
-            ])
+                'e.value as measure_unit_value'])
             ->toArray();
 
         $materials = DB::table('q3w_materials as a')
@@ -205,8 +195,7 @@ class q3wMaterialController extends Controller
             ->groupBy(['a.id'])
             ->orderBy('selection_counter', 'desc')
             ->orderBy('b.name')
-            ->get([
-                'a.*',
+            ->get(['a.*',
                 'f.comment',
                 'b.name as standard_name',
                 'b.material_type',
@@ -215,8 +204,7 @@ class q3wMaterialController extends Controller
                 'd.measure_unit',
                 'd.name as material_type_name',
                 'e.value as measure_unit_value',
-                DB::Raw("GROUP_CONCAT(DISTINCT `g`.`brand_id` SEPARATOR ',') as standard_brands")
-            ])
+                DB::Raw("GROUP_CONCAT(DISTINCT `g`.`brand_id` SEPARATOR ',') as standard_brands")])
             ->toArray();
 
         foreach ($activeOperationMaterials as $operationMaterial) {
@@ -261,8 +249,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_comments as f', 'b.comment_id', '=', 'f.id')
             ->orderBy('a.selection_counter', 'desc')
             ->orderBy('a.name')
-            ->get([
-                DB::Raw('UUID() as `id`'),
+            ->get([DB::Raw('UUID() as `id`'),
                 'a.id as standard_id',
                 'a.name as standard_name',
                 'b.amount',
@@ -277,8 +264,7 @@ class q3wMaterialController extends Controller
                 'b.comment_id as comment_id',
                 'f.comment as initial_comment',
                 'f.comment as comment',
-                DB::RAW('0 as from_operation')
-            ])
+                DB::RAW('0 as from_operation')])
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
@@ -310,8 +296,7 @@ class q3wMaterialController extends Controller
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
             ->whereRaw('IFNULL(`transform_operation_stage_id`, 0) NOT IN (2, 3) ')
-            ->get([
-                'a.id',
+            ->get(['a.id',
                 'a.standard_id',
                 'a.quantity',
                 'a.amount',
@@ -324,8 +309,7 @@ class q3wMaterialController extends Controller
                 'd.measure_unit',
                 'd.name as material_type_name',
                 'e.value as measure_unit_value',
-                DB::RAW('1 as from_operation')
-            ])
+                DB::RAW('1 as from_operation')])
             ->toArray();
 
         $materials = DB::table('q3w_materials as a')
@@ -336,8 +320,7 @@ class q3wMaterialController extends Controller
             ->where('a.project_object', '=', $projectObjectId)
             ->where('amount', '<>', 0)
             ->where('quantity', '<>', 0)
-            ->get([
-                'a.*',
+            ->get(['a.*',
                 'b.name as standard_name',
                 'b.material_type',
                 'b.weight',
@@ -346,8 +329,7 @@ class q3wMaterialController extends Controller
                 'd.name as material_type_name',
                 'e.value as measure_unit_value',
                 'f.comment',
-                DB::RAW('0 as from_operation')
-            ])
+                DB::RAW('0 as from_operation')])
             ->toArray();
 
         foreach ($activeOperationMaterials as $operationMaterial) {
@@ -384,8 +366,7 @@ class q3wMaterialController extends Controller
         $projectObject = ProjectObject::findOrFail($request->projectObjectId);
         $commentId = $request->commentId;
 
-        return q3wMaterialOperation::rightJoin('q3w_operation_materials as a', 'a.material_operation_id', '=',
-            'q3w_material_operations.id')
+        return q3wMaterialOperation::rightJoin('q3w_operation_materials as a', 'a.material_operation_id', '=', 'q3w_material_operations.id')
             ->leftJoin('q3w_material_standards as b', 'a.standard_id', '=', 'b.id')
             ->leftJoin('q3w_material_types as d', 'b.material_type', '=', 'd.id')
             ->leftJoin('q3w_measure_units as e', 'd.measure_unit', '=', 'e.id')
@@ -394,8 +375,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('project_objects as h', 'q3w_material_operations.destination_project_object_id', '=', 'h.id')
             ->leftJoin('contractors as i', 'q3w_material_operations.contractor_id', '=', 'i.id')
             ->leftJoin('q3w_operation_routes as j', 'q3w_material_operations.operation_route_id', '=', 'j.id')
-            ->leftJoin('q3w_material_transformation_types as k', 'q3w_material_operations.transformation_type_id', '=',
-                'k.id')
+            ->leftJoin('q3w_material_transformation_types as k', 'q3w_material_operations.transformation_type_id', '=', 'k.id')
             ->where(function ($query) use ($materialStandard, $materialType, $materialQuantity, $commentId) {
                 if (isset($commentId)) {//If comment Id passed we need to check material's comment field
                     $comment = q3wMaterialComment::findOrFail($commentId)->comment;
@@ -418,11 +398,9 @@ class q3wMaterialController extends Controller
                     ->orWhere('q3w_material_operations.destination_project_object_id', $projectObject->id);
             })
             ->whereRaw("NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)") //TODO - переписать в нормальный реляционный вид вместо JSON
-            ->whereIn('q3w_material_operations.operation_route_stage_id',
-                q3wOperationRouteStage::completed()->pluck('id'))
+            ->whereIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
             ->orderBy('q3w_material_operations.created_at', 'desc')
-            ->get([
-                'a.amount',
+            ->get(['a.amount',
                 'a.quantity',
                 'a.transform_operation_stage_id',
                 'b.weight',
@@ -459,8 +437,7 @@ class q3wMaterialController extends Controller
             ->whereRaw('IFNULL(`transform_operation_stage_id`, 0) NOT IN (2, 3) ')
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
             ->whereNotIn('f.operation_route_stage_id', q3wOperationRouteStage::cancelled()->pluck('id'))
-            ->get([
-                'a.id',
+            ->get(['a.id',
                 'a.standard_id',
                 'a.quantity',
                 'a.amount',
@@ -472,8 +449,7 @@ class q3wMaterialController extends Controller
                 'd.measure_unit',
                 'd.name as material_type_name',
                 'e.value as measure_unit_value',
-                DB::RAW('1 as from_operation')
-            ])
+                DB::RAW('1 as from_operation')])
             ->toJSON(JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE);
     }
 
@@ -482,25 +458,17 @@ class q3wMaterialController extends Controller
 
         return (new q3wMaterialOperation)
             ->dxLoadOptions($filterOptions, true)
-            ->leftJoin('q3w_operation_materials', 'q3w_operation_materials.material_operation_id', '=',
-                'q3w_material_operations.id')
-            ->leftJoin('q3w_material_standards', 'q3w_operation_materials.standard_id', '=',
-                'q3w_material_standards.id')
-            ->leftJoin('project_objects AS source_project_objects', 'q3w_material_operations.source_project_object_id',
-                '=', 'source_project_objects.id')
-            ->leftJoin('project_objects AS destination_project_objects',
-                'q3w_material_operations.destination_project_object_id', '=', 'destination_project_objects.id')
-            ->leftJoin('q3w_operation_material_comments', 'q3w_operation_materials.comment_id', '=',
-                'q3w_operation_material_comments.id')
+            ->leftJoin('q3w_operation_materials', 'q3w_operation_materials.material_operation_id', '=', 'q3w_material_operations.id')
+            ->leftJoin('q3w_material_standards', 'q3w_operation_materials.standard_id', '=', 'q3w_material_standards.id')
+            ->leftJoin('project_objects AS source_project_objects', 'q3w_material_operations.source_project_object_id', '=', 'source_project_objects.id')
+            ->leftJoin('project_objects AS destination_project_objects', 'q3w_material_operations.destination_project_object_id', '=', 'destination_project_objects.id')
+            ->leftJoin('q3w_operation_material_comments', 'q3w_operation_materials.comment_id', '=', 'q3w_operation_material_comments.id')
             ->leftJoin('contractors', 'q3w_material_operations.contractor_id', '=', 'contractors.id')
             ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
             ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
-            ->leftJoin('q3w_operation_routes', 'q3w_material_operations.operation_route_id', '=',
-                'q3w_operation_routes.id')
-            ->leftJoin('q3w_material_transformation_types', 'q3w_material_operations.transformation_type_id', '=',
-                'q3w_material_transformation_types.id')
-            ->whereIn('q3w_material_operations.operation_route_stage_id',
-                q3wOperationRouteStage::completed()->pluck('id'))
+            ->leftJoin('q3w_operation_routes', 'q3w_material_operations.operation_route_id', '=', 'q3w_operation_routes.id')
+            ->leftJoin('q3w_material_transformation_types', 'q3w_material_operations.transformation_type_id', '=', 'q3w_material_transformation_types.id')
+            ->whereIn('q3w_material_operations.operation_route_stage_id', q3wOperationRouteStage::completed()->pluck('id'))
             ->where('amount', '<>', '0')
             ->where(function ($query) use ($projectObjectId) {
                 $query->where('q3w_material_operations.source_project_object_id', '=', $projectObjectId)
@@ -514,8 +482,7 @@ class q3wMaterialController extends Controller
             ->orderBy('q3w_operation_material_comments.comment')
             ->orderBy('quantity')
             ->orderBy('amount')
-            ->select([
-                'q3w_material_operations.id',
+            ->select(['q3w_material_operations.id',
                 'q3w_material_standards.id as standard_id',
                 DB::Raw('DATE(q3w_material_operations.operation_date) as operation_date'),
                 'q3w_material_operations.operation_route_id',
@@ -605,8 +572,7 @@ class q3wMaterialController extends Controller
                                         AND NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)
                                         AND `q3w_operation_route_stages`.`operation_route_stage_type_id` = 2
                                         GROUP BY
-                                                 `standard_id`) AS `coming_to_materials`"),
-                'coming_to_materials.standard_id', '=', 'q3w_material_standards.id')
+                                                 `standard_id`) AS `coming_to_materials`"), 'coming_to_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin(DB::Raw("(SELECT
                                           `source_project_object_id`,
                                           `destination_project_object_id`,
@@ -629,8 +595,7 @@ class q3wMaterialController extends Controller
                                         AND `q3w_operation_route_stages`.`operation_route_stage_type_id` = 2
                                         AND NOT IFNULL(JSON_CONTAINS(`edit_states`, json_array('deletedByRecipient')), 0)
                                         GROUP BY
-                                                 `standard_id`) AS `outgoing_materials`"),
-                'outgoing_materials.standard_id', '=', 'q3w_material_standards.id')
+                                                 `standard_id`) AS `outgoing_materials`"), 'outgoing_materials.standard_id', '=', 'q3w_material_standards.id')
             ->leftJoin('q3w_material_types', 'q3w_material_types.id', '=', 'q3w_material_standards.material_type')
             ->where(function ($query) {
                 $query->orWhereNotNull('coming_to_materials.destination_project_object_id')
@@ -661,7 +626,7 @@ class q3wMaterialController extends Controller
             ->leftJoin('q3w_material_types', 'q3w_material_standards.material_type', '=', 'q3w_material_types.id')
             ->leftJoin('q3w_measure_units', 'q3w_material_types.measure_unit', '=', 'q3w_measure_units.id')
             ->leftJoin('q3w_material_comments', 'q3w_materials.comment_id', '=', 'q3w_material_comments.id')
-            ->when($detailing_level == 1 || !$detailing_level, function ($query) {
+            ->when($detailing_level == 1 || ! $detailing_level, function ($query) {
                 return $query
                     ->select([
                         'q3w_materials.*',
