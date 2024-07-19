@@ -76,11 +76,13 @@ final class NotificationService implements NotificationServiceInterface
                 ->pluck('channel')
         );
 
-        $user->notify(
-            new $notificationClass(
-                $notificationData
-            )
-        );
+        if (env('APP_ENV') === 'production') {
+            $user->notify(
+                new $notificationClass(
+                    $notificationData
+                )
+            );
+        }
     }
 
     public function getNotifications(
