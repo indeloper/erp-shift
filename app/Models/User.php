@@ -32,14 +32,14 @@ use Illuminate\Support\Facades\DB;
 use function morphos\Russian\inflectName;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string|null $first_name
  * @property string|null $last_name
  * @property string|null $patronymic
  * @property string|null $user_full_name
- * @property string|null $birthday
+ * @property \Illuminate\Support\Carbon|null $birthday
  * @property string|null $email
  * @property string|null $person_phone
  * @property string|null $work_phone
@@ -48,6 +48,7 @@ use function morphos\Russian\inflectName;
  * @property int $company
  * @property int|null $job_category_id
  * @property int|null $brigade_id
+ * @property int|null $reporting_group_id Отчетная группа
  * @property string|null $image
  * @property string $password
  * @property int $status
@@ -60,9 +61,9 @@ use function morphos\Russian\inflectName;
  * @property int $is_deleted
  * @property string|null $INN ИНН пользователя
  * @property string|null $gender Пол пользователя (M - мужской, F - женский)
- * @property-read Collection<int, Task> $allTasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $allTasks
  * @property-read int|null $all_tasks_count
- * @property-read Collection<int, UserDisabledNotifications> $disabledNotifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, UserDisabledNotifications> $disabledNotifications
  * @property-read int|null $disabled_notifications_count
  * @property-read mixed $all_permissions
  * @property-read string $card_route
@@ -71,41 +72,42 @@ use function morphos\Russian\inflectName;
  * @property-read mixed $group_name
  * @property-read mixed $long_full_name
  * @property-read string $name
- * @property-read Group|null $group
+ * @property-read \App\Models\Group|null $group
  * @property-read VacationsHistory|null $last_vacation
- * @property-read Collection<int, ActionLog> $logs
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActionLog> $logs
  * @property-read int|null $logs_count
- * @property-read Collection<int, MenuItem> $menuItems
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, MenuItem> $menuItems
  * @property-read int|null $menu_items_count
- * @property-read Collection<int, Message> $messages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Messenger\Message> $messages
  * @property-read int|null $messages_count
- * @property-read Collection<int, Notification> $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Notification> $notifications
  * @property-read int|null $notifications_count
- * @property-read Collection<int, Participant> $participants
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Messenger\Participant> $participants
  * @property-read int|null $participants_count
- * @property-read Collection<int, ProjectResponsibleUser> $projectRoles
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProjectResponsibleUser> $projectRoles
  * @property-read int|null $project_roles_count
- * @property-read Collection<int, NotificationsForUsers> $relatedNotifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, NotificationsForUsers> $relatedNotifications
  * @property-read int|null $related_notifications_count
- * @property-read Collection<int, User> $replaced_users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $replaced_users
  * @property-read int|null $replaced_users_count
- * @property-read Collection<int, User> $replacing_users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $replacing_users
  * @property-read int|null $replacing_users_count
- * @property-read Collection<int, Review> $reviews
+ * @property-read \App\Models\ReportingGroup|null $reportingGroup
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
  * @property-read int|null $reviews_count
- * @property-read Collection<int, Task> $tasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property-read int|null $tasks_count
- * @property-read Collection<int, OurTechnicTicket> $technic_tickets
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OurTechnicTicket> $technic_tickets
  * @property-read int|null $technic_tickets_count
- * @property-read Collection<int, Thread> $threads
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Messenger\Thread> $threads
  * @property-read int|null $threads_count
- * @property-read Collection<int, Project> $timeResponsibleProjects
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project> $timeResponsibleProjects
  * @property-read int|null $time_responsible_projects_count
- * @property-read Collection<int, Permission> $user_permissions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Permission> $user_permissions
  * @property-read int|null $user_permissions_count
  * @method static Builder|User active()
  * @method static Builder|User activeResp()
- * @method static Builder|User filter(Request $request)
+ * @method static Builder|User filter(\Illuminate\Http\Request $request)
  * @method static Builder|User forDefects(?string $q, array $user_ids = [])
  * @method static Builder|User forTechTickets(?string $q, ?array $group_ids)
  * @method static Builder|User newModelQuery()
@@ -134,6 +136,7 @@ use function morphos\Russian\inflectName;
  * @method static Builder|User wherePatronymic($value)
  * @method static Builder|User wherePersonPhone($value)
  * @method static Builder|User whereRememberToken($value)
+ * @method static Builder|User whereReportingGroupId($value)
  * @method static Builder|User whereStatus($value)
  * @method static Builder|User whereUpdatedAt($value)
  * @method static Builder|User whereUserFullName($value)
@@ -142,7 +145,7 @@ use function morphos\Russian\inflectName;
  * @method static Builder|User whoHaveBirthdayToday()
  * @method static Builder|User withTelegramChatId()
  * @method static Builder|User withoutTelegramChatId()
- * @mixin Eloquent
+ * @mixin \Eloquent
  */
 class User extends Authenticatable
 {
@@ -995,12 +998,4 @@ class User extends Authenticatable
         return $this->belongsToMany(MenuItem::class, 'favorite_menu_item_user');
     }
 
-    use DefaultSortable,
-        DevExtremeDataSourceLoadable,
-        Logable,
-        Messagable,
-        Notifiable,
-        Reviewable,
-        TicketResponsibleUser,
-        HasFactory;
 }
