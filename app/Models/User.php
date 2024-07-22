@@ -60,11 +60,18 @@ class User extends Authenticatable
             'last_name',
             'patronymic',
             'birthday',
+            'chat_id',
             'reporting_group_id',
             'person_phone',
             'image',
             'gender',
             'INN',
+            'work_phone',
+        ];
+
+    protected $casts
+        = [
+            'birthday' => 'date',
         ];
 
     protected $table = 'users';

@@ -18,6 +18,7 @@ final class UserRepository implements UserRepositoryInterface
     public function getUserByTelegramId(int $telegramId): ?User
     {
         return User::query()
+            ->withoutGlobalScopes()
             ->where('chat_id', $telegramId)
             ->first();
     }
