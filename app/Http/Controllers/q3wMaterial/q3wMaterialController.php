@@ -36,7 +36,7 @@ class q3wMaterialController extends Controller
                 ->where('is_participates_in_material_accounting', '=', 1)
                 ->orderBy('short_name')
                 ->get(['id'])
-                ->first()?->id;
+                ->first()->id;
         }
 
         return view('materials.materials')->with([
@@ -103,9 +103,13 @@ class q3wMaterialController extends Controller
      */
     public function snapshotList(Request $request)
     {
+
         $projectObjectId = $request['projectObjectId'];
 
-        return response()->json(q3wMaterialOperation::select(
+        $skip = $request->input('skip', 0);
+        $take = $request->input('take', 10);
+
+        $query = q3wMaterialOperation::select(
             [
                 'q3w_material_operations.id',
                 'q3w_material_operations.operation_route_stage_id',
@@ -114,12 +118,22 @@ class q3wMaterialController extends Controller
                 'source_project_object_id',
                 'destination_project_object_id'
             ]
-        )
-            ->join('q3w_material_snapshots', 'q3w_material_snapshots.operation_id', 'q3w_material_operations.id')
-            ->where('q3w_material_snapshots.project_object_id', '=', $projectObjectId)
-            ->whereMonth('operation_date', now()->month)
+        )->join('q3w_material_snapshots', 'q3w_material_snapshots.operation_id',
+            'q3w_material_operations.id')
+            ->where('q3w_material_snapshots.project_object_id', '=', $projectObjectId);
+
+        $totalCount = $query->count();
+
+        $data = $query
             ->orderBy('q3w_material_snapshots.created_at', 'desc')
-            ->get());
+            ->skip($skip)
+            ->take($take)
+            ->get();
+
+        return response()->json([
+            'items' => $data,
+            'totalCount' => $totalCount
+        ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     /**

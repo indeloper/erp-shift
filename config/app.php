@@ -1,5 +1,6 @@
 <?php
 
+use App\Facades\TGUserWebApp;
 use Illuminate\Support\Facades\Facade;
 
 return [
@@ -19,6 +20,7 @@ return [
         'PDF'                      => niklasravnsborg\LaravelPdf\Facades\Pdf::class,
         'Redis'                    => Illuminate\Support\Facades\Redis::class,
         'Telegram'                 => Telegram\Bot\Laravel\Facades\Telegram::class,
+        'TGUserWebApp'             => TGUserWebApp::class,
     ])->toArray(),
 
 ];

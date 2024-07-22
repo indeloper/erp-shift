@@ -48,7 +48,7 @@
     <div id="projectObjectForm"></div>
     <div
         id="gridContainer"
-        style="height: 100%"
+        style="height: 100%; display: none"
     ></div>
     <div id="supplyTypePopup"></div>
     <div id="commentPopup"></div>
@@ -143,22 +143,28 @@
 
             let materialSnapshotsStore = new DevExpress.data.CustomStore({
                 key: 'id',
-                loadMode: 'raw',
                 load: function (loadOptions) {
-                    let data = $.getJSON("{{route('materials.snapshots.list')}}", {projectObjectId: projectObject})
-                    console.log('prj data', data)
-                    return data;
-                },
-            });
+                    let params = {
+                        projectObjectId: projectObject,
+                        skip: loadOptions.skip || 0,
+                        take: loadOptions.take || 10,
+                        sort: JSON.stringify(loadOptions.sort || null),
+                        filter: JSON.stringify(loadOptions.filter || null)
+                    };
 
-            // let materialSnapshotsDataSource = new DevExpress.data.DataSource({
-            //     store: materialSnapshotsStore,
-            // });
+                    return $.getJSON("{{route('materials.snapshots.list')}}", params).then(response => {
+                        return {
+                            data: response.items,
+                            totalCount: response.totalCount,
+                        };
+                    });
+                }
+            });
 
             let materialSnapshotsDataSource = new DevExpress.data.DataSource({
                 store: materialSnapshotsStore,
-                paginate: true, // Включение пагинации
-                pageSize: 10,   // Размер страницы по умолчанию
+                paginate: true,
+                pageSize: 10
             });
 
             let projectObjectActiveOperationsStore = new DevExpress.data.CustomStore({
@@ -446,161 +452,92 @@
                         colSpan: 2,
                         caption: 'История операций',
                         items: [
-                            // {
-                            //     editorType: 'dxDataGrid',
-                            //     editorOptions: {
-                            //         dataSource: materialSnapshotsDataSource,
-                            //         focusedRowEnabled: false,
-                            //         hoverStateEnabled: true,
-                            //         columnAutoWidth: false,
-                            //         showBorders: true,
-                            //         showColumnLines: true,
-                            //         noDataText: 'История операций отсутствует',
-                            //         columns: [
-                            //             {
-                            //                 dataField: 'id',
-                            //                 dataType: 'number',
-                            //                 caption: 'Операция',
-                            //                 width: '20%',
-                            //                 showSpinButtons: true,
-                            //
-                            //                 cellTemplate: function (container, options) {
-                            //                     let operationId = options.data.id;
-                            //                     let operationUrl = options.data.url;
-                            //
-                            //                     $(`<div><a href="${operationUrl}">Операция #${operationId}</a></div>`)
-                            //                         .appendTo(container);
-                            //                 },
-                            //             },
-                            //             {
-                            //                 dataField: 'created_at',
-                            //                 dataType: 'number',
-                            //                 caption: 'Дата создания',
-                            //                 width: '20%',
-                            //                 lookup: {
-                            //                     dataSource: {
-                            //                         paginate: true,
-                            //                         pageSize: 25,
-                            //                         store: operationRoutesStore,
-                            //                     },
-                            //                     displayExpr: 'name',
-                            //                     valueExpr: 'id',
-                            //                 },
-                            //             },
-                            //             {
-                            //                 dataField: 'operation_route_id',
-                            //                 dataType: 'number',
-                            //                 caption: 'Тип операции',
-                            //                 width: '20%',
-                            //                 lookup: {
-                            //                     dataSource: {
-                            //                         paginate: true,
-                            //                         pageSize: 25,
-                            //                         store: operationRoutesStore,
-                            //                     },
-                            //                     displayExpr: 'name',
-                            //                     valueExpr: 'id',
-                            //                 },
-                            //             },
-                            //             {
-                            //                 dataField: 'operation_route_stage_id',
-                            //                 dataType: 'number',
-                            //                 caption: 'Статус',
-                            //                 width: '60%',
-                            //                 lookup: {
-                            //                     dataSource: {
-                            //                         paginate: true,
-                            //                         pageSize: 25,
-                            //                         store: operationRouteStagesStore,
-                            //                     },
-                            //                     displayExpr: 'name',
-                            //                     valueExpr: 'id',
-                            //                 },
-                            //                 cellTemplate: (container, options) => {
-                            //                     console.log('options', options);
-                            //                     if (options.data.expected_users_names) {
-                            //                         return $(`<div class="cell-end-ellipses">${options.displayValue} (${options.data.expected_users_names})</div>`);
-                            //                     } else {
-                            //                         return $(`<div class="cell-end-ellipses">${options.displayValue}</div>`);
-                            //                     }
-                            //                 },
-                            //             },
-                            //         ],
-                            //         pager: {
-                            //             showPageSizeSelector: true,
-                            //             allowedPageSizes: [10, 20, 50],
-                            //             showInfo: true,
-                            //             showNavigationButtons: true
-                            //         },
-                            //         onRowPrepared: (e) => {
-                            //             if (e.rowType === 'data') {
-                            //                 if (e.data.have_conflict) {
-                            //                     e.rowElement.addClass('row-conflict-operation');
-                            //                 }
-                            //             }
-                            //         },
-                            //     },
-                            // },
                             {
-                                editorType: 'dxTileView',
+                                editorType: 'dxDataGrid',
                                 editorOptions: {
-                                    height: 70,
-                                    baseItemHeight: 60,
-                                    baseItemWidth: 160,
-                                    itemMargin: 10,
-                                    direction: 'horizontal',
-                                    showScrollbar: true,
                                     dataSource: materialSnapshotsDataSource,
-                                    pageLoadMode: "scrollBottom",
-                                    scrolling: {
-                                        mode: 'virtual' // Включение виртуальной прокрутки
-                                    },
-                                    onItemClick: function (e) {
-                                        window.open(e.itemData.url, '_blank');
-                                    },
-                                    itemTemplate: function (itemData, _, itemElement) {
-                                        let operationIcon;
-                                        let operationCaption;
+                                    remoteOperations: true,
+                                    focusedRowEnabled: false,
+                                    hoverStateEnabled: true,
+                                    columnAutoWidth: false,
+                                    showBorders: true,
+                                    showColumnLines: true,
+                                    noDataText: 'История операций отсутствует',
+                                    columns: [
+                                        {
+                                            dataField: 'id',
+                                            dataType: 'number',
+                                            caption: 'Операция',
+                                            width: '20%',
+                                            showSpinButtons: true,
+                                            cellTemplate: function (container, options) {
+                                                let operationId = options.data.id;
+                                                let operationUrl = options.data.url;
 
-                                        switch (itemData.operation_route_id) {
-                                            case 1:
-                                                operationCaption = 'Поставка';
-                                                break;
-                                            case 2:
-                                                operationCaption = 'Перемещение';
-                                                break;
-                                            case 3:
-                                                operationCaption = 'Преобразование';
-                                                break;
-                                            case 4:
-                                                operationCaption = 'Списание';
-                                                break;
+                                                $(`<div><a href="${operationUrl}">Операция #${operationId}</a></div>`)
+                                                    .appendTo(container);
+                                            },
+                                        },
+                                        {
+                                            dataField: 'created_at',
+                                            dataType: 'date',
+                                            caption: 'Дата создания',
+                                            width: '20%',
+                                        },
+                                        {
+                                            dataField: 'operation_route_id',
+                                            dataType: 'number',
+                                            caption: 'Тип операции',
+                                            width: '20%',
+                                            lookup: {
+                                                dataSource: {
+                                                    paginate: true,
+                                                    pageSize: 25,
+                                                    store: operationRoutesStore,
+                                                },
+                                                displayExpr: 'name',
+                                                valueExpr: 'id',
+                                            },
+                                        },
+                                        {
+                                            dataField: 'operation_route_stage_id',
+                                            dataType: 'number',
+                                            caption: 'Статус',
+                                            width: '60%',
+                                            lookup: {
+                                                dataSource: {
+                                                    paginate: true,
+                                                    pageSize: 25,
+                                                    store: operationRouteStagesStore,
+                                                },
+                                                displayExpr: 'name',
+                                                valueExpr: 'id',
+                                            },
+                                            cellTemplate: (container, options) => {
+                                                console.log('options', options);
+                                                if (options.data.expected_users_names) {
+                                                    return $(`<div class="cell-end-ellipses">${options.displayValue} (${options.data.expected_users_names})</div>`);
+                                                } else {
+                                                    return $(`<div class="cell-end-ellipses">${options.displayValue}</div>`);
+                                                }
+                                            },
+                                        },
+                                    ],
+                                    pager: {
+                                        showPageSizeSelector: true,
+                                        allowedPageSizes: [10, 20, 50],
+                                        showInfo: true,
+                                        showNavigationButtons: true
+                                    },
+                                    paging: {
+                                        pageSize: 10
+                                    },
+                                    onRowPrepared: (e) => {
+                                        if (e.rowType === 'data') {
+                                            if (e.data.have_conflict) {
+                                                e.rowElement.addClass('row-conflict-operation');
+                                            }
                                         }
-
-                                        operationIcon = getOperationRouteIcon(itemData.operation_route_id,
-                                            itemData.source_project_object_id,
-                                            itemData.destination_project_object_id,
-                                            null,
-                                        );
-
-                                        itemElement.append('<div class="snapshot-tile-icon">' +
-                                            '<i class="' + operationIcon + '"></i>' +
-                                            '</div>');
-
-                                        createdDate = new Intl.DateTimeFormat('ru-RU', {
-                                            dateStyle: 'short',
-                                            timeStyle: 'short',
-                                        }).format(new Date(itemData.created_at));
-
-                                        createdDate = createdDate.replaceAll(',', ' ');
-
-                                        itemElement.append('<div class="snapshot-tile-content">' +
-                                            'Операция #' + itemData.id +
-                                            '<br>' +
-                                            createdDate +
-                                            '<br>' +
-                                            operationCaption +
-                                            '</div>');
                                     },
                                 },
                             },
@@ -1316,6 +1253,7 @@
 
             createOperationButtons();
             recalculateGUISizes();
+
         });
 
     </script>

@@ -44,9 +44,10 @@ class UserCreateRequest extends FormRequest
             'work_phone.unique'   => 'Поле рабочий телефон должно быть уникальным',
             'person_phone.unique' => 'Поле телефон должно быть уникальным',
 
-            'email.required' => 'Поле email обязательно для заполнения',
-            'email.unique'   => 'Пользователь с такой почтой уже существует',
-            'email.max'      => 'Максимальное число символов : 50',
+            'email.required'              => 'Поле email обязательно для заполнения',
+            'email.unique'                => 'Пользователь с такой почтой уже существует',
+            'email.max'                   => 'Максимальное число символов : 50',
+            'reporting_group_id.required' => 'Отчетная группа обязательна для заполнения',
 
             'password.required'              => 'Поле пароль обязательно для заполнения',
             'password.min'                   => 'Минимальная длина пароля 7 символов',
@@ -74,6 +75,7 @@ class UserCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'reporting_group_id'    => 'required|exists:reporting_groups,id',
             'first_name'            => 'required|string|max:50',
             'last_name'             => 'required|string|max:50',
             'patronymic'            => 'nullable|string|max:50',

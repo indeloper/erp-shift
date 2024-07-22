@@ -87,6 +87,7 @@ mix.copy('resources/assets/js/plugins/jquery-nicescroll.min.js', 'public/js/plug
 mix.copy('resources/assets/js/plugins/jquery.steps.min.js', 'public/js/plugins/jquery.steps.min.js');
 mix.copy('resources/assets/js/plugins/jquery-ui.min.js', 'public/js/plugins/jquery-ui.min.js');
 
+
 mix.copy('resources/assets/js/plugins/bootstable.js', 'public/js/plugins/bootstable.js');
 
 mix.copy('node_modules/jquery-mask-plugin/dist/jquery.mask.min.js', 'public/js/plugins/jquery.mask.min.js');
@@ -201,6 +202,8 @@ mix.copy('node_modules/lightgallery/plugins/video/lg-video.min.js', 'public/js/l
 
 mix.js('resources/assets/js/projects/init-datagrid.js', 'public/js/projects/init-datagrid.js');
 mix.js('resources/assets/js/objects/init-datagrid.js', 'public/js/objects/init-datagrid.js');
+
+mix.js('resources/assets/js/telegram/auth-web-apps.js', 'public/js/telegram/auth-web-apps.js');
 
 mix.js('resources/assets/js/layout/layout.js', 'public/js/layout.js').vue({ version: 3 });
 mix.js('resources/assets/js/pages/notifications/notifications.js', 'public/js/notifications.js').vue({ version: 3 });

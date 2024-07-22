@@ -23,6 +23,7 @@
         "devextreme-vue": "23.2.5",
         "jquery-mask-plugin": "^1.14.16",
         "lightgallery": "^2.7.2",
+        "query-string": "^9.0.0",
         "vue": "^3.4.21",
         "webpack": "^5.91.0"
     }

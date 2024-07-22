@@ -18,10 +18,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id
-                ?: $request->ip());
-        });
+        $this->configureRateLimiting();
 
         Route::macro('registerBaseRoutes',
             function ($controller, $attachmentsRoutes = false) {
@@ -38,6 +35,14 @@ class RouteServiceProvider extends ServiceProvider
             });
 
         parent::boot();
+    }
+
+    protected function configureRateLimiting(): void
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by(optional($request->user())->id
+                ?: $request->ip());
+        });
     }
 
     /**
@@ -65,6 +70,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes(): void
     {
         Route::middleware('web')->group(base_path('routes/web.php'));
+        Route::middleware('web')->group(base_path('routes/telegram.php'));
 
         Route::middleware(['web', 'activeuser', 'auth'])->group(function () {
             Route::prefix('contractors')->as('contractors::')->group(function (
