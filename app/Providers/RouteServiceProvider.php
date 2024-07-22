@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
+
     const HOME = '/';
 
     /**
@@ -19,14 +20,19 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
-        Route::macro('registerBaseRoutes', function ($controller, $attachmentsRoutes = false) {
-            Route::get('/', $controller.'@getPageCore')->name('getPageCore');
-            Route::apiResource('resource', $controller);
-            if ($attachmentsRoutes) {
-                Route::post('uploadFile', $controller.'@uploadFile')->name('uploadFile');
-                Route::post('downloadAttachments', $controller.'@downloadAttachments')->name('downloadAttachments');
-            }
-        });
+        Route::macro('registerBaseRoutes',
+            function ($controller, $attachmentsRoutes = false) {
+                Route::get('/', $controller.'@getPageCore')
+                    ->name('getPageCore');
+                Route::apiResource('resource', $controller);
+                if ($attachmentsRoutes) {
+                    Route::post('uploadFile', $controller.'@uploadFile')
+                        ->name('uploadFile');
+                    Route::post('downloadAttachments',
+                        $controller.'@downloadAttachments')
+                        ->name('downloadAttachments');
+                }
+            });
 
         parent::boot();
     }
@@ -34,7 +40,8 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting(): void
     {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
+            return Limit::perMinute(60)->by(optional($request->user())->id
+                ?: $request->ip());
         });
     }
 
@@ -43,7 +50,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map(): void
     {
-
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
@@ -52,7 +58,6 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapLayoutRoutes();
         $this->mapProfileRoutes();
         $this->mapNotificationsRoutes();
-
         //
     }
 
@@ -64,24 +69,28 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapWebRoutes(): void
     {
         Route::middleware('web')->group(base_path('routes/web.php'));
+        Route::middleware('web')->group(base_path('routes/telegram.php'));
 
         Route::middleware(['web', 'activeuser', 'auth'])->group(function () {
-
-            Route::prefix('contractors')->as('contractors::')->group(function () {
+            Route::prefix('contractors')->as('contractors::')->group(function (
+            ) {
                 require base_path('routes/modules/contractors.php');
             });
 
             Route::prefix('building')->as('building::')->group(function () {
                 Route::prefix('mat_acc')->as('mat_acc::')->group(function () {
-                    Route::prefix('arrival')->as('arrival::')->group(function () {
+                    Route::prefix('arrival')->as('arrival::')->group(function (
+                    ) {
                         require base_path('routes/modules/building/material_accounting/arrival.php');
                     });
-                    Route::prefix('write_off')->as('write_off::')->group(function () {
-                        require base_path('routes/modules/building/material_accounting/write_off.php');
-                    });
-                    Route::prefix('transformation')->as('transformation::')->group(function () {
-                        require base_path('routes/modules/building/material_accounting/transformation.php');
-                    });
+                    Route::prefix('write_off')->as('write_off::')
+                        ->group(function () {
+                            require base_path('routes/modules/building/material_accounting/write_off.php');
+                        });
+                    Route::prefix('transformation')->as('transformation::')
+                        ->group(function () {
+                            require base_path('routes/modules/building/material_accounting/transformation.php');
+                        });
                     Route::prefix('moving')->as('moving::')->group(function () {
                         require base_path('routes/modules/building/material_accounting/moving.php');
                     });
@@ -141,4 +150,5 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware(['web', 'auth', 'activeuser'])
             ->group(base_path('routes/notifications/notifications.php'));
     }
+
 }

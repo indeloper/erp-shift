@@ -47,8 +47,9 @@ class UserUpdateRequest extends FormRequest
             'work_phone.min'   => 'Минимальное количество символов: 5',
             'person_phone.min' => 'Минимальное количество символов: 11',
 
-            'email.required' => 'Поле email обязательно для заполнения',
-            'email.unique'   => 'Пользователь с таким email уже существует',
+            'email.required'              => 'Поле email обязательно для заполнения',
+            'reporting_group_id.required' => 'Отчетная группа обязательна для заполнения',
+            'email.unique'                => 'Пользователь с таким email уже существует',
 
             'password.min'               => 'Минимальная длина пароля 7 символов',
             'password_confirmation.same' => 'Пароли должны совпадать',
@@ -73,6 +74,7 @@ class UserUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'reporting_group_id'    => 'required|exists:reporting_groups,id',
             'first_name'            => 'required|string|max:50',
             'last_name'             => 'required|string|max:50',
             'patronymic'            => 'nullable|string|max:50',

@@ -8,9 +8,18 @@ use App\Models\User;
 
 final class UserRepository implements UserRepositoryInterface
 {
+
     public function getUserById(int $userId): ?User
     {
         return User::query()
             ->find($userId);
     }
+
+    public function getUserByTelegramId(int $telegramId): ?User
+    {
+        return User::query()
+            ->where('chat_id', $telegramId)
+            ->first();
+    }
+
 }

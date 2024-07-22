@@ -8,5 +8,9 @@ use App\Models\User;
 
 interface UserRepositoryInterface
 {
+
     public function getUserById(int $userId): ?User;
+
+    public function getUserByTelegramId(int $telegramId): ?User;
+
 }

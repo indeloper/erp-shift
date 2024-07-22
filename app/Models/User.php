@@ -33,122 +33,135 @@ use function morphos\Russian\inflectName;
 
 class User extends Authenticatable
 {
+
     use DefaultSortable, DevExtremeDataSourceLoadable, Logable, Messagable, Notifiable, Reviewable, TicketResponsibleUser;
 
-    public $defaultSortOrder = [
-        'user_full_name' => 'asc',
-    ];
+    public $defaultSortOrder
+        = [
+            'user_full_name' => 'asc',
+        ];
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'group_id',
-        'department_id',
-        'company',
-        'is_deleted',
-        'status',
-        'first_name',
-        'last_name',
-        'patronymic',
-        'birthday',
-        'person_phone',
-        'image',
-        'gender',
-        'INN',
-    ];
+    protected $fillable
+        = [
+            'name',
+            'email',
+            'password',
+            'group_id',
+            'department_id',
+            'company',
+            'is_deleted',
+            'status',
+            'first_name',
+            'last_name',
+            'patronymic',
+            'birthday',
+            'reporting_group_id',
+            'person_phone',
+            'image',
+            'gender',
+            'INN',
+        ];
 
     protected $table = 'users';
 
-    public $role_codes = [
-        0 => 'Любая',
-        1 => 'Отв. за КП (сваи)',
-        2 => 'Отв. за КП (шпунт)',
-        3 => 'Отв. за ОР (сваи)',
-        4 => 'Отв. за ОР (шпунт)',
-        5 => 'РП (сваи)',
-        6 => 'РП (шпунт)',
-        7 => 'Отв. по договорной работе',
-        8 => 'Отв. производитель работ (сваи)',
-        9 => 'Отв. производитель работ (шпунт)',
-    ];
+    public $role_codes
+        = [
+            0 => 'Любая',
+            1 => 'Отв. за КП (сваи)',
+            2 => 'Отв. за КП (шпунт)',
+            3 => 'Отв. за ОР (сваи)',
+            4 => 'Отв. за ОР (шпунт)',
+            5 => 'РП (сваи)',
+            6 => 'РП (шпунт)',
+            7 => 'Отв. по договорной работе',
+            8 => 'Отв. производитель работ (сваи)',
+            9 => 'Отв. производитель работ (шпунт)',
+        ];
 
     // role -> tasks_for_this_role[]
-    public $role_tasks = [
-        1 => [5, 6],
-        2 => [5, 6],
-        3 => [4],
-        4 => [3],
-        5 => [24],
-        6 => [25],
-        7 => [7, 9, 10, 12, 13],
-        8 => [],
-        9 => [],
-    ];
+    public $role_tasks
+        = [
+            1 => [5, 6],
+            2 => [5, 6],
+            3 => [4],
+            4 => [3],
+            5 => [24],
+            6 => [25],
+            7 => [7, 9, 10, 12, 13],
+            8 => [],
+            9 => [],
+        ];
 
     //array of department_id for one limitation mode
-    public $limited_access = [
-        0 => [14, 23, 31],
-    ];
+    public $limited_access
+        = [
+            0 => [14, 23, 31],
+        ];
 
     /**
      * The attributes that should be hidden for arrays.
      *
      * @var array
      */
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+    protected $hidden
+        = [
+            'password', 'remember_token',
+        ];
 
-    protected $appends = [
-        'full_name',
-        'long_full_name',
-        'card_route',
-        'group_name',
-        'company_name',
-    ];
+    protected $appends
+        = [
+            'full_name',
+            'long_full_name',
+            'card_route',
+            'group_name',
+            'company_name',
+        ];
 
-    public static $companies = [
-        1 => 'ООО «СК ГОРОД»',
-        2 => 'ООО «ГОРОД»',
-        3 => 'ООО «СТРОЙМАСТЕР»',
-        4 => 'ООО «РЕНТМАСТЕР»',
-        5 => 'ООО «Вибродрилл Технология»',
-        6 => 'ИП Исмагилов А.Д.',
-        7 => 'ИП Исмагилов М.Д.',
-    ];
+    public static $companies
+        = [
+            1 => 'ООО «СК ГОРОД»',
+            2 => 'ООО «ГОРОД»',
+            3 => 'ООО «СТРОЙМАСТЕР»',
+            4 => 'ООО «РЕНТМАСТЕР»',
+            5 => 'ООО «Вибродрилл Технология»',
+            6 => 'ИП Исмагилов А.Д.',
+            7 => 'ИП Исмагилов М.Д.',
+        ];
 
-    const TECH_TICKETS_GROUPS = [
-        8, 13, 14, 15, 17, 19, 23, 27,
-        31, 35, 37, 39, 40, 41, 42, 43,
-        44, 45, 46, 47, 48,
-    ];
+    const TECH_TICKETS_GROUPS
+        = [
+            8, 13, 14, 15, 17, 19, 23, 27,
+            31, 35, 37, 39, 40, 41, 42, 43,
+            44, 45, 46, 47, 48,
+        ];
 
-    const HARDCODED_PERSONS = [
-        'SYSTEMGOD' => 1,
-        'router' => 56,
-        'certificateWorker' => 29,
-        'CEO' => 6,
-        'subCEO' => 7,
-        'mainPTO' => 22,
-    ];
+    const HARDCODED_PERSONS
+        = [
+            'SYSTEMGOD'         => 1,
+            'router'            => 56,
+            'certificateWorker' => 29,
+            'CEO'               => 6,
+            'subCEO'            => 7,
+            'mainPTO'           => 22,
+        ];
 
-    const FILTERS = [
-        'name' => 'name', // ФИО
-        'birthday' => 'birthday', // День рождения
-        'email' => 'email', // Почта
-        'person_phone' => 'person_phone', // Личный телефон
-        'work_phone' => 'work_phone', // Рабочий телефон
-        'department_id' => 'department_id', // Департамент
-        'group_id' => 'group_id', // Должность
-        'company' => 'company', // Компания
-        'project_object_id' => 'project_object_id', // Объект
-    ];
+    const FILTERS
+        = [
+            'name'              => 'name', // ФИО
+            'birthday'          => 'birthday', // День рождения
+            'email'             => 'email', // Почта
+            'person_phone'      => 'person_phone', // Личный телефон
+            'work_phone'        => 'work_phone', // Рабочий телефон
+            'department_id'     => 'department_id', // Департамент
+            'group_id'          => 'group_id', // Должность
+            'company'           => 'company', // Компания
+            'project_object_id' => 'project_object_id', // Объект
+        ];
 
     protected static function boot()
     {
@@ -165,14 +178,14 @@ class User extends Authenticatable
     public function scopeFilter(Builder $query, Request $request): Builder
     {
         $filters = $request->filters ?? [];
-        $values = $request->values ?? [];
+        $values  = $request->values ?? [];
 
         foreach ($filters as $key => $filter) {
             if (in_array($filter, self::FILTERS)) {
                 if ($filter == self::FILTERS['birthday']) {
                     $explodedDate = explode('|', $values[$key]);
-                    $from = $explodedDate[0];
-                    $to = $explodedDate[1];
+                    $from         = $explodedDate[0];
+                    $to           = $explodedDate[1];
                     if ($from) {
                         $query->orWhere('birthday', '>=', $from);
                     }
@@ -186,7 +199,10 @@ class User extends Authenticatable
                             ->orWhere('first_name', 'like', '%'.$name.'%')
                             ->orWhere('patronymic', 'like', '%'.$name.'%');
                     }
-                } elseif (in_array($filter, [self::FILTERS['person_phone'], self::FILTERS['work_phone']])) {
+                } elseif (in_array($filter, [
+                    self::FILTERS['person_phone'], self::FILTERS['work_phone'],
+                ])
+                ) {
                     $phones = (array) $values[$key];
                     foreach ($phones as $phone) {
                         $query->orWhere($filter, 'like', '%'.$phone.'%');
@@ -200,8 +216,11 @@ class User extends Authenticatable
         return $query;
     }
 
-    public function scopeForTechTickets(Builder $query, ?string $q, ?array $group_ids)
-    {
+    public function scopeForTechTickets(
+        Builder $query,
+        ?string $q,
+        ?array $group_ids
+    ) {
         $q = $q ?? false;
 
         $query->where(function ($nested) {
@@ -218,14 +237,20 @@ class User extends Authenticatable
                 ->pluck('id')
                 ->toArray();
 
-            $query->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%'.$q.'%');
+            $query->where(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'),
+                'like', '%'.$q.'%');
 
-            if (! empty($groups)) {
+            if ( ! empty($groups)) {
                 $query->orWhereIn('group_id', [$groups]);
             }
         }
 
         return $query;
+    }
+
+    public function reportingGroup(): BelongsTo
+    {
+        return $this->belongsTo(ReportingGroup::class);
     }
 
     public function scopeActive(Builder $query)
@@ -237,8 +262,11 @@ class User extends Authenticatable
      * Function find users with provided $user_ids
      * and some search parameters
      */
-    public function scopeForDefects(Builder $query, ?string $q, array $user_ids = []): Builder
-    {
+    public function scopeForDefects(
+        Builder $query,
+        ?string $q,
+        array $user_ids = []
+    ): Builder {
         $q = $q ?? false;
 
         $query->whereIn('id', $user_ids);
@@ -248,7 +276,8 @@ class User extends Authenticatable
                 $subquery->orWhere('last_name', 'like', '%'.$q.'%')
                     ->orWhere('first_name', 'like', '%'.$q.'%')
                     ->orWhere('patronymic', 'like', '%'.$q.'%')
-                    ->orWhere(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'), 'like', '%'.$q.'%');
+                    ->orWhere(DB::raw('CONCAT(last_name, " ", first_name, " ", patronymic)'),
+                        'like', '%'.$q.'%');
             });
         }
 
@@ -275,8 +304,12 @@ class User extends Authenticatable
 
     public static function getAllUsers()
     {
-        return User::where('users.is_deleted', 0)->select('users.*', 'users.department_id as dep_id', 'departments.name as dep_name', 'groups.name as group_name', 'groups.id as group_id')
-            ->leftJoin('departments', 'departments.id', '=', 'users.department_id')
+        return User::where('users.is_deleted', 0)
+            ->select('users.*', 'users.department_id as dep_id',
+                'departments.name as dep_name', 'groups.name as group_name',
+                'groups.id as group_id')
+            ->leftJoin('departments', 'departments.id', '=',
+                'users.department_id')
             ->leftJoin('groups', 'groups.id', '=', 'users.group_id');
     }
 
@@ -319,7 +352,8 @@ class User extends Authenticatable
      */
     public function scopeWhoHaveBirthdayNextWeek(Builder $query)
     {
-        return $query->where('birthday', 'like', '%'.now()->addWeek()->format('d.m').'%')
+        return $query->where('birthday', 'like',
+            '%'.now()->addWeek()->format('d.m').'%')
             ->where('status', '=', 1)
             ->where('is_deleted', '=', 0);
     }
@@ -333,19 +367,22 @@ class User extends Authenticatable
     public function permissions()
     {
         return Permission::where('user_permissions.user_id', $this->id)
-            ->leftJoin('user_permissions', 'user_permissions.permission_id', '=', 'permissions.id')
+            ->leftJoin('user_permissions', 'user_permissions.permission_id',
+                '=', 'permissions.id')
             ->get();
     }
 
     //maxon uses that
     public function getAllPermissionsAttribute()
     {
-        if (! $this->all_permissions_cache) {
+        if ( ! $this->all_permissions_cache) {
             $all_permissions = $this->user_permissions;
-            $all_permissions = $all_permissions->merge($this->group->group_permissions);
+            $all_permissions
+                             = $all_permissions->merge($this->group->group_permissions);
 
             foreach ($this->replaced_users as $replaced_user) {
-                $all_permissions = $all_permissions->merge($replaced_user->all_permissions);
+                $all_permissions
+                    = $all_permissions->merge($replaced_user->all_permissions);
             }
 
             $this->all_permissions_cache = $all_permissions->unique();
@@ -356,7 +393,8 @@ class User extends Authenticatable
 
     public function user_permissions(): BelongsToMany
     {
-        return $this->belongsToMany(Permission::class, 'user_permissions', 'user_id', 'permission_id');
+        return $this->belongsToMany(Permission::class, 'user_permissions',
+            'user_id', 'permission_id');
     }
 
     public function getFullNameAttribute()
@@ -366,7 +404,8 @@ class User extends Authenticatable
 
     public function getLongFullNameAttribute()
     {
-        return trim($this->last_name.' '.$this->first_name.($this->patronymic ? ' '.$this->patronymic : ''));
+        return trim($this->last_name.' '.$this->first_name.($this->patronymic
+                ? ' '.$this->patronymic : ''));
     }
 
     public function getGroupNameAttribute()
@@ -398,11 +437,14 @@ class User extends Authenticatable
      */
     public function isOperationDrafter(string $type): bool
     {
-        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) {
+        if ( ! in_array($type,
+            (new MaterialAccountingOperation())->eng_type_name)
+        ) {
             return new Exception("Given Operation type doesn't exist");
         }
 
-        return boolval($this->can("mat_acc_{$type}_draft_create") and $this->cannot("mat_acc_{$type}_create"));
+        return boolval($this->can("mat_acc_{$type}_draft_create")
+            and $this->cannot("mat_acc_{$type}_create"));
     }
 
     /**
@@ -413,7 +455,9 @@ class User extends Authenticatable
      */
     public function isOperationCreator(string $type): bool
     {
-        if (! in_array($type, (new MaterialAccountingOperation())->eng_type_name)) {
+        if ( ! in_array($type,
+            (new MaterialAccountingOperation())->eng_type_name)
+        ) {
             return new Exception("Given Operation type doesn't exist");
         }
 
@@ -430,7 +474,8 @@ class User extends Authenticatable
 
     public function technic_tickets(): BelongsToMany
     {
-        return $this->belongsToMany(OurTechnicTicket::class, 'our_technic_ticket_user', 'user_id', 'tic_id')
+        return $this->belongsToMany(OurTechnicTicket::class,
+            'our_technic_ticket_user', 'user_id', 'tic_id')
             ->groupBy('id')
             ->withPivot(['type', 'deactivated_at'])
             ->as('ticket_responsible')
@@ -444,7 +489,8 @@ class User extends Authenticatable
 
     public function tasks(): HasMany
     {
-        return $this->hasMany(Task::class, 'responsible_user_id', 'id')->where('is_solved', 0);
+        return $this->hasMany(Task::class, 'responsible_user_id', 'id')
+            ->where('is_solved', 0);
     }
 
     public function allTasks(): HasMany
@@ -465,12 +511,13 @@ class User extends Authenticatable
     public function last_vacation(): HasOne
     {
         if ($this->in_vacation) {
-            return $this->hasOne(VacationsHistory::class, 'vacation_user_id', 'id')
+            return $this->hasOne(VacationsHistory::class, 'vacation_user_id',
+                'id')
                 ->orderBy('id', 'desc');
         }
 
-        return $this->hasOne(VacationsHistory::class, 'vacation_user_id', 'id')->where('id', 0);
-
+        return $this->hasOne(VacationsHistory::class, 'vacation_user_id', 'id')
+            ->where('id', 0);
     }
 
     /**
@@ -483,7 +530,8 @@ class User extends Authenticatable
 
     public function hasPermission($ability)
     {
-        return $this->is_su ? true : $this->all_permissions->contains('codename', $ability);
+        return $this->is_su ? true
+            : $this->all_permissions->contains('codename', $ability);
     }
 
     public function user_name()
@@ -499,7 +547,8 @@ class User extends Authenticatable
      */
     public function isInGroup(...$groups_to_check): bool
     {
-        return ! empty(array_intersect($groups_to_check, $this->getAllGroupIds()));
+        return ! empty(array_intersect($groups_to_check,
+            $this->getAllGroupIds()));
     }
 
     public function getAllGroupIds()
@@ -507,7 +556,8 @@ class User extends Authenticatable
         $all_groups = [$this->group->id];
 
         foreach ($this->replaced_users as $replaced_user) {
-            $all_groups = array_merge($all_groups, $replaced_user->getAllGroupIds());
+            $all_groups = array_merge($all_groups,
+                $replaced_user->getAllGroupIds());
         }
 
         return $all_groups;
@@ -521,12 +571,15 @@ class User extends Authenticatable
         User::where('id', $id)->update(['in_vacation' => 1]);
 
         // responsible_user logic
-        $roles = ProjectResponsibleUser::where('user_id', $id)->get();
-        $roles_move = ProjectResponsibleUser::moveResponsibleUser($roles, $id, $vacation->support_user_id, $vacation->id);
+        $roles      = ProjectResponsibleUser::where('user_id', $id)->get();
+        $roles_move = ProjectResponsibleUser::moveResponsibleUser($roles, $id,
+            $vacation->support_user_id, $vacation->id);
 
         // tasks logic
-        $tasks = Task::where('responsible_user_id', $id)->where('is_solved', 0)->get();
-        $tasks_move = Task::moveTasks($tasks, $id, $vacation->support_user_id, $vacation->id);
+        $tasks      = Task::where('responsible_user_id', $id)
+            ->where('is_solved', 0)->get();
+        $tasks_move = Task::moveTasks($tasks, $id, $vacation->support_user_id,
+            $vacation->id);
 
         // notifications block
         $vacation_user = User::find($id);
@@ -544,17 +597,27 @@ class User extends Authenticatable
         DB::beginTransaction();
 
         // update user
-        User::where('id', $vacation->vacation_user_id)->update(['in_vacation' => 0]);
+        User::where('id', $vacation->vacation_user_id)
+            ->update(['in_vacation' => 0]);
 
         // move tasks back
-        $already_moved_tasks = TaskRedirect::where('vacation_id', $vacation->id)->get();
-        $tasks = TaskRedirect::tasks($already_moved_tasks->pluck('task_id')->toArray());
-        $tasks_move = Task::moveTasksBack($tasks, $vacation->support_user_id, $id, $vacation->id);
+        $already_moved_tasks = TaskRedirect::where('vacation_id', $vacation->id)
+            ->get();
+        $tasks
+                             = TaskRedirect::tasks($already_moved_tasks->pluck('task_id')
+            ->toArray());
+        $tasks_move          = Task::moveTasksBack($tasks,
+            $vacation->support_user_id, $id, $vacation->id);
 
         // move roles back
-        $already_moved_roles = ProjectResponsibleUserRedirectHistory::where('vacation_id', $vacation->id)->get();
-        $roles = ProjectResponsibleUserRedirectHistory::roles($already_moved_roles->pluck('role_id')->toArray());
-        $roles_move = ProjectResponsibleUser::moveResponsibleUserBack($roles, $vacation->support_user_id, $id, $vacation->id);
+        $already_moved_roles
+                    = ProjectResponsibleUserRedirectHistory::where('vacation_id',
+            $vacation->id)->get();
+        $roles
+                    = ProjectResponsibleUserRedirectHistory::roles($already_moved_roles->pluck('role_id')
+            ->toArray());
+        $roles_move = ProjectResponsibleUser::moveResponsibleUserBack($roles,
+            $vacation->support_user_id, $id, $vacation->id);
 
         // update vacation
         $vacation->update(['is_actual' => 0, 'return_date' => now()]);
@@ -566,14 +629,16 @@ class User extends Authenticatable
 
     public function replaced_users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'vacations_histories', 'support_user_id', 'vacation_user_id')
+        return $this->belongsToMany(User::class, 'vacations_histories',
+            'support_user_id', 'vacation_user_id')
             ->wherePivot('is_actual', 1)
             ->wherePivot('change_authority', 1);
     }
 
     public function replacing_users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'vacations_histories', 'vacation_user_id', 'support_user_id')
+        return $this->belongsToMany(User::class, 'vacations_histories',
+            'vacation_user_id', 'support_user_id')
             ->wherePivot('is_actual', 1)
             ->wherePivot('change_authority', 1);
     }
@@ -583,25 +648,31 @@ class User extends Authenticatable
         DB::beginTransaction();
 
         // find user
-        $user = User::withoutGlobalScope('email')->where('id', $remove_user_id)->firstOrFail();
+        $user = User::withoutGlobalScope('email')->where('id', $remove_user_id)
+            ->firstOrFail();
 
         if ($user->is_deleted) {
-            return redirect()->route('users::edit', $remove_user_id)->with('too_much_vacations', 'Сотрудник уже удалён');
+            return redirect()->route('users::edit', $remove_user_id)
+                ->with('too_much_vacations', 'Сотрудник уже удалён');
         }
 
         // tasks logic
-        $tasks = Task::where('responsible_user_id', $remove_user_id)->where('is_solved', 0)->get();
+        $tasks = Task::where('responsible_user_id', $remove_user_id)
+            ->where('is_solved', 0)->get();
         // send 0 in vacation_id because this is not vacation :^)
-        $tasks_move = Task::moveTasks($tasks, $remove_user_id, $support_user_id, 0, 'Удаление сотрудника');
+        $tasks_move = Task::moveTasks($tasks, $remove_user_id, $support_user_id,
+            0, 'Удаление сотрудника');
 
         // responsible_user logic
-        $roles = ProjectResponsibleUser::where('user_id', $remove_user_id)->get();
+        $roles = ProjectResponsibleUser::where('user_id', $remove_user_id)
+            ->get();
         // send 0 in vacation_id because this is not vacation :^)
-        $roles_move = ProjectResponsibleUser::moveResponsibleUser($roles, $remove_user_id, $support_user_id, 0, 'Удаление сотрудника');
+        $roles_move = ProjectResponsibleUser::moveResponsibleUser($roles,
+            $remove_user_id, $support_user_id, 0, 'Удаление сотрудника');
 
         // "remove" user
         $user->is_deleted = 1;
-        $user->status = 0;
+        $user->status     = 0;
         // put support_user_id in public property of current user
         $user->role_codes = $support_user_id;
         $user->save();
@@ -623,7 +694,8 @@ class User extends Authenticatable
 
     public function disabledNotifications(): HasMany
     {
-        return $this->hasMany(UserDisabledNotifications::class, 'user_id', 'id');
+        return $this->hasMany(UserDisabledNotifications::class, 'user_id',
+            'id');
     }
 
     public function disabledInSystemNotifications()
@@ -638,22 +710,28 @@ class User extends Authenticatable
 
     public function fullyDisabledNotifications()
     {
-        return $this->disabledNotifications->where('in_telegram', 0)->where('in_system', 0);
+        return $this->disabledNotifications->where('in_telegram', 0)
+            ->where('in_system', 0);
     }
 
     public function checkIfNotifyDisabled(int $notificationType)
     {
-        return in_array($notificationType, $this->fullyDisabledNotifications()->pluck('notification_id')->toArray());
+        return in_array($notificationType,
+            $this->fullyDisabledNotifications()->pluck('notification_id')
+                ->toArray());
     }
 
     public function checkIfNotifyDisabledInTelegram(int $notificationType)
     {
-        return in_array($notificationType, $this->disabledInTelegramNotifications()->pluck('notification_id')->toArray());
+        return in_array($notificationType,
+            $this->disabledInTelegramNotifications()->pluck('notification_id')
+                ->toArray());
     }
 
     public function checkIfNotifyNotDisabledInTelegram(int $notificationType)
     {
-        return $this->checkIfNotifyDisabledInTelegram($notificationType) ? false : true;
+        return $this->checkIfNotifyDisabledInTelegram($notificationType) ? false
+            : true;
     }
 
     public function allowedNotifications()
@@ -675,7 +753,8 @@ class User extends Authenticatable
 
     public function getNotificationIdsFromGroupToArray()
     {
-        return $this->group->relatedNotifications->pluck('notification_id')->toArray();
+        return $this->group->relatedNotifications->pluck('notification_id')
+            ->toArray();
     }
 
     public function getNotificationIdsFromUserToArray()
@@ -700,13 +779,18 @@ class User extends Authenticatable
      * Check if user is time responsible user on project
      * or project responsible RP
      */
-    public function isProjectTimeResponsibleOrProjectResponsibleRP(int $projectId): bool
-    {
+    public function isProjectTimeResponsibleOrProjectResponsibleRP(
+        int $projectId
+    ): bool {
         $project = Project::find($projectId);
 
-        if (($project->timeResponsible ? $project->timeResponsible->id : 0) === $this->id) {
+        if (($project->timeResponsible ? $project->timeResponsible->id : 0)
+            === $this->id
+        ) {
             return true;
-        } elseif (ProjectResponsibleUser::where('project_id', $project ? $project->id : 0)->whereIn('role', [8, 9])->exists()) {
+        } elseif (ProjectResponsibleUser::where('project_id',
+            $project ? $project->id : 0)->whereIn('role', [8, 9])->exists()
+        ) {
             return true;
         }
 
@@ -721,6 +805,7 @@ class User extends Authenticatable
      *                          l - Fist letter of lastname;
      *                          P - Full patronymic;
      *                          p - Fist letter of patronymic;
+     *
      * @return array|string|string[]
      *
      * @throws Exception
@@ -734,11 +819,12 @@ class User extends Authenticatable
 
         $fullName = str_replace($patronymicExcludes, '', $this->long_full_name);
 
-        if (! empty($declension)) {
-            $fullName = inflectName($fullName, $declension, mb_strtolower($this->gender));
+        if ( ! empty($declension)) {
+            $fullName = inflectName($fullName, $declension,
+                mb_strtolower($this->gender));
         }
 
-        $lastName = explode(' ', $fullName)[0];
+        $lastName  = explode(' ', $fullName)[0];
         $firstName = explode(' ', $fullName)[1];
         if (isset(explode(' ', $fullName)[2])) {
             $patronymic = explode(' ', $fullName)[2];
@@ -750,22 +836,22 @@ class User extends Authenticatable
 
         if (mb_strpos($result, 'l') > 0) {
             $lastName = mb_substr($lastName, 0, 1, 'UTF-8');
-            $result = str_replace('l', $lastName, $result);
+            $result   = str_replace('l', $lastName, $result);
         } else {
             $result = str_replace('L', $lastName, $result);
         }
 
         if (mb_strpos($result, 'f') > 0) {
             $firstName = mb_substr($firstName, 0, 1, 'UTF-8');
-            $result = str_replace('f', $firstName, $result);
+            $result    = str_replace('f', $firstName, $result);
         } else {
             $result = str_replace('F', $firstName, $result);
         }
 
-        if (! empty($patronymic)) {
+        if ( ! empty($patronymic)) {
             if (mb_strpos($result, 'p') > 0) {
                 $patronymic = mb_substr($patronymic, 0, 1, 'UTF-8');
-                $result = str_replace('p', $patronymic, $result);
+                $result     = str_replace('p', $patronymic, $result);
             } else {
                 $result = str_replace('P', $patronymic, $result);
             }
@@ -788,4 +874,5 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(MenuItem::class, 'favorite_menu_item_user');
     }
+
 }
