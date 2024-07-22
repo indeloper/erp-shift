@@ -10,5 +10,5 @@
 @endsection
 
 @section('js_footer')
-    <script src="/js/projects/init-datagrid.js"></script>
+    {{--    <script src="/js/projects/init-datagrid.js"></script>--}}
 @endsection

@@ -1,0 +1,274 @@
+/* DataGrid filter popup */
+.dx-overlay-wrapper.dx-popup-wrapper.dx-dropdowneditor-overlay.dx-popup-cancel-visible.dx-popup-done-visible.dx-dropdownlist-popup-wrapper.dx-selectbox-popup-wrapper.dx-tagbox-popup-wrapper  .dx-overlay-content.dx-popup-normal.dx-resizable {
+    width: auto !important;
+}
+
+/*File uploader*/
+.dropzone-external {
+    width: 120px;
+    height: 120px;
+    background-color: rgba(183, 183, 183, 0.1);
+    border-width: 2px;
+    border-style: dashed;
+    padding: 10px;
+    margin: auto;
+}
+.dropzone-external > * {
+    pointer-events: none;
+}
+.dropzone-external.dropzone-active {
+    border-style: solid;
+}
+.widget-container > .dx-uploader-span {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+.dropzone-image {
+    max-width: 100%;
+    max-height: 100%;
+}
+.dropzone-text > span {
+    font-weight: 500;
+    opacity: 0.8;
+    text-align: center;
+}
+.upload-progress {
+    display: flex;
+    margin-top: 10px;
+}
+.dx-uploader-flex-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.dx-uploader-icon {
+    font-size: xx-large;
+    color: #929292;
+}
+
+/*Operations*/
+.measure-units-only{
+    color: lightgrey;
+}
+
+.standard-remains{
+    width: 75px;
+    color: lightslategrey;
+    float: right;
+    text-align: right;
+    font-style: italic;
+}
+.standard-remains.red{
+    color: #f15a5a;
+}
+
+.standard-name{
+    min-width: calc(100% - 79px);
+    float: left
+}
+
+.dx-loadindicator.button-loading-indicator {
+    height: 1.2em;
+    width: 1.2em;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+#materialsStandardsAddingForm {
+    height: 100%;
+}
+
+.dx-row.row-conflict-operation {
+    background: #ffc7ce;
+    color: #9c0006;
+}
+
+.material-history-detail-row {
+    background: #f5f5f5 !important;
+}
+
+.selected-filter-operations {
+    display: inline-block;
+}
+.filter-operation-box {
+    float: left;
+}
+
+.dx-form-group-caption-span-with-buttons {
+    line-height: 38px;
+}
+
+.dx-form-group-caption-buttons {
+    float: right;
+}
+
+.dx-form-group-caption-button {
+    margin-left: 16px;
+}
+
+.comment-user-photo {
+    float: left;
+    position: relative;
+    border: 1px solid #E0E0E0;
+    width: 46px;
+    height: 46px;
+    border-radius: 90px;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.comment-user-name {
+    padding-left: 10px;
+    line-height: 23px;
+}
+
+.comment-date {
+    line-height: 23px;
+    padding-left: 10px;
+}
+
+div.dx-datagrid-header-panel{
+    padding: 0 0 8px 0;
+}
+
+.cell-validation-loading-indicator{
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    margin: 0 2px;
+    vertical-align: middle;
+}
+
+.row-validation-indicator {
+    float: left;
+}
+
+.standard-name-cell-with-comment {
+    display: flex;
+    text-align: left;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    margin: 0 -1px -1px 0;
+}
+
+.material-comment {
+    color: darkgray;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100%;
+    white-space: nowrap;
+}
+
+.cell-end-ellipses {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/*Snapshot tiles and operation icons*/
+.dx-item-content .dx-tile-content {
+    display: flex;
+}
+
+.snapshot-tile-icon {
+    width: 20%;
+    height: 100%;
+    border-right: 1px lightgray dashed;
+
+    text-align: center;
+}
+
+.snapshot-tile-icon > i {
+    line-height: 60px;
+
+    font-size: x-large;
+    font-weight: bold;
+}
+
+.snapshot-tile-icon > i.fa-sign-out-alt {
+    font-size: large;
+}
+
+.snapshot-tile-icon > i.fa-sign-in-alt {
+    font-size: large;
+}
+
+.snapshot-tile-icon > i.fa-random {
+    font-size: large;
+}
+
+i.fa-plus {
+    color: green;
+}
+
+i.fas.fa-sign-out-alt {
+    color: indianred;
+}
+
+i.fas.fa-sign-in-alt {
+    color: green;
+}
+
+i.fas.fa-random {
+    color: #6767ec
+}
+
+i.fas.fa-random.plus {
+    color: green
+}
+
+i.fas.fa-random.minus, i.fas.fa-minus {
+    color: indianred
+}
+
+.snapshot-tile-content {
+    width: 80%;
+    height: 100%;
+    padding: 4px;
+    text-align: right;
+}
+
+/* lightgallery */
+
+.lg-backdrop {
+    z-index: 10040 !important;
+}
+
+.lg-outer {
+    z-index: 10050 !important;
+}
+
+/* END lightgallery */
+
+/*dx DataGrid Form Group Container*/
+.datagrid-container .dx-form-group-with-caption {
+    background: white;
+    padding: 10px;
+    border: #dddddd solid 1px;
+    border-radius: 5px;
+
+}
+
+.datagrid-container .dx-form-group-content {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.main-panel .content {
+    padding: 10px 0;
+}
+
+.container-fluid {
+    padding-right:10px;
+    padding-left: 10px;
+}
+
+@media (min-width: 576px)
+{
+    .modal-dialog {
+        max-width: 700px;
+    }
+}
