@@ -1435,15 +1435,21 @@ class LaborSafetyRequestController extends Controller
                     }
                     break;
                 case '{gas_welding_works_employee_full_name}':
-                    $gasWeldingWorksEmployee
-                                   = Employee::find(LaborSafetyRequestWorker::where('request_id',
+                    $worker_employee_id
+                        = LaborSafetyRequestWorker::where('request_id',
                         '=', $request->id)
                         ->where('worker_type_id', '=', 8)
                         ->first()
-                        ->worker_employee_id);
-                    $orderTemplate = str_replace($variable,
-                        $gasWeldingWorksEmployee->format('L F P',
-                            'винительный'), $orderTemplate);
+                        ?->worker_employee_id;
+
+                    if ($worker_employee_id) {
+                        $gasWeldingWorksEmployee
+                                       = Employee::find($worker_employee_id);
+                        $orderTemplate = str_replace($variable,
+                            $gasWeldingWorksEmployee->format('L F P',
+                                'винительный'), $orderTemplate);
+                    }
+
                     break;
                 case '{gas_welding_works_employee_certificate}':
                     //$orderTemplate = str_replace($variable, $this->getWorkersListForTemplate($request, $order), $orderTemplate);
