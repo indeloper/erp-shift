@@ -3,8 +3,8 @@
 
 <head>
     <meta charset="utf-8"/>
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ mix('img/apple-icon.png') }}">
-    <link rel="icon" type="image/ico" href="{{ mix('img/favicon.ico') }}">
+    @vite('resources/img/apple-icon.png')
+    @vite('resources/img/favicon.ico')
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <title>@yield('title')</title>
 
@@ -14,29 +14,29 @@
     <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
           name='viewport'/>
     <!--     Fonts and icons     -->
-    <link href="{{ mix('css/font-awesome.min.css') }}" rel="stylesheet"/>
-    <link href="{{ mix('css/v4-shims.min.css') }}" rel="stylesheet"/>
-    <link href="{{ mix('css/google_fonts.css') }}" rel="stylesheet"/>
+    @vite('resources/css/font-awesome.min.css')
+    @vite('resources/css/v4-shims.min.css')
+    @vite('resources/css/google_fonts.css')
 
-    <link href="{{ mix('css/pe-icon-7-stroke.css') }}" rel="stylesheet"/>
+    @vite('resources/css/pe-icon-7-stroke.css')
     <!-- CSS Files -->
-    <link href="{{ mix('css/bootstrap.min.css') }}" rel="stylesheet"/>
-    <link href="{{ mix('css/balloon.css') }}" rel="stylesheet"/>
-    <link href="{{ mix('css/light-bootstrap-dashboard.css') }}" rel="stylesheet"/>
+    @vite('resources/css/bootstrap.min.css')
+    @vite('resources/css/balloon.css')
+    @vite('resources/css/light-bootstrap-dashboard.css')
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
-    <link href="{{ mix('css/demo.css') }}" rel="stylesheet"/>
-    <link href="{{ mix('css/additionally.css') }}" rel="stylesheet"/>
-    <link href="{{ mix('css/tech.css') }}" rel="stylesheet"/>
+    @vite('resources/css/demo.css')
+    @vite('resources/css/additionally.css')
+    @vite('resources/css/tech.css')
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700&display=swap" rel="stylesheet">
     <link
             href="https://fonts.googleapis.com/css?family=Montserrat:300,300i,400,400i,500,500i,600,700,800,900&display=swap"
             rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ mix('css/index.css') }}">
-    <link rel="stylesheet" href="{{ mix('css/emojione.css') }}">
-    <link rel="stylesheet" href="{{ mix('css/emojionearea.min.css') }}">
-    <link rel="stylesheet" href="{{ mix('css/main.css') }}">
+    @vite('resources/css/index.css')
+    @vite('resources/css/emojione.css')
+    @vite('resources/css/emojionearea.min.css')
+    @vite('resources/css/main.css')
     <!-- editable table -->
     <link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.1.3/darkly/bootstrap.min.css"> -->
@@ -181,63 +181,63 @@
 </div>
 </body>
 <!--   Core JS Files   -->
-<script src="{{ mix('js/core/jquery.3.2.1.min.js') }}" type="text/javascript"></script>
-<script src="{{ mix('js/jquery.table.js') }}" type="text/javascript"></script>
-<script src="{{ mix('js/core/popper.min.js') }}" type="text/javascript"></script>
-<script src="{{ mix('js/core/bootstrap.min.js') }}" type="text/javascript"></script>
+@vite('resources/js/core/jquery.3.2.1.min.js')
+@vite('resources/js/jquery.table.js')
+@vite('resources/js/core/popper.min.js')
+@vite('resources/js/core/bootstrap.min.js')
 <script src="{{ asset('js/common.js') }}"></script>
 
-<script src="{{ mix('js/plugins/bootstable.js') }}"></script>
+@vite('resources/js/plugins/bootstable.js')
 <!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
-<script src="{{ mix('js/plugins/bootstrap-switch.js') }}"></script>
+@vite('resources/js/plugins/bootstrap-switch.js')
 <!--  Google Maps Plugin    -->
 <!-- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?YOUR_KEY_HERE"></script> -->
 <!--  Chartist Plugin  -->
-<script src="{{ mix('js/plugins/chartist.min.js') }}"></script>
+@vite('resources/js/plugins/chartist.min.js')
 <!--  Notifications Plugin    -->
-<script src="{{ mix('js/plugins/bootstrap-notify.js') }}"></script>
+@vite('resources/js/plugins/bootstrap-notify.js')
 <!--  jVector Map  -->
-<script src="{{ mix('js/plugins/jquery-jvectormap.js') }}" type="text/javascript"></script>
+@vite('resources/js/plugins/jquery-jvectormap.js')
 <!--  Plugin for Date Time Picker and Full Calendar Plugin-->
-<script src="{{ mix('js/plugins/moment.min.js') }}"></script>
+@vite('resources/js/plugins/moment.min.js')
 <script>moment.locale('ru');</script>
 <!--  DatetimePicker   -->
-<script src="{{ mix('js/plugins/bootstrap-datetimepicker.js') }}"></script>
+@vite('resources/js/plugins/bootstrap-datetimepicker.js')
 <!--  Sweet Alert  -->
-<script src="{{ mix('js/plugins/sweetalert2.all.min.js') }}" type="text/javascript"></script>
+@vite('resources/js/plugins/sweetalert2.all.min.js')
 <!--  Tags Input  -->
-<script src="{{ mix('js/plugins/bootstrap-tagsinput.js') }}" type="text/javascript"></script>
+@vite('resources/js/plugins/bootstrap-tagsinput.js')
 <!--  Sliders  -->
-<script src="{{ mix('js/plugins/nouislider.js') }}" type="text/javascript"></script>
+@vite('resources/js/plugins/nouislider.js')
 <!--  Bootstrap Select  -->
-<script src="{{ mix('js/plugins/bootstrap-selectpicker.js') }}" type="text/javascript"></script>
+@vite('resources/js/plugins/bootstrap-selectpicker.js')
 <!--  jQueryValidate  -->
-<script src="{{ mix('js/plugins/jquery.validate.min.js') }}" type="text/javascript"></script>
+@vite('resources/js/plugins/jquery.validate.min.js')
 <!--  Plugin for the Wizard, full documentation here: https://github.com/VinceG/twitter-bootstrap-wizard -->
-<script src="{{ mix('js/plugins/jquery.bootstrap-wizard.js') }}"></script>
+@vite('resources/js/plugins/jquery.bootstrap-wizard.js')
 <!--  Bootstrap Table Plugin -->
-<script src="{{ mix('js/plugins/bootstrap-table.js') }}"></script>
+@vite('resources/js/plugins/bootstrap-table.js')
 <!--  DataTable Plugin -->
-<script src="{{ mix('js/plugins/jquery.dataTables.min.js') }}"></script>
+@vite('resources/js/plugins/jquery.dataTables.min.js')
 <!--  Full Calendar   -->
-<script src="{{ mix('js/plugins/fullcalendar.min.js') }}"></script>
+@vite('resources/js/plugins/fullcalendar.min.js')
 <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
-<script src="{{ mix('js/light-bootstrap-dashboard.js') }}" type="text/javascript"></script>
+@vite('resources/js/light-bootstrap-dashboard.js')
 <!-- Select2 Essentials and Localization -->
 <script src="{{ asset('js/select2.js') }}" type="text/javascript"></script>
 <!-- Light Dashboard DEMO methods, don't include it in your project! -->
-<script src="{{ mix('js/demo.js') }}"></script>
-<script src="{{ mix('js/plugins/bootstrap-table-mobile.js') }}"></script>
+@vite('resources/js/demo.js')
+@vite('resources/js/plugins/bootstrap-table-mobile.js')
 <!--Main scripts-->
-<script src="{{ mix('js/modal-window.js') }}"></script>
+@vite('resources/js/modal-window.js')
 <!-- Validation-form-ru-locale -->
-<script src="{{ mix('js/form-validation.js') }}" type="text/javascript"></script>
+@vite('resources/js/form-validation.js')
 <script src="{{ asset('js/plugins/jquery.mask.min.js') }}"></script>
 <!-- AutoNumeric -->
 <script src="{{ asset('js/plugins/autonumeric.min.js') }}"></script>
 
 <!-- Fix Multi Submit -->
-<script src="{{ mix('js/fixMultiSubmit.js') }}"></script>
+@vite('resources/js/fixMultiSubmit.js')
 
 <!-- Vue and Pusher to get fast Notifications -->
 
@@ -249,12 +249,12 @@
 <script src="{{ asset('js/elementui.js') }}"></script>
 
 <!-- fix select search-->
-<script src="{{ mix('js/vue-router.js') }}"></script>
-<script src="{{ mix('js/plugins/vee-validate.js') }}" type="text/javascript"></script>
-<script src="{{ mix('js/validation-rules.js') }}" type="text/javascript"></script>
+@vite('resources/js/vue-router.js')
+@vite('resources/js/plugins/vee-validate.js')
+@vite('resources/js/validation-rules.js')
 <!--  -->
 
-<script src="{{ mix('js/axios.min.js') }}"></script>
+@vite('resources/js/axios.min.js')
 <script src="{{ asset('js/ru-RU.js') }}"></script>
 
 {{-- <!-- import FontAwesome (fresh version of icons) -->

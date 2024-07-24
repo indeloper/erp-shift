@@ -3,16 +3,8 @@
 <head>
     <meta charset="utf-8">
     <title>Коммерческое предложение</title>
-    <link
-            rel="apple-touch-icon"
-            sizes="76x76"
-            href="{{ mix('img/apple-icon.png') }}"
-    >
-    <link
-            rel="icon"
-            type="image/ico"
-            href="{{ mix('img/favicon.ico') }}"
-    >
+    @vite('resources/img/apple-icon.png')
+    @vite('resources/img/favicon.ico')
     <meta
             http-equiv="X-UA-Compatible"
             content="IE=edge,chrome=1"
@@ -22,10 +14,7 @@
             name='viewport'
     />
     <!-- CSS Files -->
-    <link
-            href="{{ mix('css/offer.css') }}"
-            rel="stylesheet"
-    />
+    @vite('resources/css/offer.css')
     <link
             href="https://fonts.googleapis.com/css?family=Lora|PT+Sans&display=swap"
             rel="stylesheet"

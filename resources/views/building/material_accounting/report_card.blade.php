@@ -5,7 +5,7 @@
 @section('url', '')
 
 @section('css_top')
-<link href="{{ mix('css/jquery-ui.min.css') }}" rel="stylesheet" />
+@vite('resources/css/jquery-ui.min.css')
 <style>
     .el-select {width: 100%}
     .el-date-editor.el-input {width: inherit;}
@@ -718,7 +718,7 @@
 @endsection
 
 @section('js_footer')
-<script src="{{ mix('js/plugins/jquery-ui.min.js') }}"></script>
+@vite('resources/js/plugins/jquery-ui.min.js')
 <script type="text/javascript">
     Vue.component('validation-provider', VeeValidate.ValidationProvider);
     Vue.component('validation-observer', VeeValidate.ValidationObserver);

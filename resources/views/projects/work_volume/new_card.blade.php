@@ -2069,7 +2069,7 @@
 @section('js_footer')
     <meta name="csrf-token" content="{{ csrf_token() }}" />
 
-    <script src="{{ mix('js/plugins/jquery.steps.min.js') }}"></script>
+    @vite('resources/js/plugins/jquery.steps.min.js')
 
     <script type="text/javascript">
         function checkCheckboxes() {

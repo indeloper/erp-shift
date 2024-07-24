@@ -1,1 +1,1 @@
-require('./components/list/list')
+import './components/list/list'

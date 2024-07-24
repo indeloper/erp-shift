@@ -1,5 +1,5 @@
-require('./components/header/header')
+import './components/header/header'
 
-require('./components/menu/menu')
+import './components/menu/menu'
 
-require('./components/footer/footer')
+import './components/footer/footer'

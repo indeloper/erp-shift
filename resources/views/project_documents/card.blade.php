@@ -213,7 +213,7 @@
 @endsection
 
 @section('js_footer')
-<script src="{{ mix('js/form-validation.js') }}" type="text/javascript"></script>
+@vite('resources/js/form-validation.js')
 
 <script>
     function updateDocId(id) {

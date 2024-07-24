@@ -5,7 +5,7 @@
 @section('url', route('projects::index'))
 
 @section('css_top')
-<link href="{{ mix('css/projects.css') }}" rel="stylesheet" />
+@vite('resources/css/projects.css')
 <style>
     .rTable {
         display: table;
@@ -1347,7 +1347,7 @@
 @endsection
 
 @push('js_footer')
-<script src="{{ mix('js/form-validation.js') }}" type="text/javascript"></script>
+@vite('resources/js/form-validation.js')
 <script src="{{ asset('js/plugins/jquery.mask.min.js') }}"></script>
 <script type="text/javascript">
     Vue.component('validation-provider', VeeValidate.ValidationProvider);

@@ -5,7 +5,7 @@
 @section('url', route('projects::card', $commercial_offer->project_id))
 
 @section('css_top')
-<link href="{{ mix('css/projects.css') }}" rel="stylesheet" />
+@vite('resources/css/projects.css')
 @endsection
 
 @section('content')

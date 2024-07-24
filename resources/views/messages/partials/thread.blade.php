@@ -589,4 +589,4 @@
     }
 </script>
 <!-- General JS Scripts -->
-<script src="{{ mix('js/plugins/jquery-nicescroll.min.js') }}"></script>
+@vite('resources/js/plugins/jquery-nicescroll.min.js')
