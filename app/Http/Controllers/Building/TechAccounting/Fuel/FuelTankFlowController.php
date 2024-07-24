@@ -26,25 +26,25 @@ class FuelTankFlowController extends StandardEntityResourceController
     {
         parent::__construct();
 
-        $this->baseModel               = new FuelTankFlow();
-        $this->routeNameFixedPart      = 'building::tech_acc::fuel::fuelFlow::';
-        $this->sectionTitle            = 'Топливный журнал';
-        $this->baseBladePath           = resource_path()
+        $this->baseModel = new FuelTankFlow();
+        $this->routeNameFixedPart = 'building::tech_acc::fuel::fuelFlow::';
+        $this->sectionTitle = 'Топливный журнал';
+        $this->baseBladePath = resource_path()
             .'/views/tech_accounting/fuel/tanks/flow';
-        $this->componentsPath          = $this->baseBladePath
+        $this->componentsPath = $this->baseBladePath
             .'/desktop/components';
-        $this->storage_name            = 'fuel_flow';
-        $this->components              = $this->getModuleComponents();
+        $this->storage_name = 'fuel_flow';
+        $this->components = $this->getModuleComponents();
         $this->modulePermissionsGroups = [17];
-        $this->ignoreDataKeys[]        = 'third_party_mark';
-        $this->ignoreDataKeys[]        = 'fuelConsumerType';
+        $this->ignoreDataKeys[] = 'third_party_mark';
+        $this->ignoreDataKeys[] = 'fuelConsumerType';
     }
 
     public function index(Request $request)
     {
         $options = json_decode($request['data']);
 
-        if ( ! empty($options->group)) {
+        if (!empty($options->group)) {
             $groups = $this->handleCustomGroupResponse($options);
 
             return json_encode([
@@ -53,23 +53,23 @@ class FuelTankFlowController extends StandardEntityResourceController
                 JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
         }
 
-        if ( ! empty($options->sort)) {
+        if (!empty($options->sort)) {
             $options->sort[0]->selector = 'event_date';
         }
 
         // TODO Временная заглушка. До лучшего рефакторинга
-        foreach ($options->filter as $key => $sort) {
-            if ($sort[0] === 'responsible_id') {
-                $options->filter[$key][0] = 'fuel_tank_flows.responsible_id';
-            }
-
-            if (is_array($sort[0])) {
-                if ($sort[0][0] === 'responsible_id') {
-                    $options->filter[$key][0][0]
-                        = 'fuel_tank_flows.responsible_id';
-                }
-            }
-        }
+//        foreach ($options->filter as $key => $sort) {
+//            if ($sort[0] === 'responsible_id') {
+//                $options->filter[$key][0] = 'fuel_tank_flows.responsible_id';
+//            }
+//
+//            if (is_array($sort[0])) {
+//                if ($sort[0][0] === 'responsible_id') {
+//                    $options->filter[$key][0][0]
+//                        = 'fuel_tank_flows.responsible_id';
+//                }
+//            }
+//        }
 
         $entities = $this->baseModel
             ->dxLoadOptions($options)
@@ -79,7 +79,7 @@ class FuelTankFlowController extends StandardEntityResourceController
             // ->when(!User::find(Auth::user()->id)->hasPermission('adjust_fuel_tank_remains'), function($query) {
             //     return $query->where('fuel_tank_flow_type_id', '<>', FuelTankFlowType::where('slug', 'adjustment')->first()->id);
             // })
-            ->when(! User::find(Auth::user()->id)
+            ->when(!User::find(Auth::user()->id)
                 ->hasPermission('watch_any_fuel_tank_flows'),
                 function ($query) {
                     return $query->where('fuel_tank_flows.responsible_id',
@@ -102,7 +102,7 @@ class FuelTankFlowController extends StandardEntityResourceController
             // ->when(!User::find(Auth::user()->id)->hasPermission('adjust_fuel_tank_remains'), function($query) {
             //     return $query->where('fuel_tank_flow_type_id', '<>', FuelTankFlowType::where('slug', 'adjustment')->first()->id);
             // })
-            ->when(! User::find(Auth::user()->id)
+            ->when(!User::find(Auth::user()->id)
                 ->hasPermission('watch_any_fuel_tank_flows'),
                 function ($query) {
                     return $query->where('responsible_id', Auth::user()->id);
@@ -120,11 +120,11 @@ class FuelTankFlowController extends StandardEntityResourceController
         $groups = [];
         foreach ($groupsData as $groupArr) {
             $groups[] = [
-                'count'   => $groupArr->qty,
-                'key'     => 'event_date',
-                'items'   => null,
+                'count' => $groupArr->qty,
+                'key' => 'event_date',
+                'items' => null,
                 'summary' => [
-                    'year'  => $groupArr->y,
+                    'year' => $groupArr->y,
                     'month' => $groupArr->m,
                 ],
             ];
@@ -155,12 +155,12 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function afterStore($entity, $data, $dataToStore)
     {
-        if ( ! empty($data['newAttachments'])) {
+        if (!empty($data['newAttachments'])) {
             (new FilesUploadService())->attachFiles($entity,
                 $data['newAttachments']);
         }
 
-        if ( ! empty($data['deletedAttachments'])) {
+        if (!empty($data['deletedAttachments'])) {
             $this->deleteFiles($data['deletedAttachments']);
         }
 
@@ -168,8 +168,8 @@ class FuelTankFlowController extends StandardEntityResourceController
                 'simultaneous_income_outcome')->first()->id
         ) {
             (new FuelFlowCrudService('stored', [
-                'entity'      => $entity,
-                'data'        => $data,
+                'entity' => $entity,
+                'data' => $data,
                 'dataToStore' => $dataToStore,
             ]));
         }
@@ -182,11 +182,11 @@ class FuelTankFlowController extends StandardEntityResourceController
         ) {
             (new FuelFlowCrudService('updated', [
                 'entity' => $entity,
-                'data'   => $data,
+                'data' => $data,
             ]));
         }
 
-        $data['our_technic_id']       = $data['our_technic_id'] ?? null;
+        $data['our_technic_id'] = $data['our_technic_id'] ?? null;
         $data['third_party_consumer'] = $data['third_party_consumer'] ?? null;
 
         return [
@@ -207,7 +207,7 @@ class FuelTankFlowController extends StandardEntityResourceController
 
     public function getFuelFlowResponsibleAndObject($tank)
     {
-        if ( ! $tank->awaiting_confirmation) {
+        if (!$tank->awaiting_confirmation) {
             return [$tank->responsible_id, $tank->object_id];
         }
 
