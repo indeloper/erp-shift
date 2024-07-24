@@ -10,15 +10,13 @@ use Illuminate\Support\Facades\DB;
 
 class EmployeesController extends Controller
 {
+
     /**
      * Display a view of the resource.
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response\Illuminate\View\View
      */
-    public function index()
-    {
-
-    }
+    public function index() {}
 
     /**
      * Returns the JSON of data.
@@ -32,8 +30,10 @@ class EmployeesController extends Controller
         return (new Employee())
             ->dxLoadOptions($loadOptions)
             ->leftJoin('companies', 'employees.company_id', '=', 'companies.id')
-            ->leftJoin('employees_1c_posts', 'employees.employee_1c_post_id', '=', 'employees_1c_posts.id')
+            ->leftJoin('employees_1c_posts', 'employees.employee_1c_post_id',
+                '=', 'employees_1c_posts.id')
             ->orderBy('employee_1c_name')
+            ->where('dismissal_date', '<>', '0000-00-00')
             ->get(
                 [
                     'employees.id',
@@ -50,8 +50,6 @@ class EmployeesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request): JsonResponse
-    {
+    public function update(Request $request): JsonResponse {}
 
-    }
 }
