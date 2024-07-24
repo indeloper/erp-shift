@@ -566,10 +566,7 @@
 
     </script>
 
-    <script
-            src="{{ mix('js/form-validation.js') }}"
-            type="text/javascript"
-    ></script>
+    @vite('resources/js/form-validation.js')
     <script>
       $('#js-select-user').select2({
         language: 'ru',

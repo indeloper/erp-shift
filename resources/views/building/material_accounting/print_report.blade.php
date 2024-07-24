@@ -2,12 +2,12 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <link rel="apple-touch-icon" sizes="76x76" href="{{ mix('img/apple-icon.png') }}">
-        <link rel="icon" type="image/ico" href="{{ mix('img/favicon.ico') }}">
+        @vite('resources/img/apple-icon.png')
+        @vite('resources/img/favicon.ico')
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
         <!-- CSS Files -->
-        <link href="{{ mix('css/mat_acc_report.css') }}" rel="stylesheet" />
+        @vite('resources/css/mat_acc_report.css')
         <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap" rel="stylesheet">
       </head>
     <style type="text/css" media="print">

@@ -536,7 +536,7 @@
 @endsection
 
 @section('js_footer')
-<script src="{{ mix('js/form-validation.js') }}" type="text/javascript"></script>
+@vite('resources/js/form-validation.js')
 <script src="{{ asset('js/plugins/jquery.mask.min.js') }}"></script>
 
 <script>

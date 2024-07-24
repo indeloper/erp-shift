@@ -1251,7 +1251,7 @@
     <!-- end modals -->
 @endsection
 @section('js_footer')
-    <script src="{{ mix('js/video.js') }}"></script>
+    @vite('resources/js/video.js')
     <script type="text/javascript">
         Vue.component('validation-provider', VeeValidate.ValidationProvider);
         Vue.component('validation-observer', VeeValidate.ValidationObserver);

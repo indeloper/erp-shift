@@ -5,7 +5,7 @@
 @section('url', route('commercial_offers::index'))
 
 @section('css_top')
-    <link href="{{ mix('css/projects.css') }}" rel="stylesheet" />
+    @vite('resources/css/projects.css')
     <style>
         /* balloon.css tooltip styles */
         :root {
