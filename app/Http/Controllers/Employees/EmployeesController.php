@@ -33,7 +33,7 @@ class EmployeesController extends Controller
             ->leftJoin('employees_1c_posts', 'employees.employee_1c_post_id',
                 '=', 'employees_1c_posts.id')
             ->orderBy('employee_1c_name')
-            ->where('dismissal_date', '<>', '0000-00-00')
+            ->whereRaw('UNIX_TIMESTAMP(`dismissal_date`) is null')
             ->get(
                 [
                     'employees.id',
