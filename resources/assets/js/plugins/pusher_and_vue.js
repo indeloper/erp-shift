@@ -1,7 +1,8 @@
 
 // window.Pusher = require('pusher-js');
 
-window.Vue = require('vue');
+import Vue from 'vue';
+window.Vue = Vue;
 
 // window.Echo = new Echo({
 //     broadcaster: 'pusher',
