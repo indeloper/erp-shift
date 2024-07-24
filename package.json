@@ -1,13 +1,9 @@
 {
     "private": true,
     "scripts": {
-        "dev": "mix",
-        "development": "mix",
-        "watch": "mix watch",
-        "watch-poll": "mix watch -- --watch-options-poll=1000",
-        "hot": "mix watch --hot",
+        "dev": "vite",
         "prod": "mix --production",
-        "production": "mix --production"
+        "build": "vite build"
     },
     "devDependencies": {
         "resolve-url-loader": "^5.0.0",
